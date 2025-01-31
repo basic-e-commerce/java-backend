@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "user_type",discriminatorType = DiscriminatorType.STRING)
 public abstract class User implements UserDetails {
     @Id
@@ -37,13 +37,12 @@ public abstract class User implements UserDetails {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean accountNonLocked;
 
-    public User(String firstName, String lastName, String username, String password, Set<Roles> authorities, LocalDateTime createDate, boolean enabled, boolean accountNonLocked) {
+    public User(String firstName, String lastName, String username, String password, Set<Roles> authorities, boolean enabled, boolean accountNonLocked) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
-        this.createDate = createDate;
         this.enabled = enabled;
         this.accountNonLocked = accountNonLocked;
     }
