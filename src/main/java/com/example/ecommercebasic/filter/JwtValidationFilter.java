@@ -70,6 +70,8 @@ public class JwtValidationFilter extends OncePerRequestFilter {
     private Authentication createAuthentication(Claims claims, HttpServletRequest request) {
         String username = claims.getSubject();
         User user = userService.getUserByUsername(username);
+        System.out.println("user auth:");
+        user.getAuthorities().forEach(x->System.out.println(x.getAuthority()));
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 username,

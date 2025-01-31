@@ -10,18 +10,13 @@ import java.util.Set;
 
 @Component
 public class CustomerBuilder {
-    private final PasswordEncoder passwordEncoder;
-
-    public CustomerBuilder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public Customer CustomerRequestDtoToCustomer(CustomerRequestDto customerRequestDto) {
         return new Customer(
                 customerRequestDto.getFirstName(),
                 customerRequestDto.getLastName(),
                 customerRequestDto.getUsername(),
-                passwordEncoder.encode(customerRequestDto.getPassword()),
+                customerRequestDto.getPassword(),
                 Set.of(Roles.ROLE_CUSTOMER),
                 false,
                 false

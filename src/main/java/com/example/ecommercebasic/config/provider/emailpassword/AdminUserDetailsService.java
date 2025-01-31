@@ -1,30 +1,30 @@
 package com.example.ecommercebasic.config.provider.emailpassword;
 
+import com.example.ecommercebasic.entity.user.Admin;
 import com.example.ecommercebasic.entity.user.Customer;
-import com.example.ecommercebasic.entity.user.User;
+import com.example.ecommercebasic.service.user.AdminService;
 import com.example.ecommercebasic.service.user.CustomerService;
-import com.example.ecommercebasic.service.user.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomUserDetailsService implements UserDetailsService {
-    private final UserService userService;
+public class AdminUserDetailsService implements UserDetailsService {
+    private final AdminService adminService;
 
-    public CustomUserDetailsService( UserService userService) {
-        this.userService = userService;
+    public AdminUserDetailsService(AdminService adminService) {
+        this.adminService = adminService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.getUserByUsername(username);
+        Admin admin = adminService.findByUsername(username);
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.getAuthorities()
+                admin.getUsername(),
+                admin.getPassword(),
+                admin.getAuthorities()
         );
     }
 

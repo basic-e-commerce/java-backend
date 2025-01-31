@@ -10,19 +10,15 @@ import java.util.Set;
 
 @Component
 public class AdminBuilder {
-    private final PasswordEncoder passwordEncoder;
 
-    public AdminBuilder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public Admin AdminRequestDtoToAdmin(AdminRequestDto adminRequestDto) {
         return new Admin(
                 adminRequestDto.getFirstName(),
                 adminRequestDto.getLastName(),
                 adminRequestDto.getUsername(),
-                passwordEncoder.encode(adminRequestDto.getPassword()),
-                Set.of(Roles.ROLE_CUSTOMER),
+                adminRequestDto.getPassword(),
+                Set.of(Roles.ROLE_ADMIN),
                 false,
                 false
         );

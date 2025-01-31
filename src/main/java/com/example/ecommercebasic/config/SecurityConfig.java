@@ -2,6 +2,7 @@ package com.example.ecommercebasic.config;
 
 import com.example.ecommercebasic.config.provider.emailpassword.CustomUserDetailsService;
 import com.example.ecommercebasic.config.provider.emailpassword.UsernamePasswordAuthenticationProvider;
+import com.example.ecommercebasic.entity.user.Roles;
 import com.example.ecommercebasic.filter.JwtValidationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +14,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +42,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x->x
+                        .requestMatchers(HttpMethod.GET,"/api/v1/product/secure").hasAuthority(Roles.ROLE_CUSTOMER.getAuthority())
+                        .requestMatchers(HttpMethod.GET,"/api/v1/product/not-secure").permitAll()
                         .anyRequest().permitAll())
                 .cors(cors->cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class)
