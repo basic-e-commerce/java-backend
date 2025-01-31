@@ -7,7 +7,7 @@ import java.util.Map;
 
 public enum Roles implements GrantedAuthority {
     ROLE_CUSTOMER("CUSTOMER"),
-    ROLE_ADMIN("ADMIN");
+    ROLE_ADMIN("ADMIN"), ROLE_GUEST("GUEST");
 
     private static final Map<String, Roles> ROLE_MAP = new HashMap<>();
 
