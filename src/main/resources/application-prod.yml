@@ -43,3 +43,6 @@ jwt:
   secret: C2VB987vxNVXvn543xVvxmVX7BCVM432NxvbvbnVXncm
   jwtheader: Authorization
 
+regex:
+  email: ^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$
+  password: ^(?=.*[A-Z]).{8,}$

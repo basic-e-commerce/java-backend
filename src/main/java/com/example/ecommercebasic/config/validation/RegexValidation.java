@@ -2,6 +2,7 @@ package com.example.ecommercebasic.config.validation;
 
 import com.example.ecommercebasic.constant.ApplicationConstant;
 import com.example.ecommercebasic.exception.InvalidFormatException;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,10 +10,15 @@ import java.util.regex.Pattern;
 
 public class RegexValidation {
 
+    @Value("${regex.email}")
+    public static String emailRegex;
+    @Value("${regex.password}")
+    public static String passwordRegex;
+
 
     public static boolean isValidEmail(String email){
 
-        String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        String EMAIL_REGEX = emailRegex;
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
         Matcher emailMatcher = pattern.matcher(email);
 
@@ -21,7 +27,7 @@ public class RegexValidation {
 
     public static boolean isValidPasswword(String password){
 
-        String PASSWORD_REGEX = "^(?=.*[A-Z]).{8,}$";
+        String PASSWORD_REGEX = passwordRegex;
         Pattern pattern = Pattern.compile(PASSWORD_REGEX);
         Matcher passwordMatcher = pattern.matcher(password);
 
@@ -43,17 +49,5 @@ public class RegexValidation {
         return input.matches(regex);
     }
 
-    public static boolean isEmailOrPhone(String username){
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-        String phoneNoRegex = "^\\d{10}$";
-
-        if (username.matches(emailRegex))
-            return true;
-        else if (username.matches(phoneNoRegex))
-            return false;
-        else
-            throw new InvalidFormatException(ApplicationConstant.WRONG_CREDENTIALS);
-
-    }
 
 }
