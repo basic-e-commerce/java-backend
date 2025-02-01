@@ -1,9 +1,11 @@
 package com.example.ecommercebasic.entity.user;
 
+import com.example.ecommercebasic.entity.auth.RefreshToken;
 import jakarta.persistence.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -36,6 +38,10 @@ public abstract class User implements UserDetails {
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean accountNonLocked;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<RefreshToken> refreshTokens = new HashSet<>();  // Kullanıcının refresh token'ları
+
 
     public User(String firstName, String lastName, String username, String password, Set<Roles> authorities, boolean enabled, boolean accountNonLocked) {
         this.firstName = firstName;
@@ -121,5 +127,13 @@ public abstract class User implements UserDetails {
 
     public void setAccountNonLocked(boolean accountNonLocked) {
         this.accountNonLocked = accountNonLocked;
+    }
+
+    public Set<RefreshToken> getRefreshTokens() {
+        return refreshTokens;
+    }
+
+    public void setRefreshTokens(Set<RefreshToken> refreshTokens) {
+        this.refreshTokens = refreshTokens;
     }
 }

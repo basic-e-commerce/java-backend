@@ -10,4 +10,7 @@ public class ApplicationConstant {
     public static final String BAD_REQUEST = "Bad request";
     public static final String BAD_PROVIDER = "Bad provider";
     public static final String INVALID_FORMAT = "Invalid format";
+    public static final String TOKEN_ACCESS = "Token access";
+    public static final String  TRY_LOGIN = "Try Login";
+
 }

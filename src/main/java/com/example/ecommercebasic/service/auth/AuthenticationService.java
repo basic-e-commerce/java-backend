@@ -4,9 +4,12 @@ import com.example.ecommercebasic.config.validation.RegexValidation;
 import com.example.ecommercebasic.constant.ApplicationConstant;
 import com.example.ecommercebasic.dto.user.auth.AuthenticationRequestDto;
 import com.example.ecommercebasic.dto.user.auth.AuthenticationResponseDto;
+import com.example.ecommercebasic.entity.auth.RefreshToken;
 import com.example.ecommercebasic.entity.user.Roles;
+import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.InvalidFormatException;
 import com.example.ecommercebasic.exception.NotFoundException;
+import com.example.ecommercebasic.exception.TokenExpiredException;
 import com.example.ecommercebasic.service.user.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +18,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 
 @Service
 public class AuthenticationService {
@@ -31,11 +37,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final RegexValidation regexValidation;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthenticationService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, RegexValidation regexValidation) {
+    public AuthenticationService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, RegexValidation regexValidation, RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.regexValidation = regexValidation;
+        this.refreshTokenService = refreshTokenService;
     }
 
 
@@ -64,16 +72,22 @@ public class AuthenticationService {
         String accessToken = jwtUtils.generateAccessToken(authenticatedUser.getName());
         String refreshToken = jwtUtils.generateRefreshToken(authenticatedUser.getName());
 
-        // Set-Cookie başlığı ile cookie'yi gönder
-        response.addHeader("Set-Cookie", "refresh_token=" + refreshToken
-                + "; Path=" + path
-                + "; HttpOnly"
-                + "; Secure=" + secure
-                + "; Max-Age=" + Integer.parseInt(maxAge)
-                + "; SameSite=" + sameSite); // SameSite özelliği
+        try {
+            String refreshHash = jwtUtils.hashToken(refreshToken);
+            String hash = refreshTokenService.createRefreshToken(authenticatedUser.getName(),refreshHash);
+            // Set-Cookie başlığı ile cookie'yi gönder
+            response.addHeader("Set-Cookie", "refresh_token=" + hash
+                    + "; Path=" + path
+                    + "; HttpOnly"
+                    + "; Secure=" + secure
+                    + "; Max-Age=" + Integer.parseInt(maxAge)
+                    + "; SameSite=" + sameSite);
 
+            return new AuthenticationResponseDto(accessToken);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
 
-        return new AuthenticationResponseDto(accessToken);
     }
 
     public AuthenticationResponseDto loginAdmin(AuthenticationRequestDto authenticationRequestDto,HttpServletResponse response) {
@@ -99,18 +113,30 @@ public class AuthenticationService {
         String accessToken = jwtUtils.generateAccessToken(authenticatedUser.getName());
         String refreshToken = jwtUtils.generateRefreshToken(authenticatedUser.getName());
 
-        // Set-Cookie başlığı ile cookie'yi gönder
-        response.addHeader("Set-Cookie", "refresh_token=" + refreshToken
-                + "; Path=" + path
-                + "; HttpOnly"
-                + "; Secure=" + secure
-                + "; Max-Age=" + Integer.parseInt(maxAge)
-                + "; SameSite=" + sameSite);
+        try {
+            String refreshHash = jwtUtils.hashToken(refreshToken);
+            String hash = refreshTokenService.createRefreshToken(authenticatedUser.getName(),refreshHash);
+            // Set-Cookie başlığı ile cookie'yi gönder
+            response.addHeader("Set-Cookie", "refresh_token=" + hash
+                    + "; Path=" + path
+                    + "; HttpOnly"
+                    + "; Secure=" + secure
+                    + "; Max-Age=" + Integer.parseInt(maxAge)
+                    + "; SameSite=" + sameSite);
 
-        return new AuthenticationResponseDto(accessToken);
+            return new AuthenticationResponseDto(accessToken);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public AuthenticationResponseDto refresh(String refreshToken) {
-        return new AuthenticationResponseDto(refreshToken);
+    public AuthenticationResponseDto refresh(String refreshTokenHash) {
+        RefreshToken refreshToken = refreshTokenService.getRefreshTokenHash(refreshTokenHash);
+
+        if (refreshToken.isActive() && refreshToken.getExpirationTime().isBefore(LocalDateTime.now())) {
+            return  new AuthenticationResponseDto(jwtUtils.generateAccessToken(refreshToken.getUser().getUsername()));
+        }else
+            throw new TokenExpiredException(ApplicationConstant.TRY_LOGIN);
+
     }
 }

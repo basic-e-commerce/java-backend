@@ -30,4 +30,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> InvalidFormatException(InvalidFormatException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+
+    @ExceptionHandler({TokenExpiredException.class})
+    public ResponseEntity<?> TokenExpiredException(TokenExpiredException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 }
