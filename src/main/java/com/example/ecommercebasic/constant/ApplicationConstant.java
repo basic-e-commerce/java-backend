@@ -7,4 +7,6 @@ public class ApplicationConstant {
     public static final String NOT_FOUND="Not Found";
     public static final String WRONG_CREDENTIALS = "Wrong Credentials";
     public static final String DATE_TIME_FORMATTER = "Date time formatter failed";
+    public static final String BAD_REQUEST = "Bad request";
+    public static final String BAD_PROVIDER = "Bad provider";
 }

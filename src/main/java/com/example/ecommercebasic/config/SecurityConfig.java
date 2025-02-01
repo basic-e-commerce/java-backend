@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.config;
 
-import com.example.ecommercebasic.config.provider.emailpassword.CustomUserDetailsService;
+import com.example.ecommercebasic.config.provider.emailpassword.AdminUserDetailsService;
+import com.example.ecommercebasic.config.provider.emailpassword.CustomerUserDetailsService;
 import com.example.ecommercebasic.config.provider.emailpassword.UsernamePasswordAuthenticationProvider;
 import com.example.ecommercebasic.entity.user.Roles;
 import com.example.ecommercebasic.filter.JwtValidationFilter;
@@ -29,11 +30,13 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
     private final JwtValidationFilter jwtValidationFilter;
-    private final CustomUserDetailsService customUserDetailService;
+    private final CustomerUserDetailsService customUserDetailService;
+    private final AdminUserDetailsService adminUserDetailService;
 
-    public SecurityConfig(JwtValidationFilter jwtValidationFilter, CustomUserDetailsService customUserDetailService) {
+    public SecurityConfig(JwtValidationFilter jwtValidationFilter, CustomerUserDetailsService customUserDetailService, AdminUserDetailsService adminUserDetailService) {
         this.jwtValidationFilter = jwtValidationFilter;
         this.customUserDetailService = customUserDetailService;
+        this.adminUserDetailService = adminUserDetailService;
     }
 
     @Bean
@@ -71,7 +74,7 @@ public class SecurityConfig {
 
         // Özel AuthenticationProvider'larınızı oluşturun
         List<AuthenticationProvider> customProviders = List.of(
-                new UsernamePasswordAuthenticationProvider(customUserDetailService, passwordEncoder())
+                new UsernamePasswordAuthenticationProvider(customUserDetailService,adminUserDetailService, passwordEncoder())
         );
 
         // Özel provider'lar ile bir ProviderManager oluştur
@@ -90,7 +93,7 @@ public class SecurityConfig {
 
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public static PasswordEncoder passwordEncoder() {  // circular bağımlılık oldugu için static yaparak ilk başta yüklenmesinşi sağladık26
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 

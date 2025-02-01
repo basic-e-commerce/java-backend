@@ -10,21 +10,22 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomUserDetailsService implements UserDetailsService {
-    private final UserService userService;
+public class CustomerUserDetailsService implements UserDetailsService {
+    private final CustomerService customerService;
 
-    public CustomUserDetailsService( UserService userService) {
-        this.userService = userService;
+    public CustomerUserDetailsService( CustomerService customerService) {
+        this.customerService = customerService;
+
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.getUserByUsername(username);
+        Customer customer = customerService.findByUsername(username);
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.getAuthorities()
+                customer.getUsername(),
+                customer.getPassword(),
+                customer.getAuthorities()
         );
     }
 

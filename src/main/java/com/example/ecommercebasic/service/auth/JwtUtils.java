@@ -5,6 +5,7 @@ import com.example.ecommercebasic.constant.ApplicationConstant;
 import com.example.ecommercebasic.exception.InvalidFormatException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -14,11 +15,17 @@ import java.util.Date;
 
 @Service
 public class JwtUtils {
-    private static final String SECRET_KEY = ApplicationConstant.JWT_SECRET_DEFAULT_VALUE;
+
+    @Value("${jwt.secret}")
+    private  String SECRET_KEY;
+
     private static final String TOKEN_PREFIX = "Bearer ";
-    private static final String HEADER_STRING = ApplicationConstant.JWT_HEADER;
+
+    @Value("${jwt.accessExp}")
     private static final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000; // 15 dakika
-    private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7 gün
+
+    @Value("${jwt.refreshAge}")
+    private long REFRESH_TOKEN_EXPIRATION; // 7 gün
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

@@ -1,6 +1,8 @@
 package com.example.ecommercebasic.config.provider.emailpassword;
 
 import com.example.ecommercebasic.constant.ApplicationConstant;
+import com.example.ecommercebasic.entity.user.Roles;
+import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.UnAuthorizedException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,11 +12,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomerUserDetailsService userDetailsService;
+    private final AdminUserDetailsService adminUserDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    public UsernamePasswordAuthenticationProvider(CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public UsernamePasswordAuthenticationProvider(CustomerUserDetailsService userDetailsService, AdminUserDetailsService adminUserDetailsService, PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
+        this.adminUserDetailsService = adminUserDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -22,8 +26,16 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails;
+        if (authentication instanceof UsernamePasswordAuthenticationToken) {
+            if (authentication.getDetails()== Roles.ROLE_ADMIN)
+                userDetails = adminUserDetailsService.loadUserByUsername(username);
+            else if (authentication.getDetails() == Roles.ROLE_CUSTOMER)
+                userDetails = userDetailsService.loadUserByUsername(username);
+            else
+                throw new BadRequestException(ApplicationConstant.BAD_REQUEST);
+        }else
+            throw new BadRequestException(ApplicationConstant.BAD_PROVIDER);
 
 
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {

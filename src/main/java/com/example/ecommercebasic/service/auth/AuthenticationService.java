@@ -8,6 +8,9 @@ import com.example.ecommercebasic.entity.user.Roles;
 import com.example.ecommercebasic.exception.InvalidFormatException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.service.user.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +18,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticationService {
+
+    @Value("${cookie.refreshTokenCookie.secure}")
+    private boolean secure;
+    @Value("${cookie.refreshTokenCookie.sameSite}")
+    private String sameSite;
+    @Value("${cookie.refreshTokenCookie.path}")
+    private String path;
+    @Value("${cookie.refreshTokenCookie.refreshmaxAge}")
+    private String maxAge;
+
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
@@ -24,7 +37,7 @@ public class AuthenticationService {
     }
 
 
-    public AuthenticationResponseDto loginCustomer(AuthenticationRequestDto authenticationRequestDto) {
+    public AuthenticationResponseDto loginCustomer(AuthenticationRequestDto authenticationRequestDto, HttpServletResponse response) {
         /*
         // Giriş bilgilerinin formatını kontrol et
         if (!(RegexValidation.isValidEmail(authenticationRequestDto.getUsername()) && RegexValidation.isValidPasswword(authenticationRequestDto.getPassword()))) {
@@ -49,7 +62,16 @@ public class AuthenticationService {
         String accessToken = jwtUtils.generateAccessToken(authenticatedUser.getName());
         String refreshToken = jwtUtils.generateRefreshToken(authenticatedUser.getName());
 
-        return new AuthenticationResponseDto(accessToken, refreshToken);
+        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath(path); // Yalnızca bu endpoint'e gönderilecek
+        refreshTokenCookie.setMaxAge(Integer.parseInt(maxAge)); // 7 gün boyunca geçerli
+        refreshTokenCookie.setSecure(secure); // Geliştirme aşamasında olduğu için false
+
+        response.addCookie(refreshTokenCookie);
+        response.addHeader("Set-Cookie", "refresh_token=" + refreshToken + "; Path=/api/v1/auth/refresh; HttpOnly; Secure=false; SameSite="+sameSite);
+
+        return new AuthenticationResponseDto(accessToken);
     }
 
     public AuthenticationResponseDto loginAdmin(AuthenticationRequestDto authenticationRequestDto) {
@@ -71,6 +93,10 @@ public class AuthenticationService {
         String accessToken = jwtUtils.generateAccessToken(authenticatedUser.getName());
         String refreshToken = jwtUtils.generateRefreshToken(authenticatedUser.getName());
 
-        return new AuthenticationResponseDto(accessToken, refreshToken);
+        return new AuthenticationResponseDto(accessToken);
+    }
+
+    public AuthenticationResponseDto refresh(String refreshToken) {
+        return new AuthenticationResponseDto(refreshToken);
     }
 }
