@@ -25,8 +25,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/a-login")
-    public ResponseEntity<AuthenticationResponseDto> loginAdmin(@RequestBody AuthenticationRequestDto authenticationRequestDto){
-        return new ResponseEntity<>(authenticationService.loginAdmin(authenticationRequestDto), HttpStatus.OK);
+    public ResponseEntity<AuthenticationResponseDto> loginAdmin(@RequestBody AuthenticationRequestDto authenticationRequestDto,HttpServletResponse response) {
+        return new ResponseEntity<>(authenticationService.loginAdmin(authenticationRequestDto,response), HttpStatus.OK);
     }
 
     @PostMapping("/refresh")
@@ -37,5 +37,15 @@ public class AuthenticationController {
     @PostMapping("/ref")
     public ResponseEntity<String> ref(@CookieValue(name = "refresh_token")String refreshToken){
         return new ResponseEntity<>("send ref: "+refreshToken,HttpStatus.OK);
+    }
+
+    @GetMapping("/c")
+    public ResponseEntity<String> c(){
+        return new ResponseEntity<>("customer",HttpStatus.OK);
+    }
+
+    @GetMapping("/a")
+    public ResponseEntity<String> a(){
+        return new ResponseEntity<>("admin",HttpStatus.OK);
     }
 }

@@ -9,4 +9,5 @@ public class ApplicationConstant {
     public static final String DATE_TIME_FORMATTER = "Date time formatter failed";
     public static final String BAD_REQUEST = "Bad request";
     public static final String BAD_PROVIDER = "Bad provider";
+    public static final String INVALID_FORMAT = "Invalid format";
 }

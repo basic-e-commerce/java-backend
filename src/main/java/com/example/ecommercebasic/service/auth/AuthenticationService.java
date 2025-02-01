@@ -30,19 +30,21 @@ public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final RegexValidation regexValidation;
 
-    public AuthenticationService(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+    public AuthenticationService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, RegexValidation regexValidation) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
+        this.regexValidation = regexValidation;
     }
 
 
     public AuthenticationResponseDto loginCustomer(AuthenticationRequestDto authenticationRequestDto, HttpServletResponse response) {
-        /*
+
         // Giriş bilgilerinin formatını kontrol et
-        if (!(RegexValidation.isValidEmail(authenticationRequestDto.getUsername()) && RegexValidation.isValidPasswword(authenticationRequestDto.getPassword()))) {
-            throw new InvalidFormatException("Geçersiz format");
-        }*/
+        if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPasswword(authenticationRequestDto.getPassword())) {
+            throw new InvalidFormatException(ApplicationConstant.INVALID_FORMAT);
+        }
 
         // Authentication nesnesi oluşturuluyor
         UsernamePasswordAuthenticationToken authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
@@ -55,27 +57,31 @@ public class AuthenticationService {
         Authentication authenticatedUser = authenticationManager.authenticate(authenticationRequest);
 
         // Eğer kullanıcı doğrulanamazsa hata fırlat
-        if (!authenticatedUser.isAuthenticated()) {
+        if (!authenticatedUser.isAuthenticated())
             throw new NotFoundException(ApplicationConstant.WRONG_CREDENTIALS);
-        }
+
 
         String accessToken = jwtUtils.generateAccessToken(authenticatedUser.getName());
         String refreshToken = jwtUtils.generateRefreshToken(authenticatedUser.getName());
 
-        Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath(path); // Yalnızca bu endpoint'e gönderilecek
-        refreshTokenCookie.setMaxAge(Integer.parseInt(maxAge)); // 7 gün boyunca geçerli
-        refreshTokenCookie.setSecure(secure); // Geliştirme aşamasında olduğu için false
+        // Set-Cookie başlığı ile cookie'yi gönder
+        response.addHeader("Set-Cookie", "refresh_token=" + refreshToken
+                + "; Path=" + path
+                + "; HttpOnly"
+                + "; Secure=" + secure
+                + "; Max-Age=" + Integer.parseInt(maxAge)
+                + "; SameSite=" + sameSite); // SameSite özelliği
 
-        response.addCookie(refreshTokenCookie);
-        response.addHeader("Set-Cookie", "refresh_token=" + refreshToken + "; Path=/api/v1/auth/refresh; HttpOnly; Secure=false; SameSite="+sameSite);
 
         return new AuthenticationResponseDto(accessToken);
     }
 
-    public AuthenticationResponseDto loginAdmin(AuthenticationRequestDto authenticationRequestDto) {
-        // Authentication nesnesi oluşturuluyor
+    public AuthenticationResponseDto loginAdmin(AuthenticationRequestDto authenticationRequestDto,HttpServletResponse response) {
+        // Giriş bilgilerinin formatını kontrol et
+        if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPasswword(authenticationRequestDto.getPassword())) {
+            throw new InvalidFormatException(ApplicationConstant.INVALID_FORMAT);
+        }
+
         // Authentication nesnesi oluşturuluyor
         UsernamePasswordAuthenticationToken authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
                 authenticationRequestDto.getUsername(),
@@ -86,12 +92,20 @@ public class AuthenticationService {
         Authentication authenticatedUser = authenticationManager.authenticate(authenticationRequest);
 
         // Eğer kullanıcı doğrulanamazsa hata fırlat
-        if (!authenticatedUser.isAuthenticated()) {
+        if (!authenticatedUser.isAuthenticated())
             throw new NotFoundException(ApplicationConstant.WRONG_CREDENTIALS);
-        }
+
 
         String accessToken = jwtUtils.generateAccessToken(authenticatedUser.getName());
         String refreshToken = jwtUtils.generateRefreshToken(authenticatedUser.getName());
+
+        // Set-Cookie başlığı ile cookie'yi gönder
+        response.addHeader("Set-Cookie", "refresh_token=" + refreshToken
+                + "; Path=" + path
+                + "; HttpOnly"
+                + "; Secure=" + secure
+                + "; Max-Age=" + Integer.parseInt(maxAge)
+                + "; SameSite=" + sameSite);
 
         return new AuthenticationResponseDto(accessToken);
     }

@@ -44,5 +44,5 @@ jwt:
   jwtheader: Authorization
 
 regex:
-  email: .
-  password: .
+  email: "^[^\0]*@[^\0]*$"
+  password: "^[^\0]*@[^\0]*$"

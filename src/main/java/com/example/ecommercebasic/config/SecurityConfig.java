@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .sessionManagement(x->x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x->x
                         .requestMatchers(HttpMethod.GET,"/api/v1/product/secure").hasAuthority(Roles.ROLE_CUSTOMER.getAuthority())
+                        .requestMatchers(HttpMethod.GET,"/api/v1/auth/a").hasAuthority(Roles.ROLE_ADMIN.getAuthority())
+                        .requestMatchers(HttpMethod.GET,"/api/v1/auth/c").hasAuthority(Roles.ROLE_CUSTOMER.getAuthority())
                         .requestMatchers(HttpMethod.GET,"/api/v1/product/not-secure").permitAll()
                         .anyRequest().permitAll())
                 .cors(cors->cors.configurationSource(corsConfigurationSource()))

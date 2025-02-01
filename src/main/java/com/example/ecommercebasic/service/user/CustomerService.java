@@ -19,19 +19,21 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerBuilder customerBuilder;
     private final PasswordEncoder passwordEncoder;
+    private final RegexValidation regexValidation;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerBuilder customerBuilder, PasswordEncoder passwordEncoder) {
+    public CustomerService(CustomerRepository customerRepository, CustomerBuilder customerBuilder, PasswordEncoder passwordEncoder, RegexValidation regexValidation) {
         this.customerRepository = customerRepository;
         this.customerBuilder = customerBuilder;
         this.passwordEncoder = passwordEncoder;
+        this.regexValidation = regexValidation;
     }
 
     public String createCustomer(CustomerRequestDto customerRequestDto) {
 
-        if (!RegexValidation.isValidEmail(customerRequestDto.getUsername()))
+        if (!regexValidation.isValidEmail(customerRequestDto.getUsername()))
             throw new InvalidFormatException("Invalid email address");
 
-        if (!RegexValidation.isValidPasswword(customerRequestDto.getPassword()))
+        if (!regexValidation.isValidPasswword(customerRequestDto.getPassword()))
             throw new InvalidFormatException("Invalid password");
 
         if (existByUsername(customerRequestDto.getUsername()))
