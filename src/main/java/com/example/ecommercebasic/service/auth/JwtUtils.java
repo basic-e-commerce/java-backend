@@ -82,7 +82,8 @@ public class JwtUtils {
                     .parseClaimsJws(token)
                     .getBody(); // Token'in payload kısmını döndürür.
         }catch (ExpiredJwtException e){
-            throw new InvalidFormatException("Token is expired");
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 
