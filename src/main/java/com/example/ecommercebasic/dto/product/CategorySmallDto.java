@@ -6,11 +6,13 @@ import java.util.List;
 public class CategorySmallDto {
     private int id;
     private String name;
+    private String url;
     private List<CategorySmallDto> subCategories;
 
-    public CategorySmallDto(int id, String name, List<CategorySmallDto> subCategories) {
+    public CategorySmallDto(int id, String name, String url, List<CategorySmallDto> subCategories) {
         this.id = id;
         this.name = name;
+        this.url = url;
         this.subCategories = subCategories;
     }
 
@@ -36,5 +38,13 @@ public class CategorySmallDto {
 
     public void setSubCategories(List<CategorySmallDto> subCategories) {
         this.subCategories = subCategories;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

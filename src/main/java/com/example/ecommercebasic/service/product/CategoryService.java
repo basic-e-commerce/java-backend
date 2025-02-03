@@ -4,9 +4,12 @@ import com.example.ecommercebasic.builder.product.CategoryBuilder;
 import com.example.ecommercebasic.dto.product.CategoryRequestDto;
 import com.example.ecommercebasic.dto.product.CategorySmallDto;
 import com.example.ecommercebasic.entity.product.Category;
+import com.example.ecommercebasic.entity.product.ImageType;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.CategoryRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,10 +18,12 @@ import java.util.stream.Collectors;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryBuilder categoryBuilder;
+    private final FileService fileService;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryBuilder categoryBuilder) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryBuilder categoryBuilder, FileService fileService) {
         this.categoryRepository = categoryRepository;
         this.categoryBuilder = categoryBuilder;
+        this.fileService = fileService;
     }
 
     public String createCategory(CategoryRequestDto categoryRequestDto) {
@@ -90,4 +95,25 @@ public class CategoryService {
         // Ana kategoriyi veritabanından sil
         categoryRepository.delete(category);
     }
+
+    @Transactional
+    public String updateCoverImage(MultipartFile file, int id) {
+        Category category = findById(id);
+
+        if (category.getCoverUrl() != null) {
+            String s = fileService.deleteImage(category.getCoverUrl());
+            if (s.equals("deleted")){
+                System.out.println("deleted category image id: "+category.getId());
+                category.setCoverUrl(null);
+                categoryRepository.save(category);
+            }
+        }
+
+        String path = ImageType.CATEGORY_IMAGE.getValue()+"/"+category.getId()+"/";
+        String newPath = fileService.uploadImage(file, path);
+        category.setCoverUrl(newPath);
+        categoryRepository.save(category);
+        return "success";
+    }
+
 }

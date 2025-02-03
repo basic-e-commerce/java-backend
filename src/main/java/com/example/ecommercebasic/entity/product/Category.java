@@ -2,6 +2,7 @@ package com.example.ecommercebasic.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,6 +17,8 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+
+    private String coverUrl;
 
     @ManyToOne
     @JoinColumn(name = "parent_id") // Veritabanındaki sütun adı
@@ -64,5 +67,13 @@ public class Category {
 
     public void setSubCategories(Set<Category> subCategories) {
         this.subCategories = subCategories;
+    }
+
+    public String getCoverUrl() {
+        return coverUrl;
+    }
+
+    public void setCoverUrl(String coverUrl) {
+        this.coverUrl = coverUrl;
     }
 }

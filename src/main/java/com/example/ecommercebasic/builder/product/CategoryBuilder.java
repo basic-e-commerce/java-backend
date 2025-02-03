@@ -16,14 +16,15 @@ public class CategoryBuilder {
         List<CategorySmallDto> subCategoryDtos = category.getSubCategories().stream()
                 .map(this::buildCategory)
                 .collect(Collectors.toList());
-        /**
+
         String url="";
-        if (category.getCoverImage()!=null)
-            url = category.getCoverImage().getUrl();
-        **/
+        if (category.getCoverUrl()!=null)
+            url = category.getCoverUrl();
+
         return new CategorySmallDto(
                 category.getId(),
                 category.getName(),
+                url,
                 subCategoryDtos
         );
     }

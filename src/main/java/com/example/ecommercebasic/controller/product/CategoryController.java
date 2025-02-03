@@ -6,6 +6,7 @@ import com.example.ecommercebasic.service.product.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,5 +37,9 @@ public class CategoryController {
     @DeleteMapping
     public ResponseEntity<String> deleteCategory(@RequestParam Integer categoryId) {
         return new ResponseEntity<>(categoryService.delete(categoryId),HttpStatus.OK);
+    }
+    @PutMapping("/cover-image")
+    public ResponseEntity<String> updateCoverImage(@RequestParam("image") MultipartFile file, @RequestParam("id") int id) {
+        return new ResponseEntity<>(categoryService.updateCoverImage(file,id),HttpStatus.CREATED);
     }
 }
