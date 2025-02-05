@@ -5,6 +5,7 @@ import com.example.ecommercebasic.dto.product.CategoryRequestDto;
 import com.example.ecommercebasic.dto.product.CategorySmallDto;
 import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.ImageType;
+import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.CategoryRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +27,7 @@ public class CategoryService {
         this.fileService = fileService;
     }
 
+    @Transactional
     public String createCategory(CategoryRequestDto categoryRequestDto) {
         if (categoryRequestDto.getName() == null || categoryRequestDto.getName().isBlank()) {
             throw new IllegalArgumentException("Category name is required.");
@@ -38,10 +40,18 @@ public class CategoryService {
         Category category = new Category();
         if (categoryRequestDto.getParentCategoryId() != 0 ) {
             Category parentCategory = findById(categoryRequestDto.getParentCategoryId());
+            parentCategory.setSubCategory(false);
+            for (Product product : parentCategory.getProducts()) {
+                System.out.println(product.getProductName());
+            }
+            category.setProducts(parentCategory.getProducts());
+            parentCategory.setProducts(null);
             category.setParentCategory(parentCategory);
+            categoryRepository.save(parentCategory);
         }
 
         category.setName(categoryRequestDto.getName());
+        category.setSubCategory(true);
         categoryRepository.save(category);
 
         return "success";
@@ -78,9 +88,19 @@ public class CategoryService {
         // Alt kategoriler var mı kontrol et
         if (category.getSubCategories() != null && !category.getSubCategories().isEmpty()) {
             for (Category subCategory : category.getSubCategories()) {
-                // Alt kategorileri recursive olarak sil
                 deleteCategoryRecursively(subCategory);
             }
+        }
+
+        if (category.getCoverUrl() != null){
+            fileService.deleteImage(category.getCoverUrl());
+        }
+
+        if (category.getProducts() != null ) {
+            System.out.println("getProduct");
+            categoryRepository.deleteCategoryProductRelations(category.getId());
+            category.setProducts(null);
+            categoryRepository.save(category);
         }
         /**
         // Kapak resmini sil

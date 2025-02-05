@@ -29,12 +29,20 @@ public class Category {
     @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Category> subCategories = new HashSet<>();
 
+    @ManyToMany(mappedBy = "categories", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    // İlişkinin ters tarafı
+    private Set<Product> products = new HashSet<>();
+
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isSubCategory;
+
     public Category() {
     }
 
     public Category(String name,Category parentCategory) {
         this.name = name;
         this.parentCategory = parentCategory;
+        this.isSubCategory = true;
     }
 
     public int getId() {
@@ -75,5 +83,21 @@ public class Category {
 
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
+
+    public boolean isSubCategory() {
+        return isSubCategory;
+    }
+
+    public void setSubCategory(boolean subCategory) {
+        isSubCategory = subCategory;
     }
 }

@@ -7,12 +7,14 @@ public class CategorySmallDto {
     private int id;
     private String name;
     private String url;
+    private boolean isSubCategory;
     private List<CategorySmallDto> subCategories;
 
-    public CategorySmallDto(int id, String name, String url, List<CategorySmallDto> subCategories) {
+    public CategorySmallDto(int id, String name, String url, boolean isSubCategory, List<CategorySmallDto> subCategories) {
         this.id = id;
         this.name = name;
         this.url = url;
+        this.isSubCategory = isSubCategory;
         this.subCategories = subCategories;
     }
 
@@ -46,5 +48,13 @@ public class CategorySmallDto {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public boolean isSubCategory() {
+        return isSubCategory;
+    }
+
+    public void setSubCategory(boolean subCategory) {
+        isSubCategory = subCategory;
     }
 }

@@ -25,6 +25,7 @@ public class CategoryBuilder {
                 category.getId(),
                 category.getName(),
                 url,
+                category.isSubCategory(),
                 subCategoryDtos
         );
     }
