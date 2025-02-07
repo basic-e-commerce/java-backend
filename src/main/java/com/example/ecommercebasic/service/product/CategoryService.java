@@ -136,4 +136,7 @@ public class CategoryService {
         return "success";
     }
 
+    public Category findByCategoryName(String categoryName) {
+        return categoryRepository.findByNameEqualsIgnoreCase(categoryName).orElseThrow(() -> new IllegalArgumentException("Invalid category name."));
+    }
 }

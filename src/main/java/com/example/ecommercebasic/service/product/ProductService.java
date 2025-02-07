@@ -55,6 +55,38 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    public String addCategoryProduct(List<Integer> categoryId,int productId){
+        Product product = findById(productId);
+
+        List<Category> categories = categoryId.stream().map(categoryService::findById).toList();
+        Set<Category> productCategories = new HashSet<>();
+
+        for (int i = 0;i<categories.size();i++) {
+            if (categories.get(i).isSubCategory()) {
+                productCategories.add(categories.get(i));
+            }else
+                throw new BadRequestException("Category is not a sub category: "+categories.get(i).getName());
+        }
+        product.setCategories(productCategories);
+        productRepository.save(product);
+        return "Product added successfully";
+    }
+
+    public String removeProductCategory(List<Integer> categoryId,int productId){
+        Product product = findById(productId);
+        List<Category> categories = categoryId.stream().map(categoryService::findById).toList();
+        for (int i = 0;i<categories.size();i++) {
+            if (product.getCategories().contains(categories.get(i))) {
+                product.getCategories().remove(categories.get(i));
+            }else
+                throw new BadRequestException("CAtegories do not exist");
+        }
+        productRepository.save(product);
+        return "Product removed successfully";
+    }
+
+
+
 
     public List<Product> findAll() {
         return productRepository.findAll();
@@ -68,6 +100,7 @@ public class ProductService {
                 .map(productBuilder::productToProductSmallResponseDto)
                 .collect(Collectors.toList());
     }
+
     public List<ProductSmallResponseDto> getAllProductsByCategoryAndTrue(int categoryId) {
         Category category = categoryService.findById(categoryId);
         return productRepository
@@ -90,5 +123,37 @@ public class ProductService {
 
     public Product findByName(String productName) {
         return productRepository.findByProductNameEqualsIgnoreCase(productName).orElseThrow(() -> new NotFoundException(ApplicationConstant.NOT_FOUND));
+    }
+
+    public List<ProductSmallResponseDto> getAllProductsByCategoryNameAndTrue(String categoryName) {
+        Category category = categoryService.findByCategoryName(categoryName);
+        System.out.println(category.getName());
+        return productRepository
+                .findAllByCategoriesAndStatus(category,true)
+                .stream()
+                .map(productBuilder::productToProductSmallResponseDto)
+                .collect(Collectors.toList());
+    }
+
+
+    public String deleteProductById(int id) {
+        Product product = findById(id);
+        if (!product.getCategories().isEmpty()){
+            for (Category category : product.getCategories()) {
+                product.getCategories().remove(category);
+            }
+        }
+
+        if (product.getCoverUrl()==null || product.getCoverUrl().isEmpty()){
+            fileService.deleteImage(product.getCoverUrl());
+        }
+        if (!product.getImages().isEmpty()){
+            for (int i = 0;i<product.getImages().size();i++) {
+                fileService.deleteImage(product.getImages().get(i));
+            }
+        }
+        productRepository.save(product);
+        productRepository.delete(product);
+        return "Product deleted successfully";
     }
 }

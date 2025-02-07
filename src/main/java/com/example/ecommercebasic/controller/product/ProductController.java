@@ -34,6 +34,10 @@ public class ProductController {
     public ResponseEntity<List<ProductSmallResponseDto>> getAllProductsByCategoryAndTrue(@RequestParam int categoryId) {
         return new ResponseEntity<>(productService.getAllProductsByCategoryAndTrue(categoryId),HttpStatus.OK);
     }
+    @GetMapping("/category/by-name")
+    public ResponseEntity<List<ProductSmallResponseDto>> getAllProductsByCategoryNameAndTrue(@RequestParam String categoryName) {
+        return new ResponseEntity<>(productService.getAllProductsByCategoryNameAndTrue(categoryName),HttpStatus.OK);
+    }
 
     @GetMapping("/id")
     public ResponseEntity<Product> getProductById(@RequestParam int id) {
@@ -41,7 +45,7 @@ public class ProductController {
     }
 
     @GetMapping("/name")
-    public ResponseEntity<Product> getProductById(@RequestParam String productName) {
+    public ResponseEntity<Product> getProductByName(@RequestParam String productName) {
         return new ResponseEntity<>(productService.findByName(productName), HttpStatus.OK);
     }
 
@@ -49,6 +53,26 @@ public class ProductController {
     public ResponseEntity<ProductResponseDto> getProductResponseById(@RequestParam int id) {
         return new ResponseEntity<>(productService.findByIdDto(id), HttpStatus.OK);
     }
+
+    @PutMapping("/add-category")
+    public ResponseEntity<String> addCategoryProduct(@RequestParam List<Integer> categoriesId,@RequestParam Integer productId) {
+        return new ResponseEntity<>(productService.addCategoryProduct(categoriesId, productId), HttpStatus.OK);
+    }
+
+    @PutMapping("/remove-category")
+    public ResponseEntity<String> removeCategoryProduct(@RequestParam List<Integer> categoriesId,@RequestParam Integer productId) {
+        return new ResponseEntity<>(productService.removeProductCategory(categoriesId, productId), HttpStatus.OK);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteProductById(@RequestParam int id) {
+        return new ResponseEntity<>(productService.deleteProductById(id),HttpStatus.OK);
+    }
+
+
+
+
+
 
     @GetMapping("/secure")
     public String secure() {

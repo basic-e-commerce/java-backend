@@ -18,4 +18,6 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Modifying
     @Query(value = "DELETE FROM category_product  WHERE category_id = :categoryId",nativeQuery = true)
     void deleteCategoryProductRelations(@Param("categoryId") int categoryId);
+
+    Optional<Category> findByNameEqualsIgnoreCase(String name);
 }
