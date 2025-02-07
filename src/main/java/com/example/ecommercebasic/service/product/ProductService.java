@@ -144,9 +144,9 @@ public class ProductService {
             }
         }
 
-        if (product.getCoverUrl()==null || product.getCoverUrl().isEmpty()){
+        if (product.getCoverUrl() != null)
             fileService.deleteImage(product.getCoverUrl());
-        }
+
         if (!product.getImages().isEmpty()){
             for (int i = 0;i<product.getImages().size();i++) {
                 fileService.deleteImage(product.getImages().get(i));
