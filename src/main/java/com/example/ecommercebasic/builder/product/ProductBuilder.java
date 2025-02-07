@@ -1,9 +1,11 @@
 package com.example.ecommercebasic.builder.product;
 
+import com.example.ecommercebasic.config.validation.RegexValidation;
 import com.example.ecommercebasic.dto.product.ProductRequestDto;
 import com.example.ecommercebasic.dto.product.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
 import com.example.ecommercebasic.entity.product.Product;
+import com.example.ecommercebasic.entity.product.UnitType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,17 +14,24 @@ public class ProductBuilder {
     public Product productRequestDtoToProduct(ProductRequestDto productRequestDto) {
         return new Product(
                 productRequestDto.getProductName(),
-                productRequestDto.getDescription(),
+                RegexValidation.sanitize(productRequestDto.getDescription()),
                 productRequestDto.getQuantity(),
                 productRequestDto.getPrice(),
-                productRequestDto.isStatus()
+                productRequestDto.getDiscountPrice(),
+                productRequestDto.isStatus(),
+                UnitType.fromValue(productRequestDto.getUnitType())
         );
     }
 
     public ProductResponseDto productToProductResponseDto(Product product){
-        return new ProductResponseDto(product.getId(),
+        return new ProductResponseDto(
+                product.getId(),
                 product.getProductName(),
                 product.getDescription(),
+                product.getCoverUrl(),
+                product.getPrice(),
+                product.getUnitType().getValue(),
+                product.getDiscountPrice(),
                 product.getImages());
     }
 
@@ -36,7 +45,8 @@ public class ProductBuilder {
                 product.getId(),
                 product.getProductName(),
                 url,
-                product.getPrice()
+                product.getPrice(),
+                product.getDiscountPrice()
         );
     }
 

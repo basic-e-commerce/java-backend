@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.controller.product;
 
 import com.example.ecommercebasic.dto.product.ProductRequestDto;
+import com.example.ecommercebasic.dto.product.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.service.product.ProductService;
@@ -30,13 +31,23 @@ public class ProductController {
     }
 
     @GetMapping("/category")
-    public ResponseEntity<List<ProductSmallResponseDto>> getAllProductsByCategory(@RequestParam int categoryId) {
-        return new ResponseEntity<>(productService.getAllProductsByCategory(categoryId),HttpStatus.OK);
+    public ResponseEntity<List<ProductSmallResponseDto>> getAllProductsByCategoryAndTrue(@RequestParam int categoryId) {
+        return new ResponseEntity<>(productService.getAllProductsByCategoryAndTrue(categoryId),HttpStatus.OK);
     }
 
     @GetMapping("/id")
     public ResponseEntity<Product> getProductById(@RequestParam int id) {
         return new ResponseEntity<>(productService.findById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/name")
+    public ResponseEntity<Product> getProductById(@RequestParam String productName) {
+        return new ResponseEntity<>(productService.findByName(productName), HttpStatus.OK);
+    }
+
+    @GetMapping("/by-id")
+    public ResponseEntity<ProductResponseDto> getProductResponseById(@RequestParam int id) {
+        return new ResponseEntity<>(productService.findByIdDto(id), HttpStatus.OK);
     }
 
     @GetMapping("/secure")

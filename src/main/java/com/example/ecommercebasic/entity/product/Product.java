@@ -20,7 +20,13 @@ public class Product {
     private String description;
     private int quantity;
     private float price;
+    @Column(columnDefinition = "FLOAT DEFAULT 0")
+    private float discountPrice;
     private boolean status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'KILOGRAM'")
+    private UnitType unitType;
 
     @JsonIgnore
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
@@ -35,13 +41,25 @@ public class Product {
     @ElementCollection
     private List<String> images = new ArrayList<>();
 
-    public Product(String productName, String description, int quantity, float price, boolean status) {
+    public Product(String productName, String description, int quantity, float price, boolean status, UnitType unitType) {
         this.productName = productName;
         this.description = description;
         this.quantity = quantity;
         this.price = price;
         this.status = status;
+        this.unitType = unitType;
     }
+
+    public Product(String productName, String description, int quantity, float price, float discountPrice, boolean status, UnitType unitType) {
+        this.productName = productName;
+        this.description = description;
+        this.quantity = quantity;
+        this.price = price;
+        this.discountPrice = discountPrice;
+        this.status = status;
+        this.unitType = unitType;
+    }
+
     public Product() {}
 
     public int getId() {
@@ -114,5 +132,21 @@ public class Product {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public float getDiscountPrice() {
+        return discountPrice;
+    }
+
+    public void setDiscountPrice(float discountPrice) {
+        this.discountPrice = discountPrice;
+    }
+
+    public UnitType getUnitType() {
+        return unitType;
+    }
+
+    public void setUnitType(UnitType unitType) {
+        this.unitType = unitType;
     }
 }

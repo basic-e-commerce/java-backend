@@ -1,12 +1,12 @@
 package com.example.ecommercebasic.config.validation;
 
-import com.example.ecommercebasic.constant.ApplicationConstant;
-import com.example.ecommercebasic.exception.InvalidFormatException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 
 @Component
 public class RegexValidation {
@@ -50,5 +50,8 @@ public class RegexValidation {
         return input.matches(regex);
     }**/
 
+    public static String sanitize(String unsafeHtml) {
+        return Jsoup.clean(unsafeHtml, Safelist.relaxed());
+    }
 
 }

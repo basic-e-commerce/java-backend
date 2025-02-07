@@ -3,6 +3,7 @@ package com.example.ecommercebasic.service.product;
 import com.example.ecommercebasic.builder.product.ProductBuilder;
 import com.example.ecommercebasic.constant.ApplicationConstant;
 import com.example.ecommercebasic.dto.product.ProductRequestDto;
+import com.example.ecommercebasic.dto.product.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
 import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.Product;
@@ -37,6 +38,9 @@ public class ProductService {
         if (productRequestDto.getPrice() <=0)
             throw new BadRequestException("Price must be greater than 0");
 
+        if (productRepository.existsByProductNameEqualsIgnoreCase(productRequestDto.getProductName()))
+            throw new BadRequestException("Product name already exists");
+
         Product product = productBuilder.productRequestDtoToProduct(productRequestDto);
         List<Category> categories = productRequestDto.getCategoryId().stream().map(categoryService::findById).toList();
         Set<Category> productCategories = new HashSet<>();
@@ -64,6 +68,17 @@ public class ProductService {
                 .map(productBuilder::productToProductSmallResponseDto)
                 .collect(Collectors.toList());
     }
+    public List<ProductSmallResponseDto> getAllProductsByCategoryAndTrue(int categoryId) {
+        Category category = categoryService.findById(categoryId);
+        return productRepository
+                .findAllByCategoriesAndStatus(category,true)
+                .stream()
+                .map(productBuilder::productToProductSmallResponseDto)
+                .collect(Collectors.toList());
+    }
+    public ProductResponseDto findByIdDto(int id){
+        return productBuilder.productToProductResponseDto(findById(id));
+    }
 
     public Product findById(int id) {
         return getById(id);
@@ -71,5 +86,9 @@ public class ProductService {
 
     private Product getById(int id){
         return productRepository.findById(id).orElseThrow(() -> new NotFoundException(ApplicationConstant.NOT_FOUND));
+    }
+
+    public Product findByName(String productName) {
+        return productRepository.findByProductNameEqualsIgnoreCase(productName).orElseThrow(() -> new NotFoundException(ApplicationConstant.NOT_FOUND));
     }
 }
