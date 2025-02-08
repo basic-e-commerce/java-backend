@@ -8,6 +8,7 @@ import com.example.ecommercebasic.service.product.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -67,6 +68,21 @@ public class ProductController {
     @DeleteMapping
     public ResponseEntity<String> deleteProductById(@RequestParam int id) {
         return new ResponseEntity<>(productService.deleteProductById(id),HttpStatus.OK);
+    }
+
+    @PutMapping("/cover-image")
+    public ResponseEntity<String> updateProductCoverImage(@RequestParam("image") MultipartFile file, @RequestParam("id") int id) {
+        return new ResponseEntity<>(productService.updateProductCoverImage(file,id),HttpStatus.CREATED);
+    }
+
+    @PutMapping("/product-image")
+    public ResponseEntity<String> updateProductImage(@RequestParam("images") MultipartFile[] files, @RequestParam("id") int id) {
+        return new ResponseEntity<>(productService.updateProductImage(files,id),HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/remove-image")
+    public ResponseEntity<String> removeProductImage(@RequestParam("id") int id,@RequestParam List<String> images) {
+        return new ResponseEntity<>(productService.removeProductImage(id,images),HttpStatus.OK);
     }
 
 

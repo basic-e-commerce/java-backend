@@ -6,12 +6,17 @@ import com.example.ecommercebasic.dto.product.ProductRequestDto;
 import com.example.ecommercebasic.dto.product.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
 import com.example.ecommercebasic.entity.product.Category;
+import com.example.ecommercebasic.entity.product.ImageType;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.ProductRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -155,5 +160,58 @@ public class ProductService {
         productRepository.save(product);
         productRepository.delete(product);
         return "Product deleted successfully";
+    }
+
+    @Transactional
+    public String updateProductCoverImage(MultipartFile file, int id) {
+        Product product = findById(id);
+
+        if (product.getCoverUrl() != null){
+            String s = fileService.deleteImage(product.getCoverUrl());
+            if(s.equals("deleted")){
+                System.out.println("deleted product cover image"+product.getId());
+                product.setCoverUrl(null);
+                productRepository.save(product);
+            }
+        }
+
+        String path = ImageType.PRODUCT_COVER_IMAGE.getValue()+"/"+product.getId()+"/";
+        String newPath = fileService.uploadImage(file,path);
+        product.setCoverUrl(newPath);
+        productRepository.save(product);
+        return "Product cover image updated successfully";
+    }
+
+
+
+    @Transactional
+    public String updateProductImage(MultipartFile[] files, int id) {
+        Product product = findById(id);
+        ArrayList<String> images = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            String path = ImageType.PRODUCT_IMAGE.getValue()+"/"+product.getId()+"/";
+            String newPath = fileService.uploadImage(file,path);
+            images.add(newPath);
+        }
+
+        List<String> currentImages = product.getImages();
+        currentImages.addAll(images);
+        product.setImages(currentImages);
+        productRepository.save(product);
+        return "Product image updated successfully";
+    }
+
+    @Transactional
+    public String removeProductImage(int id, List<String> images) {
+        Product product = findById(id);
+        for (String image : images) {
+            if (product.getImages().contains(image)) {
+                fileService.deleteImage(image);
+                product.getImages().remove(image);
+            }
+        }
+        productRepository.save(product);
+        return "Product image removed successfully";
     }
 }
