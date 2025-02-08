@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.controller.product;
 
+import com.example.ecommercebasic.dto.product.ProductRemoveDto;
 import com.example.ecommercebasic.dto.product.ProductRequestDto;
 import com.example.ecommercebasic.dto.product.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
@@ -81,11 +82,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/remove-image")
-    public ResponseEntity<String> removeProductImage(@RequestParam("id") int id,@RequestParam List<String> images) {
-        return new ResponseEntity<>(productService.removeProductImage(id,images),HttpStatus.OK);
+    public ResponseEntity<String> removeProductImage(@RequestBody ProductRemoveDto productRemoveDto) {
+        return new ResponseEntity<>(productService.removeProductImage(productRemoveDto),HttpStatus.OK);
     }
-
-
 
 
 
@@ -94,7 +93,6 @@ public class ProductController {
     public String secure() {
         return "secure";
     }
-
 
     @GetMapping("/not-secure")
     public String notsecure() {

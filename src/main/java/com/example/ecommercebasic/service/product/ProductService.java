@@ -2,6 +2,7 @@ package com.example.ecommercebasic.service.product;
 
 import com.example.ecommercebasic.builder.product.ProductBuilder;
 import com.example.ecommercebasic.constant.ApplicationConstant;
+import com.example.ecommercebasic.dto.product.ProductRemoveDto;
 import com.example.ecommercebasic.dto.product.ProductRequestDto;
 import com.example.ecommercebasic.dto.product.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
@@ -203,13 +204,14 @@ public class ProductService {
     }
 
     @Transactional
-    public String removeProductImage(int id, List<String> images) {
-        Product product = findById(id);
-        for (String image : images) {
+    public String removeProductImage(ProductRemoveDto productRemoveDto) {
+        Product product = findById(productRemoveDto.getId());
+        for (String image : productRemoveDto.getImages()) {
             if (product.getImages().contains(image)) {
                 fileService.deleteImage(image);
                 product.getImages().remove(image);
-            }
+            }else
+                throw new BadRequestException(ApplicationConstant.BAD_REQUEST +":"+ image);
         }
         productRepository.save(product);
         return "Product image removed successfully";
