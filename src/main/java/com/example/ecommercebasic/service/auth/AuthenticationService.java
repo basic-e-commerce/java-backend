@@ -6,12 +6,9 @@ import com.example.ecommercebasic.dto.user.auth.AuthenticationRequestDto;
 import com.example.ecommercebasic.dto.user.auth.AuthenticationResponseDto;
 import com.example.ecommercebasic.entity.auth.RefreshToken;
 import com.example.ecommercebasic.entity.user.Roles;
-import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.InvalidFormatException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.exception.TokenExpiredException;
-import com.example.ecommercebasic.service.user.UserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,7 +47,7 @@ public class AuthenticationService {
     public AuthenticationResponseDto loginCustomer(AuthenticationRequestDto authenticationRequestDto, HttpServletResponse response) {
 
         // Giriş bilgilerinin formatını kontrol et
-        if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPasswword(authenticationRequestDto.getPassword())) {
+        if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPassword(authenticationRequestDto.getPassword())) {
             throw new InvalidFormatException(ApplicationConstant.INVALID_FORMAT);
         }
 
@@ -92,7 +89,7 @@ public class AuthenticationService {
 
     public AuthenticationResponseDto loginAdmin(AuthenticationRequestDto authenticationRequestDto,HttpServletResponse response) {
         // Giriş bilgilerinin formatını kontrol et
-        if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPasswword(authenticationRequestDto.getPassword())) {
+        if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPassword(authenticationRequestDto.getPassword())) {
             throw new InvalidFormatException(ApplicationConstant.INVALID_FORMAT);
         }
 

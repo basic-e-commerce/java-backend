@@ -26,7 +26,7 @@ public class RegexValidation {
         return emailMatcher.matches();
     }
 
-    public boolean isValidPasswword(String password){
+    public boolean isValidPassword(String password){
 
         String PASSWORD_REGEX = passwordRegex;
         Pattern pattern = Pattern.compile(PASSWORD_REGEX);

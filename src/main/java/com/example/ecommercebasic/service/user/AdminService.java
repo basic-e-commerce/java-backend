@@ -32,7 +32,7 @@ public class AdminService {
         if (isAdminExist(adminRequestDto.getUsername()))
             throw new ResourceAlreadyExistException("Username already exists");
 
-        if (!(regexValidation.isValidEmail(adminRequestDto.getUsername()) && regexValidation.isValidPasswword(adminRequestDto.getPassword())))
+        if (!(regexValidation.isValidEmail(adminRequestDto.getUsername()) && regexValidation.isValidPassword(adminRequestDto.getPassword())))
             throw new BadRequestException("Invalid credential");
 
 

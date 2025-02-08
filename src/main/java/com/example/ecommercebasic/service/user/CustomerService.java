@@ -33,7 +33,7 @@ public class CustomerService {
         if (!regexValidation.isValidEmail(customerRequestDto.getUsername()))
             throw new InvalidFormatException("Invalid email address");
 
-        if (!regexValidation.isValidPasswword(customerRequestDto.getPassword()))
+        if (!regexValidation.isValidPassword(customerRequestDto.getPassword()))
             throw new InvalidFormatException("Invalid password");
 
         if (existByUsername(customerRequestDto.getUsername()))
