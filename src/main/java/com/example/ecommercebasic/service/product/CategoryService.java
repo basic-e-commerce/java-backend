@@ -102,17 +102,7 @@ public class CategoryService {
             category.setProducts(null);
             categoryRepository.save(category);
         }
-        /**
-        // Kapak resmini sil
-        if (category.getCoverImage() != null) {
-            imageService.deleteImage(category.getCoverImage());
-        }
 
-        // Ürün ilişkilerini sıfırla
-        category.setProducts(null);
-        **/
-
-        // Ana kategoriyi veritabanından sil
         categoryRepository.delete(category);
     }
 
