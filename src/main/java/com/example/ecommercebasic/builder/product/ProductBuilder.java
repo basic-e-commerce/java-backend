@@ -46,7 +46,8 @@ public class ProductBuilder {
                 product.getProductName(),
                 url,
                 product.getPrice(),
-                product.getDiscountPrice()
+                product.getDiscountPrice(),
+                product.getUnitType().getValue()
         );
     }
 

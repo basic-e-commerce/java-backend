@@ -6,13 +6,15 @@ public class ProductSmallResponseDto {
     private String coverImage;
     private float price;
     private float discountPrice;
+    private String unitType;
 
-    public ProductSmallResponseDto(int id, String name, String coverImage, float price, float discountPrice) {
+    public ProductSmallResponseDto(int id, String name, String coverImage, float price, float discountPrice, String unitType) {
         this.id = id;
         this.name = name;
         this.coverImage = coverImage;
         this.price = price;
         this.discountPrice = discountPrice;
+        this.unitType = unitType;
     }
 
     public int getId() {
@@ -53,5 +55,13 @@ public class ProductSmallResponseDto {
 
     public void setDiscountPrice(float discountPrice) {
         this.discountPrice = discountPrice;
+    }
+
+    public String getUnitType() {
+        return unitType;
+    }
+
+    public void setUnitType(String unitType) {
+        this.unitType = unitType;
     }
 }

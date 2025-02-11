@@ -216,4 +216,8 @@ public class ProductService {
         productRepository.save(product);
         return "Product image removed successfully";
     }
+
+    public List<ProductSmallResponseDto> getAllProductSmall() {
+        return productRepository.findAll().stream().map(productBuilder::productToProductSmallResponseDto).collect(Collectors.toList());
+    }
 }

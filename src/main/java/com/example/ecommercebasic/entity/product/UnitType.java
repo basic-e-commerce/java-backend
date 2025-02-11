@@ -1,5 +1,7 @@
 package com.example.ecommercebasic.entity.product;
 
+import com.example.ecommercebasic.exception.InvalidFormatException;
+
 public enum UnitType {
     KILOGRAM("kg"),
     GRAM("g"),
@@ -17,7 +19,7 @@ public enum UnitType {
                 return unit;
             }
         }
-        throw new IllegalArgumentException("Invalid unit type: " + value);
+        throw new InvalidFormatException("Invalid unit type: " + value);
     }
 
     UnitType(String value) {
