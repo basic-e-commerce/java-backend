@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.service.user;
 
+import com.example.ecommercebasic.entity.user.Guest;
 import com.example.ecommercebasic.repository.user.GuestRepository;
 import org.springframework.stereotype.Service;
 
@@ -9,5 +10,9 @@ public class GuestService {
 
     public GuestService(GuestRepository guestRepository) {
         this.guestRepository = guestRepository;
+    }
+
+    public Guest createGuest(Guest guest) {
+        return guestRepository.save(guest);
     }
 }

@@ -3,6 +3,8 @@ package com.example.ecommercebasic.config.validation;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
@@ -15,6 +17,9 @@ public class RegexValidation {
     public String emailRegex;
     @Value("${regex.password}")
     public String passwordRegex;
+
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private static final int CODE_LENGTH = 8;
 
 
     public boolean isValidEmail(String email){
@@ -54,4 +59,14 @@ public class RegexValidation {
         return Jsoup.clean(unsafeHtml, Safelist.relaxed());
     }
 
+    public String generateUniqueOrderCode() {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
+
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            code.append(CHARACTERS.charAt(index));
+        }
+        return code.toString();
+    }
 }
