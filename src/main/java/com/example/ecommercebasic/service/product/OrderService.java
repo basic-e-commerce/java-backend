@@ -2,8 +2,10 @@ package com.example.ecommercebasic.service.product;
 
 import com.example.ecommercebasic.builder.product.order.OrderBuilder;
 import com.example.ecommercebasic.config.validation.RegexValidation;
+import com.example.ecommercebasic.dto.product.order.BasketResponseDto;
 import com.example.ecommercebasic.dto.product.order.OrderRequestDto;
 import com.example.ecommercebasic.dto.product.order.OrderResponseDto;
+import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.entity.product.order.OrderItem;
 import com.example.ecommercebasic.entity.product.order.OrderStatus;
@@ -78,5 +80,16 @@ public class OrderService {
 
     public Order findByOrderCode(String orderCode) {
         return orderRepository.findByOrderCode(orderCode).orElseThrow(() -> new BadRequestException("Invalid Order Code"));
+    }
+
+    public List<BasketResponseDto> showBasket(List<Integer> productIds) {
+        return productIds.stream().map(x-> {
+            Product productById = orderItemService.findProductById(x);
+            return new BasketResponseDto(productById.getId(),
+                    productById.getProductName(),
+                    productById.getCoverUrl(),
+                    productById.getPrice(),
+                    productById.getDiscountPrice());
+        }).toList();
     }
 }

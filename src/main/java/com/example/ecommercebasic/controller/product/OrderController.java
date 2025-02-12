@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.controller.product;
 
+import com.example.ecommercebasic.dto.product.order.BasketResponseDto;
 import com.example.ecommercebasic.dto.product.order.OrderRequestDto;
 import com.example.ecommercebasic.dto.product.order.OrderResponseDto;
 import com.example.ecommercebasic.service.product.OrderService;
@@ -28,4 +29,10 @@ public class OrderController {
                                                                @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(orderService.getAllOrders(page,size),HttpStatus.OK);
     }
+
+    @GetMapping("/basket")
+    public ResponseEntity<List<BasketResponseDto>> showBasket(@RequestParam List<Integer> productIds) {
+        return new ResponseEntity<>(orderService.showBasket(productIds),HttpStatus.OK);
+    }
+
 }

@@ -33,4 +33,8 @@ public class OrderItemService {
         }
         return totalPrice;
     }
+
+    public Product findProductById(int id) {
+        return productService.findById(id);
+    }
 }

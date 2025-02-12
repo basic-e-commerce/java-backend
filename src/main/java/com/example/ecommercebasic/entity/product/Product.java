@@ -3,10 +3,7 @@ package com.example.ecommercebasic.entity.product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "product")
@@ -17,6 +14,9 @@ public class Product {
     @SequenceGenerator(name = "product_seq", sequenceName = "product_seq", allocationSize = 1)
     private int id;
     private String productName;
+    private String productLinkName;
+
+    private String productCode;
     private String description;
     private int quantity;
     private float price;
@@ -61,6 +61,20 @@ public class Product {
     }
 
     public Product() {}
+
+    @PrePersist
+    @PreUpdate
+    private void generateProductData() {
+        if (productName != null) {
+            this.productLinkName = productName.trim().toLowerCase()
+                    .replaceAll("[^a-zA-Z0-9\\s]", "") // Özel karakterleri kaldır
+                    .replaceAll("\\s+", "-"); // Boşlukları "-" ile değiştir
+        }
+
+        if (productCode == null || productCode.isEmpty()) {
+            this.productCode = UUID.randomUUID().toString();
+        }
+    }
 
     public int getId() {
         return id;
