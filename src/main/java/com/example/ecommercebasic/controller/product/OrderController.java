@@ -31,8 +31,8 @@ public class OrderController {
     }
 
     @GetMapping("/basket")
-    public ResponseEntity<List<BasketResponseDto>> showBasket(@RequestBody List<Integer> productIds) {
-        return new ResponseEntity<>(orderService.showBasket(productIds),HttpStatus.OK);
+    public ResponseEntity<List<BasketResponseDto>> showBasket(@RequestParam List<Integer> productIds) {
+        return new ResponseEntity<>(orderService.showBasket(productIds), HttpStatus.OK);
     }
 
 }
