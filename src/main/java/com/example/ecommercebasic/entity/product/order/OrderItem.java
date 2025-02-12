@@ -14,21 +14,16 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;  // Hangi siparişe ait olduğu
-
-    @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;  // Satın alınan ürün
 
     private int quantity; // Miktar
-    private float price; // O anki fiyat
+    private float currentPrice; // O anki fiyat
 
-    public OrderItem(Order order, Product product, int quantity, float price) {
-        this.order = order;
+    public OrderItem(Product product, int quantity, float currentPrice) {
         this.product = product;
         this.quantity = quantity;
-        this.price = price;
+        this.currentPrice = currentPrice;
     }
 
     public OrderItem() {
@@ -40,14 +35,6 @@ public class OrderItem {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 
     public Product getProduct() {
@@ -66,11 +53,11 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public float getPrice() {
-        return price;
+    public float getcurrentPrice() {
+        return currentPrice;
     }
 
-    public void setPrice(float price) {
-        this.price = price;
+    public void setcurrentPrice(float currentPrice) {
+        this.currentPrice = currentPrice;
     }
 }

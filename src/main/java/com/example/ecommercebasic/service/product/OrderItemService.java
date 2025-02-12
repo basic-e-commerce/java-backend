@@ -21,7 +21,7 @@ public class OrderItemService {
 
     public OrderItem createOrderItem(OrderItemRequestDto orderItemRequestDto) {
         Product product = productService.findById(orderItemRequestDto.getProductId());
-        OrderItem orderItem = new OrderItem(null,product, product.getQuantity(), product.getPrice());
+        OrderItem orderItem = new OrderItem(product, product.getQuantity(), product.getDiscountPrice());
         return orderItemRepository.save(orderItem);
     }
 
@@ -29,7 +29,7 @@ public class OrderItemService {
     public float totalPrice(List<OrderItem> orderItems) {
         float totalPrice = 0;
         for (OrderItem orderItem : orderItems) {
-            totalPrice += orderItem.getPrice()*orderItem.getQuantity();
+            totalPrice += orderItem.getcurrentPrice()*orderItem.getQuantity();
         }
         return totalPrice;
     }
