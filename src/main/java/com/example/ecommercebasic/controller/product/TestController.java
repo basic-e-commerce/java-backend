@@ -136,6 +136,11 @@ public class TestController {
 
     @PostMapping("/payCallBack")
     public ResponseEntity<String> payCallBack(@RequestParam Map<String, String> collections) {
+
+        for (Map.Entry<String, String> entry : collections.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+
         String status = collections.get("status");
         String paymentId = collections.get("paymentId");
         String conversationId = collections.get("conversationId");
@@ -152,6 +157,8 @@ public class TestController {
         if (!"success".equalsIgnoreCase(status)) {
             return ResponseEntity.badRequest().body("Ödeme başarısız oldu!");
         }else{
+            System.out.println("Bir kısım başarılı")
+            ;
             Options options = new Options();
             options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
             options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
@@ -167,6 +174,7 @@ public class TestController {
             System.out.println("status: "+threedsPayment.getStatus());
             System.out.println("paymentId: "+threedsPayment.getPaymentId());
             System.out.println("conversationId: "+threedsPayment.getConversationId());
+
 
 
             if (threedsPayment.getStatus().equals("success")) {
