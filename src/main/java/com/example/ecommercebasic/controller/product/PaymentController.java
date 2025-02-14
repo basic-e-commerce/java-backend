@@ -2,6 +2,7 @@ package com.example.ecommercebasic.controller.product;
 
 
 import com.example.ecommercebasic.exception.BadRequestException;
+import com.example.ecommercebasic.service.payment.PaymentService;
 import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
@@ -18,10 +19,14 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/iyzico")
+@RequestMapping("/payment")
 @CrossOrigin("*")
-public class TestController {
+public class PaymentController {
+    private final PaymentService paymentService;
 
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     @PostMapping
     public String test() {
@@ -54,6 +59,7 @@ public class TestController {
         paymentCard.setRegisterCard(0);
         request.setPaymentCard(paymentCard);
 
+        /**
         Buyer buyer = new Buyer();
         buyer.setId("BY789");
         buyer.setName("John");
@@ -68,7 +74,7 @@ public class TestController {
         buyer.setCity("Istanbul");
         buyer.setCountry("Turkey");
         buyer.setZipCode("34732");
-        request.setBuyer(buyer);
+        request.setBuyer(buyer);**/
 
         Address shippingAddress = new Address();
         shippingAddress.setContactName("Jane Doe");

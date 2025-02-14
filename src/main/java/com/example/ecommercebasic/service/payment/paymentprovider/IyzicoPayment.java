@@ -1,40 +1,56 @@
-package com.example.ecommercebasic.service.payment.paymentmethods;
+package com.example.ecommercebasic.service.payment.paymentprovider;
 
+import com.example.ecommercebasic.dto.product.payment.CreditCardRequestDto;
+import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.service.payment.PaymentStrategy;
 import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class IyzicoPayment implements PaymentStrategy {
+
+    @Value("${payment.iyzico.apiKey}")
+    private String apiKey;
+
+    @Value("${payment.iyzico.secretKey}")
+    private String apiSecret;
+
+    @Value("${payment.iyzico.baseUrl}")
+    private String apiUrl;
+
     @Override
-    public String pay(double amount) {
+    public String processCreditCardPayment(double amount, Order order, CreditCardRequestDto creditCardRequestDto) {
 
         Options options = new Options();
-        options.setApiKey("your api key");
-        options.setSecretKey("your secret key");
-        options.setBaseUrl("https://sandbox-api.iyzipay.com");
+        options.setApiKey(apiKey);
+        options.setSecretKey(apiSecret);
+        options.setBaseUrl(apiUrl);
+
+        String uuid = UUID.randomUUID().toString();
 
         CreatePaymentRequest request = new CreatePaymentRequest();
         request.setLocale(Locale.TR.getValue());
-        request.setConversationId("123456789");
-        request.setPrice(new BigDecimal("1"));
-        request.setPaidPrice(new BigDecimal("1.2"));
+        request.setConversationId(uuid);
+        request.setPrice(BigDecimal.valueOf(order.getTotalPrice()));
+        request.setPaidPrice(BigDecimal.valueOf(order.getTotalPrice()));
         request.setCurrency(Currency.TRY.name());
         request.setInstallment(1);
-        request.setBasketId("B67832");
+        request.setBasketId(order.getOrderCode());
         request.setPaymentChannel(PaymentChannel.WEB.name());
         request.setPaymentGroup(PaymentGroup.PRODUCT.name());
 
         PaymentCard paymentCard = new PaymentCard();
-        paymentCard.setCardHolderName("John Doe");
-        paymentCard.setCardNumber("5528790000000008");
-        paymentCard.setExpireMonth("12");
-        paymentCard.setExpireYear("2030");
-        paymentCard.setCvc("123");
+        paymentCard.setCardHolderName(creditCardRequestDto.getCardHolderName());
+        paymentCard.setCardNumber(creditCardRequestDto.getCardNumber());
+        paymentCard.setExpireMonth(creditCardRequestDto.getExpirationMonth());
+        paymentCard.setExpireYear(creditCardRequestDto.getExpirationYear());
+        paymentCard.setCvc(creditCardRequestDto.getCvv());
         paymentCard.setRegisterCard(0);
         request.setPaymentCard(paymentCard);
 

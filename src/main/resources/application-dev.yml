@@ -46,3 +46,9 @@ jwt:
 regex:
   email: ".*"
   password: ".*"
+
+payment:
+  iyzico:
+    apiKey: sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo
+    secretKey: sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP
+    baseUrl: https://sandbox-api.iyzipay.com
