@@ -38,7 +38,7 @@ public class TestController {
         request.setBasketId("B67832");
         request.setPaymentChannel(PaymentChannel.WEB.name());
         request.setPaymentGroup(PaymentGroup.PRODUCT.name());
-        request.setCallbackUrl("https://localhost:8080/iyzico/payCallBack");
+        request.setCallbackUrl("https://litysofttest.site/iyzico/payCallBack");
 
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setCardHolderName("John Doe");
