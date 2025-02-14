@@ -2,11 +2,13 @@ package com.example.ecommercebasic.controller.product;
 
 
 import com.example.ecommercebasic.dto.product.payment.PaymentRequestDto;
+import com.example.ecommercebasic.exception.BadRequestException;
 import com.iyzipay.HttpClient;
 import com.iyzipay.HttpMethod;
 import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
+import com.iyzipay.request.CreateThreedsPaymentRequestV2;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -125,6 +127,7 @@ public class TestController {
         request.setBasketItems(basketItems);
 
         ThreedsInitialize threedsInitialize = ThreedsInitialize.create(request, options);
+
         System.out.println(threedsInitialize);
         System.out.println(threedsInitialize.getHtmlContent());
         return threedsInitialize.getHtmlContent();
@@ -134,42 +137,43 @@ public class TestController {
     @PostMapping("/payCallBack")
     public ResponseEntity<String> payCallBack(@RequestParam Map<String, String> collections) {
         String status = collections.get("status");
-        String conversationId = collections.get("conversationId");
         String paymentId = collections.get("paymentId");
+        String conversationId = collections.get("conversationId");
+        String conversationData = collections.get("conversationData");
+        String mdStatus = collections.get("mdStatus");
+
+        System.out.println("status: " + status);
         System.out.println("paymentId: " + paymentId);
+        System.out.println("conversationId: " + conversationId);
+        System.out.println("conversationData: " + conversationData);
+        System.out.println("mdStatus: " + mdStatus);
+
 
         if (!"success".equalsIgnoreCase(status)) {
             return ResponseEntity.badRequest().body("Ödeme başarısız oldu!");
+        }else{
+            Options options = new Options();
+            options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
+            options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
+            options.setBaseUrl("https://sandbox-api.iyzipay.com");
+
+            CreateThreedsPaymentRequestV2 request = new CreateThreedsPaymentRequestV2();
+            request.setLocale(Locale.TR.getValue());
+            request.setConversationId(conversationId);
+            request.setPaymentId(paymentId);
+            request.setConversationData(conversationData);
+
+            ThreedsPayment threedsPayment = ThreedsPayment.createV2(request,options);
+
+            if (threedsPayment.getStatus().equals("success")) {
+                return ResponseEntity.ok("Ödeme başarılı!");
+            }else
+                throw new BadRequestException("Ödeme Tamamlanamadı");
+
         }
 
-        return ResponseEntity.ok("Ödeme başarılı!");
     }
 
-    public ResponseEntity<String> complete3DSecurePayment(String paymentId, String paidPrice, String basketId, String currency) {
-        String url = "https://api.iyzipay.com/payment/v2/3dsecure/auth";
 
-        // Request Body
-        String requestBody = "{\n" +
-                "\"locale\": \"tr\",\n" +
-                "\"conversationId\": \"123456789\",\n" +
-                "\"paymentId\": \"" + paymentId + "\",\n" +
-                "\"paidPrice\": \"" + paidPrice + "\",\n" +
-                "\"basketId\": \"" + basketId + "\",\n" +
-                "\"currency\": \"" + currency + "\"\n" +
-                "}";
-
-        // Set headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer YOUR_API_KEY");
-
-        // Create request entity
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-
-        Payment payment = new Payment();
-
-        // Send POST request using exchange
-        return  null; //restTemplate.exchange(url,HttpMethod.POST,requestEntity,String.class);
-    }
 
 }
