@@ -1,11 +1,18 @@
 package com.example.ecommercebasic.controller.product;
 
 
+import com.example.ecommercebasic.dto.product.payment.PaymentRequestDto;
+import com.iyzipay.HttpClient;
+import com.iyzipay.HttpMethod;
 import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +24,12 @@ import java.util.UUID;
 @RequestMapping("/iyzico")
 @CrossOrigin("*")
 public class TestController {
+
+    private final RestTemplate restTemplate;
+
+    public TestController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     @PostMapping
     public String test() {
@@ -122,12 +135,41 @@ public class TestController {
     public ResponseEntity<String> payCallBack(@RequestParam Map<String, String> collections) {
         String status = collections.get("status");
         String conversationId = collections.get("conversationId");
+        String paymentId = collections.get("paymentId");
+        System.out.println("paymentId: " + paymentId);
 
         if (!"success".equalsIgnoreCase(status)) {
             return ResponseEntity.badRequest().body("Ödeme başarısız oldu!");
         }
 
         return ResponseEntity.ok("Ödeme başarılı!");
+    }
+
+    public ResponseEntity<String> complete3DSecurePayment(String paymentId, String paidPrice, String basketId, String currency) {
+        String url = "https://api.iyzipay.com/payment/v2/3dsecure/auth";
+
+        // Request Body
+        String requestBody = "{\n" +
+                "\"locale\": \"tr\",\n" +
+                "\"conversationId\": \"123456789\",\n" +
+                "\"paymentId\": \"" + paymentId + "\",\n" +
+                "\"paidPrice\": \"" + paidPrice + "\",\n" +
+                "\"basketId\": \"" + basketId + "\",\n" +
+                "\"currency\": \"" + currency + "\"\n" +
+                "}";
+
+        // Set headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer YOUR_API_KEY");
+
+        // Create request entity
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        Payment payment = new Payment();
+
+        // Send POST request using exchange
+        return  null; //restTemplate.exchange(url,HttpMethod.POST,requestEntity,String.class);
     }
 
 }

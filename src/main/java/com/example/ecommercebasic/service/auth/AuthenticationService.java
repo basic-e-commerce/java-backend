@@ -46,10 +46,11 @@ public class AuthenticationService {
 
     public AuthenticationResponseDto loginCustomer(AuthenticationRequestDto authenticationRequestDto, HttpServletResponse response) {
 
+        /**
         // Giriş bilgilerinin formatını kontrol et
         if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPassword(authenticationRequestDto.getPassword())) {
             throw new InvalidFormatException(ApplicationConstant.INVALID_FORMAT);
-        }
+        }**/
 
         // Authentication nesnesi oluşturuluyor
         UsernamePasswordAuthenticationToken authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
@@ -88,10 +89,11 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponseDto loginAdmin(AuthenticationRequestDto authenticationRequestDto,HttpServletResponse response) {
+        /**
         // Giriş bilgilerinin formatını kontrol et
         if (regexValidation.isValidEmail(authenticationRequestDto.getUsername()) && regexValidation.isValidPassword(authenticationRequestDto.getPassword())) {
             throw new InvalidFormatException(ApplicationConstant.INVALID_FORMAT);
-        }
+        } **/
 
         // Authentication nesnesi oluşturuluyor
         UsernamePasswordAuthenticationToken authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(
