@@ -22,11 +22,6 @@ import java.util.UUID;
 @CrossOrigin("*")
 public class TestController {
 
-    private final RestTemplate restTemplate;
-
-    public TestController(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     @PostMapping
     public String test() {
