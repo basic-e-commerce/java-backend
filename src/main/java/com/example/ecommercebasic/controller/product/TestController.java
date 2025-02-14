@@ -1,17 +1,12 @@
 package com.example.ecommercebasic.controller.product;
 
 
-import com.example.ecommercebasic.dto.product.payment.PaymentRequestDto;
 import com.example.ecommercebasic.exception.BadRequestException;
-import com.iyzipay.HttpClient;
-import com.iyzipay.HttpMethod;
 import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
+import com.iyzipay.request.CreateThreedsPaymentRequest;
 import com.iyzipay.request.CreateThreedsPaymentRequestV2;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -158,12 +153,12 @@ public class TestController {
             options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
             options.setBaseUrl("https://sandbox-api.iyzipay.com");
 
-            CreateThreedsPaymentRequestV2 request = new CreateThreedsPaymentRequestV2();
+            CreateThreedsPaymentRequest request = new CreateThreedsPaymentRequest();
             request.setLocale(Locale.TR.getValue());
             request.setConversationId(conversationId);
             request.setPaymentId(paymentId);
 
-            ThreedsPayment threedsPayment = ThreedsPayment.createV2(request,options);
+            ThreedsPayment threedsPayment = ThreedsPayment.create(request,options);
             System.out.println("status: "+threedsPayment.getStatus());
             System.out.println("paymentId: "+threedsPayment.getPaymentId());
             System.out.println("conversationId: "+threedsPayment.getConversationId());
