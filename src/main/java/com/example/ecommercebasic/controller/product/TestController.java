@@ -144,14 +144,8 @@ public class TestController {
         String status = collections.get("status");
         String paymentId = collections.get("paymentId");
         String conversationId = collections.get("conversationId");
-        String conversationData = collections.get("conversationData");
         String mdStatus = collections.get("mdStatus");
 
-        System.out.println("status: " + status);
-        System.out.println("paymentId: " + paymentId);
-        System.out.println("conversationId: " + conversationId);
-        System.out.println("conversationData: " + conversationData);
-        System.out.println("mdStatus: " + mdStatus);
 
 
         if (!"success".equalsIgnoreCase(status)) {
@@ -168,7 +162,6 @@ public class TestController {
             request.setLocale(Locale.TR.getValue());
             request.setConversationId(conversationId);
             request.setPaymentId(paymentId);
-            request.setConversationData(conversationData);
 
             ThreedsPayment threedsPayment = ThreedsPayment.createV2(request,options);
             System.out.println("status: "+threedsPayment.getStatus());
