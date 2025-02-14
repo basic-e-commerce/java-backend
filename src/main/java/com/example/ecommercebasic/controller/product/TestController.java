@@ -164,6 +164,10 @@ public class TestController {
             request.setConversationData(conversationData);
 
             ThreedsPayment threedsPayment = ThreedsPayment.createV2(request,options);
+            System.out.println("status: "+threedsPayment.getStatus());
+            System.out.println("paymentId: "+threedsPayment.getPaymentId());
+            System.out.println("conversationId: "+threedsPayment.getConversationId());
+
 
             if (threedsPayment.getStatus().equals("success")) {
                 return ResponseEntity.ok("Ödeme başarılı!");
