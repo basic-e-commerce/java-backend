@@ -14,21 +14,19 @@ public class PaymentService {
         this.orderService = orderService;
     }
 
-    public String processPayment(String paymentMethod,String orderCode,float price) {
+    public String processPayment(String paymentMethod,String orderCode) {
         Order order = orderService.findByOrderCode(orderCode);
-        if (order.getTotalPrice() == price){
-            PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod(paymentMethod);
-            String pay = paymentStrategy.pay(order.getTotalPrice());
 
-            if (pay.equals("success")){
-                return orderService.statusOrder(orderCode, OrderStatus.COMPLETED).name();
+        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod(paymentMethod);
+        String pay = paymentStrategy.pay(order.getTotalPrice());
 
-            }else if (pay.equals("fail")){
-                return orderService.statusOrder(orderCode,OrderStatus.CANCELED).name();
-            }else
-                throw new BadRequestException("Fail");
+        if (pay.equals("success")){
+            return orderService.statusOrder(orderCode, OrderStatus.COMPLETED).name();
+        }else if (pay.equals("fail")){
+            return orderService.statusOrder(orderCode,OrderStatus.CANCELED).name();
         }else
-            throw new BadRequestException("Wrong Price Try Again");
+            throw new BadRequestException("Fail");
+
     }
 
 }
