@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.controller.product;
 
 
+import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDto;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.service.payment.PaymentService;
 import com.iyzipay.Options;
@@ -8,6 +9,8 @@ import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
 import com.iyzipay.request.CreateThreedsPaymentRequest;
 import com.iyzipay.request.CreateThreedsPaymentRequestV2;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -29,9 +32,9 @@ public class PaymentController {
     }
 
     @PostMapping
-    public String test() {
-
-        Options options = new Options();
+    public ResponseEntity<String> processCreditCardPayment(@RequestBody PaymentCreditCardRequestDto paymentCreditCardRequestDto, HttpServletRequest httpServletRequest) {
+        return new ResponseEntity<>(paymentService.processCreditCardPayment(paymentCreditCardRequestDto,httpServletRequest),HttpStatus.OK);
+        /**Options options = new Options();
         options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
         options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
         options.setBaseUrl("https://sandbox-api.iyzipay.com");
@@ -48,7 +51,7 @@ public class PaymentController {
         request.setBasketId("B67832");
         request.setPaymentChannel(PaymentChannel.WEB.name());
         request.setPaymentGroup(PaymentGroup.PRODUCT.name());
-        request.setCallbackUrl("https://litysofttest1.site/iyzico/payCallBack");
+        request.setCallbackUrl("https://litysofttest1.site/payment/payCallBack");
 
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setCardHolderName("John Doe");
@@ -59,7 +62,7 @@ public class PaymentController {
         paymentCard.setRegisterCard(0);
         request.setPaymentCard(paymentCard);
 
-        /**
+
         Buyer buyer = new Buyer();
         buyer.setId("BY789");
         buyer.setName("John");
@@ -74,7 +77,7 @@ public class PaymentController {
         buyer.setCity("Istanbul");
         buyer.setCountry("Turkey");
         buyer.setZipCode("34732");
-        request.setBuyer(buyer);**/
+        request.setBuyer(buyer);
 
         Address shippingAddress = new Address();
         shippingAddress.setContactName("Jane Doe");
@@ -126,13 +129,15 @@ public class PaymentController {
 
         System.out.println(threedsInitialize);
         System.out.println(threedsInitialize.getHtmlContent());
-        return threedsInitialize.getHtmlContent();
+        return threedsInitialize.getHtmlContent();**/
+
     }
 
 
     @PostMapping("/payCallBack")
     public ResponseEntity<String> payCallBack(@RequestParam Map<String, String> collections) {
-
+        return paymentService.payCallBack(collections);
+        /**
         for (Map.Entry<String, String> entry : collections.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
@@ -171,7 +176,7 @@ public class PaymentController {
             }else
                 throw new BadRequestException("Ödeme Tamamlanamadı");
 
-        }
+        }**/
 
     }
 

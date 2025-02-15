@@ -52,3 +52,7 @@ payment:
     apiKey: sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo
     secretKey: sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP
     baseUrl: https://sandbox-api.iyzipay.com
+    callBack: /payment/payCallBack
+
+domain:
+  test: https://litysofttest1.site

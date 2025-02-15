@@ -1,12 +1,15 @@
 package com.example.ecommercebasic.service.payment;
 
-import com.example.ecommercebasic.dto.product.payment.CreditCardRequestDto;
+
+import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDto;
 import com.example.ecommercebasic.entity.product.order.Order;
-import com.example.ecommercebasic.entity.product.order.OrderStatus;
-import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.service.product.OrderService;
-import org.springframework.beans.factory.annotation.Value;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class PaymentService {
@@ -16,19 +19,28 @@ public class PaymentService {
         this.orderService = orderService;
     }
 
-    public String processCreditCardPayment(String paymentMethod, String orderCode,CreditCardRequestDto creditCardRequestDto) {
-        Order order = orderService.findByOrderCode(orderCode);
+    public String processCreditCardPayment(PaymentCreditCardRequestDto paymentCreditCardRequestDto, HttpServletRequest httpServletRequest) {
+        Order order = orderService.findByOrderCode(paymentCreditCardRequestDto.getOrderCode());
 
-        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod(paymentMethod);
-        String pay = paymentStrategy.processCreditCardPayment(order.getTotalPrice(),order,creditCardRequestDto);
-
-        if (pay.equals("success")){
-            return orderService.statusOrder(orderCode, OrderStatus.COMPLETED).name();
-        }else if (pay.equals("fail")){
-            return orderService.statusOrder(orderCode,OrderStatus.CANCELED).name();
-        }else
-            throw new BadRequestException("Fail");
-
+        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod(paymentCreditCardRequestDto.getPaymentMethod());
+        return paymentStrategy.processCreditCardPayment(
+                order.getTotalPrice(),
+                order,
+                paymentCreditCardRequestDto.getCreditCardRequestDto(),
+                paymentCreditCardRequestDto.getOrderDeliveryRequestDto(),
+                httpServletRequest
+        );
     }
 
+
+    public ResponseEntity<String> payCallBack(Map<String, String> collections) {
+        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
+        String payCallBack = paymentStrategy.payCallBack(collections);
+
+        if (payCallBack.equals("Ödeme başarılı!")){
+            return new ResponseEntity<>(payCallBack, HttpStatus.OK);
+        }else
+            return new ResponseEntity<>(payCallBack, HttpStatus.BAD_REQUEST);
+
+    }
 }
