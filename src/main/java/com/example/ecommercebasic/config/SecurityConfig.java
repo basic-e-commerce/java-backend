@@ -60,7 +60,7 @@ public class SecurityConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration ccfg = new CorsConfiguration();
-            ccfg.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:5173","https://sandbox-api.iyzipay.com","http://litysofttest1.site"));
+            ccfg.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:5173","https://sandbox-api.iyzipay.com","https://litysofttest1.site"));
             ccfg.setAllowedMethods(Collections.singletonList("*"));
             ccfg.setAllowCredentials(true);
             ccfg.setAllowedHeaders(Collections.singletonList("*"));
