@@ -39,7 +39,7 @@ public class IyzicoPayment implements PaymentStrategy {
 
     @Override
     public String processCreditCardPayment(double amount, Order order, CreditCardRequestDto creditCardRequestDto, OrderDeliveryRequestDto orderDeliveryRequestDto, HttpServletRequest httpServletRequest) {
-
+        System.out.println("toplam: "+order.getTotalPrice());
         Options options = getOptions();
 
         CreatePaymentRequest request = getCreatePaymentRequest(order);
@@ -205,6 +205,7 @@ public class IyzicoPayment implements PaymentStrategy {
         List<BasketItem> basketItems = new ArrayList<>();
         for (OrderItem orderItems : order.getOrderItems()) {
             BasketItem basketItem = getBasketItem(orderItems);
+            System.out.println(orderItems.getProduct().getProductName()+"   "+ orderItems.getcurrentPrice());
             basketItems.add(basketItem);
         }
         return basketItems;
