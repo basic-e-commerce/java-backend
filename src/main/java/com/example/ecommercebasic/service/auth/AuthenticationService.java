@@ -77,9 +77,9 @@ public class AuthenticationService {
             response.addHeader("Set-Cookie", "refresh_token=" + hash
                     + "; Path=" + path
                     + "; HttpOnly"
-                    + "; Secure=" + secure
+                    + "; Secure=" + true
                     + "; Max-Age=" + Integer.parseInt(maxAge)
-                    + "; SameSite=" + sameSite);
+                    + "; SameSite=" + "none");
 
             return new AuthenticationResponseDto(accessToken);
         } catch (NoSuchAlgorithmException e) {
