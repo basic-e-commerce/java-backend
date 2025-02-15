@@ -217,7 +217,7 @@ public class IyzicoPayment implements PaymentStrategy {
         basketItem.setName(orderItem.getProduct().getProductName());
         basketItem.setCategory1((orderItem.getProduct().getCategories().stream().findFirst()).get().getName());
         basketItem.setItemType(BasketItemType.PHYSICAL.name());
-        basketItem.setPrice(BigDecimal.valueOf(orderItem.getcurrentPrice()));
+        basketItem.setPrice(BigDecimal.valueOf(orderItem.getcurrentPrice()*orderItem.getQuantity()));
         return basketItem;
     }
 }
