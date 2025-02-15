@@ -21,7 +21,7 @@ public class OrderItemService {
 
     public OrderItem createOrderItem(OrderItemRequestDto orderItemRequestDto) {
         Product product = productService.findById(orderItemRequestDto.getProductId());
-        OrderItem orderItem = new OrderItem(product, product.getQuantity(), product.getDiscountPrice());
+        OrderItem orderItem = new OrderItem(product, orderItemRequestDto.getProductQuantity(), product.getDiscountPrice());
         return orderItemRepository.save(orderItem);
     }
 

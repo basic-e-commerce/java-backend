@@ -107,9 +107,9 @@ public class IyzicoPayment implements PaymentStrategy {
 
     public Options getOptions() {
         Options options = new Options();
-        options.setApiKey(apiKey);
-        options.setSecretKey(apiSecret);
-        options.setBaseUrl(apiUrl);
+        options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
+        options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
+        options.setBaseUrl("https://sandbox-api.iyzipay.com");
         return options;
     }
 
