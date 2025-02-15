@@ -75,7 +75,8 @@ public class AuthenticationService {
             String hash = refreshTokenService.createRefreshToken(authenticatedUser.getName(),refreshHash);
             // Set-Cookie başlığı ile cookie'yi gönder
             response.addHeader("Set-Cookie", "refresh_token=" + hash
-                    + "; Path=" + path
+                    + "; Domain=" + "litysofttest1.site"
+                    + "; Path=" + "/"
                     + "; HttpOnly"
                     + "; Secure=" + true
                     + "; Max-Age=" + Integer.parseInt(maxAge)
