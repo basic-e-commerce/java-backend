@@ -35,7 +35,7 @@ cookie:
     secure: false
     refreshmaxAge: 604800
     sameSite: None
-    path: /api/v1/auth/refresh
+    path: /api/v1/auth
 
 jwt:
   accessExp: 900000

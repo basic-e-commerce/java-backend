@@ -75,12 +75,11 @@ public class AuthenticationService {
             String hash = refreshTokenService.createRefreshToken(authenticatedUser.getName(),refreshHash);
             // Set-Cookie başlığı ile cookie'yi gönder
             response.addHeader("Set-Cookie", "refresh_token=" + hash
-                    + "; Domain=" + "litysofttest1.site"
-                    + "; Path=" + "/"
+                    + "; Path=" + path
                     + "; HttpOnly"
-                    + "; Secure=" + true
+                    + "; Secure=" + secure
                     + "; Max-Age=" + Integer.parseInt(maxAge)
-                    + "; SameSite=" + "none");
+                    + "; SameSite=" + sameSite);
 
             return new AuthenticationResponseDto(accessToken);
         } catch (NoSuchAlgorithmException e) {
