@@ -10,6 +10,9 @@ public class InstallmentResponseDto {
     private long systemTime;
     private String conversationId;
     private List<InstallmentDetail> installmentDetails;
+    private String errorGroup;
+    private String errorCode;
+    private String errorMessage;
 
     public InstallmentResponseDto(String status, String locale, long systemTime, String conversationId, List<InstallmentDetail> installmentDetails) {
         this.status = status;
@@ -57,5 +60,29 @@ public class InstallmentResponseDto {
 
     public void setInstallmentDetails(List<InstallmentDetail> installmentDetails) {
         this.installmentDetails = installmentDetails;
+    }
+
+    public String getErrorGroup() {
+        return errorGroup;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public void setErrorGroup(String errorGroup) {
+        this.errorGroup = errorGroup;
     }
 }

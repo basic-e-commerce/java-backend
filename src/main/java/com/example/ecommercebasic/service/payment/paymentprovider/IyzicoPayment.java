@@ -141,6 +141,11 @@ public class IyzicoPayment implements PaymentStrategy {
                     .retrieve()
                     .bodyToMono(InstallmentResponseDto.class);
 
+            installmentResponseDtoMono.subscribe(response -> {
+                System.out.println("error: "+response.getErrorCode());
+                System.out.println("Error MEssage: "+ response.getErrorMessage());
+                System.out.println("Error group: "+response.getErrorGroup());
+            });
             System.out.println("installmentResponseDtoMono: ");
 
             installmentResponseDtoMono.subscribe(response -> {
