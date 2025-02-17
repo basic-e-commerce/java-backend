@@ -9,6 +9,8 @@ import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.service.payment.PaymentStrategy;
 import com.iyzipay.Options;
 import com.iyzipay.model.*;
+import com.iyzipay.model.Currency;
+import com.iyzipay.model.Locale;
 import com.iyzipay.request.CreatePaymentRequest;
 import com.iyzipay.request.CreateThreedsPaymentRequest;
 import com.iyzipay.request.RetrieveBinNumberRequest;
@@ -18,11 +20,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class IyzicoPayment implements PaymentStrategy {
 
@@ -111,6 +113,113 @@ public class IyzicoPayment implements PaymentStrategy {
 
     @Override
     public String getBin(String bin) {
+            System.out.println("binnnn :" + bin);
+
+            // Bin numarasını alalım
+            RetrieveBinNumberRequest retrieveBinNumberRequest = new RetrieveBinNumberRequest();
+            retrieveBinNumberRequest.setBinNumber(bin);
+
+            // API için gerekli seçenekler
+            Options options = new Options();
+            options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
+            options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
+            options.setBaseUrl("https://sandbox-api.iyzipay.com");
+
+            // Bin numarasını alıyoruz
+            BinNumber binNumber = BinNumber.retrieve(retrieveBinNumberRequest, options);
+            System.out.println("binNumber: " + binNumber);
+
+            if (binNumber.getCardType().equals("CREDIT_CARD")) {
+
+                // Bkm taksit fiyatını oluşturuyoruz
+                BkmInstallmentPrice bkmInstallmentPrice = new BkmInstallmentPrice();
+                bkmInstallmentPrice.setInstallmentNumber(Integer.parseInt(bin));
+                bkmInstallmentPrice.setTotalPrice(BigDecimal.valueOf(10000));
+
+                // WebClient ile API isteği yapıyoruz
+                WebClient.Builder builder = WebClient.builder();
+                WebClient webClient = builder.baseUrl("https://api.iyzipay.com").build();
+
+                System.out.println("---------------------------");
+
+                // HMACSHA256 imzası oluşturuyoruz
+                try {
+                    String uriPath = "/payment/iyzipos/installment";
+                    String requestBody = "{\"installmentNumber\":" + bkmInstallmentPrice.getInstallmentNumber() + ",\"totalPrice\":\"" + bkmInstallmentPrice.getTotalPrice() + "\"}";
+
+                    String authorization = generateAuthorizationString(uriPath, requestBody);
+
+                    Mono<InstallmentResponseDto> installmentResponseDtoMono = webClient.post()
+                            .uri("/payment/iyzipos/installment")
+                            .header("Authorization", authorization)
+                            .bodyValue(bkmInstallmentPrice)
+                            .retrieve()
+                            .bodyToMono(InstallmentResponseDto.class);
+
+                    // API yanıtını alıyoruz
+                    InstallmentResponseDto response = installmentResponseDtoMono.block(); // Senkronize yapıyoruz
+
+                    // Yanıtı işliyoruz
+                    if (response != null) {
+                        System.out.println("Status: " + response.getStatus());
+                        System.out.println("Locale: " + response.getLocale());
+                        System.out.println("System Time: " + response.getSystemTime());
+                        System.out.println("Conversation ID: " + response.getConversationId());
+
+                        System.out.println("Installment Details:");
+                        response.getInstallmentDetails().forEach(detail -> {
+                            System.out.println("  Bin Number: " + detail.getBinNumber());
+                            System.out.println("  Price: " + detail.getPrice());
+                            System.out.println("  Card Type: " + detail.getCardType());
+                            System.out.println("  Bank Name: " + detail.getBankName());
+
+                            System.out.println("  Installment Prices:");
+                            detail.getInstallmentPrices().forEach(price -> {
+                                System.out.println("    Installment Number: " + price.getInstallmentNumber());
+                                System.out.println("    Installment Price: " + price.getInstallmentPrice());
+                                System.out.println("    Total Price: " + price.getTotalPrice());
+                            });
+                        });
+                    } else {
+                        System.out.println("Response is null or empty");
+                    }
+
+                } catch (Exception e) {
+                    System.err.println("Error generating HMACSHA256 or making request: " + e.getMessage());
+                    return "error";
+                }
+
+                return "success";
+            } else {
+                return "error";
+            }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /**
         System.out.println("binnnn :" + bin);
         RetrieveBinNumberRequest retrieveBinNumberRequest = new RetrieveBinNumberRequest();
         retrieveBinNumberRequest.setBinNumber(bin);
@@ -173,8 +282,45 @@ public class IyzicoPayment implements PaymentStrategy {
             return "success";
 
         }else
-            return "error";
+            return "error";**/
 
+    }
+
+    public static String generateAuthorizationString(String uriPath, String requestBody) throws Exception {
+        // Benzersiz bir random key oluşturuyoruz
+        String randomKey = String.valueOf(System.currentTimeMillis()) + "123456789"; // örnek random key
+
+        // payload (istek verisini) oluşturuyoruz
+        String payload = randomKey + uriPath + requestBody;
+
+        // HMACSHA256 ile hash oluşturuyoruz
+        String encryptedData = hmacSha256(payload, "sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
+
+        // Authorization string oluşturuyoruz
+        String authorizationString = "apiKey:" + "sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo"
+                + "&randomKey:" + randomKey
+                + "&signature:" + encryptedData;
+
+        // Base64 encoding
+        String base64EncodedAuthorization = Base64.getEncoder().encodeToString(authorizationString.getBytes(StandardCharsets.UTF_8));
+
+        // Final authorization string'i döndürüyoruz
+        return "IYZWSv2 " + base64EncodedAuthorization;
+    }
+
+    // HMACSHA256 hash fonksiyonu
+    private static String hmacSha256(String data, String key) throws Exception {
+        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        sha256Hmac.init(secretKeySpec);
+
+        byte[] hash = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            hexString.append(String.format("%02x", b));
+        }
+
+        return hexString.toString();
     }
 
 
