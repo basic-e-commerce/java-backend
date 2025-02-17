@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.service.payment.paymentprovider;
 
+import com.example.ecommercebasic.dto.payment.InstallmentResponseDto;
 import com.example.ecommercebasic.dto.product.order.OrderDeliveryRequestDto;
 import com.example.ecommercebasic.dto.product.payment.CreditCardRequestDto;
 import com.example.ecommercebasic.entity.product.order.Order;
@@ -10,9 +11,12 @@ import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
 import com.iyzipay.request.CreateThreedsPaymentRequest;
+import com.iyzipay.request.RetrieveBinNumberRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,6 +40,7 @@ public class IyzicoPayment implements PaymentStrategy {
 
     @Value("${payment.iyzico.callBack}")
     private String callBackUrl;
+
 
     @Override
     public String processCreditCardPayment(double amount, Order order, CreditCardRequestDto creditCardRequestDto, OrderDeliveryRequestDto orderDeliveryRequestDto, HttpServletRequest httpServletRequest) {
@@ -104,6 +109,69 @@ public class IyzicoPayment implements PaymentStrategy {
 
     }
 
+    @Override
+    public String getBin(String bin) {
+        System.out.println("binnnn :" + bin);
+        RetrieveBinNumberRequest retrieveBinNumberRequest = new RetrieveBinNumberRequest();
+        retrieveBinNumberRequest.setBinNumber(bin);
+
+        Options options = new Options();
+        options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
+        options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
+        options.setBaseUrl("https://sandbox-api.iyzipay.com");
+        BinNumber binNumber = BinNumber.retrieve(retrieveBinNumberRequest, options);
+        System.out.println("binNumber: "+binNumber);
+
+        if (binNumber.getCardType().equals("CREDIT_CARD")){
+
+            BkmInstallmentPrice bkmInstallmentPrice = new BkmInstallmentPrice();
+            bkmInstallmentPrice.setInstallmentNumber(Integer.parseInt(bin));
+            bkmInstallmentPrice.setTotalPrice(BigDecimal.valueOf(10000));
+
+            System.out.println(bkmInstallmentPrice.getInstallmentNumber());
+            System.out.println(bkmInstallmentPrice.getTotalPrice());
+
+            WebClient.Builder builder = WebClient.builder();
+            WebClient build = builder.baseUrl("https://api.iyzipay.com").build();
+
+            System.out.println("---------------------------");
+            Mono<InstallmentResponseDto> installmentResponseDtoMono = build.post()
+                    .uri("/payment/iyzipos/installment")
+                    .bodyValue(bkmInstallmentPrice)
+                    .retrieve()
+                    .bodyToMono(InstallmentResponseDto.class);
+
+            System.out.println("installmentResponseDtoMono: ");
+
+            installmentResponseDtoMono.subscribe(response -> {
+                System.out.println("Status: " + response.getStatus());
+                System.out.println("Locale: " + response.getLocale());
+                System.out.println("System Time: " + response.getSystemTime());
+                System.out.println("Conversation ID: " + response.getConversationId());
+
+                System.out.println("Installment Details:");
+                response.getInstallmentDetails().forEach(detail -> {
+                    System.out.println("  Bin Number: " + detail.getBinNumber());
+                    System.out.println("  Price: " + detail.getPrice());
+                    System.out.println("  Card Type: " + detail.getCardType());
+                    System.out.println("  Bank Name: " + detail.getBankName());
+
+                    System.out.println("  Installment Prices:");
+                    detail.getInstallmentPrices().forEach(price -> {
+                        System.out.println("    Installment Number: " + price.getInstallmentNumber());
+                        System.out.println("    Installment Price: " + price.getInstallmentPrice());
+                        System.out.println("    Total Price: " + price.getTotalPrice());
+                    });
+                });
+            });
+
+            return "success";
+
+        }else
+            return "error";
+
+    }
+
 
     public Options getOptions() {
         Options options = new Options();
@@ -162,21 +230,6 @@ public class IyzicoPayment implements PaymentStrategy {
         buyer.setCity(orderDeliveryRequestDto.getCity());
         buyer.setCountry(orderDeliveryRequestDto.getCountry());
         buyer.setZipCode(orderDeliveryRequestDto.getPostalCode());
-
-        /**
-        buyer.setId("BY789");
-        buyer.setName("John");
-        buyer.setSurname("Doe");
-        buyer.setGsmNumber("+905350000000");
-        buyer.setEmail("email@email.com");
-        buyer.setIdentityNumber("74300864791");
-        buyer.setLastLoginDate("2015-10-05 12:43:35");
-        buyer.setRegistrationDate("2013-04-21 15:12:09");
-        buyer.setRegistrationAddress("Nidakule Göztepe, Merdivenköy Mah. Bora Sok. No:1");
-        buyer.setIp(ip);
-        buyer.setCity("Istanbul");
-        buyer.setCountry("Turkey");
-        buyer.setZipCode("34732");**/
 
         return buyer;
     }

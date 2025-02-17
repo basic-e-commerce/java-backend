@@ -10,4 +10,5 @@ import java.util.Map;
 public interface PaymentStrategy {
     String processCreditCardPayment(double amount, Order order, CreditCardRequestDto creditCardRequestDto, OrderDeliveryRequestDto orderDeliveryRequestDto, HttpServletRequest httpServletRequest);
     String payCallBack(Map<String, String> collections);
+    String getBin(String bin);
 }

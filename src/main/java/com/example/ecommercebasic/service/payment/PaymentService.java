@@ -5,8 +5,6 @@ import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDt
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.service.product.OrderService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -33,14 +31,13 @@ public class PaymentService {
     }
 
 
-    public ResponseEntity<String> payCallBack(Map<String, String> collections) {
+    public String payCallBack(Map<String, String> collections) {
         PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
-        String payCallBack = paymentStrategy.payCallBack(collections);
+        return paymentStrategy.payCallBack(collections);
+    }
 
-        if (payCallBack.equals("Ödeme başarılı!")){
-            return new ResponseEntity<>(payCallBack, HttpStatus.OK);
-        }else
-            return new ResponseEntity<>(payCallBack, HttpStatus.BAD_REQUEST);
-
+    public String getBin(String binCode) {
+        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
+        return paymentStrategy.getBin(binCode);
     }
 }
