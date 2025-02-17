@@ -1,8 +1,10 @@
 package com.example.ecommercebasic.controller.payment;
 
 
+import com.example.ecommercebasic.dto.payment.InstallmentInfoDto;
 import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDto;
 import com.example.ecommercebasic.service.payment.PaymentService;
+import com.iyzipay.model.InstallmentInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,8 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<String> processCreditCardPayment(@RequestBody PaymentCreditCardRequestDto paymentCreditCardRequestDto, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<String> processCreditCardPayment(@RequestBody PaymentCreditCardRequestDto paymentCreditCardRequestDto,
+                                                           HttpServletRequest httpServletRequest) {
         return new ResponseEntity<>(paymentService.processCreditCardPayment(paymentCreditCardRequestDto,httpServletRequest),HttpStatus.OK);
     }
 
@@ -32,8 +35,7 @@ public class PaymentController {
     }
 
     @GetMapping("/bin")
-    public ResponseEntity<String> getBin(@RequestParam String bin) {
-        System.out.println(bin);
+    public ResponseEntity<InstallmentInfoDto> getBin(@RequestParam String bin) {
         return new ResponseEntity<>(paymentService.getBin(bin),HttpStatus.OK);
     }
 

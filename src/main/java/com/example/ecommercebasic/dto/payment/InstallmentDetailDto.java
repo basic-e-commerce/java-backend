@@ -2,21 +2,23 @@ package com.example.ecommercebasic.dto.payment;
 
 import com.iyzipay.model.InstallmentPrice;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class InstallmentDetailDto {
     private String binNumber;
-    private double price;
+    private BigDecimal price;
     private String cardType;
     private String cardAssociation;
     private String cardFamilyName;
     private int force3ds;
-    private int bankCode;
+    private long bankCode;
     private String bankName;
     private int forceCvc;
-    private List<InstallmentPrice> installmentPrices;
+    private int commercial;
+    private List<InstallmentPriceDto> installmentPrices;
 
-    public InstallmentDetailDto(String binNumber, double price, String cardType, String cardAssociation, String cardFamilyName, int force3ds, int bankCode, String bankName, int forceCvc, List<InstallmentPrice> installmentPrices) {
+    public InstallmentDetailDto(String binNumber, BigDecimal price, String cardType, String cardAssociation, String cardFamilyName, int force3ds, long bankCode, String bankName, int forceCvc, int commercial, List<InstallmentPriceDto> installmentPrices) {
         this.binNumber = binNumber;
         this.price = price;
         this.cardType = cardType;
@@ -26,6 +28,7 @@ public class InstallmentDetailDto {
         this.bankCode = bankCode;
         this.bankName = bankName;
         this.forceCvc = forceCvc;
+        this.commercial = commercial;
         this.installmentPrices = installmentPrices;
     }
 
@@ -37,11 +40,11 @@ public class InstallmentDetailDto {
         this.binNumber = binNumber;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -77,11 +80,11 @@ public class InstallmentDetailDto {
         this.force3ds = force3ds;
     }
 
-    public int getBankCode() {
+    public long getBankCode() {
         return bankCode;
     }
 
-    public void setBankCode(int bankCode) {
+    public void setBankCode(long bankCode) {
         this.bankCode = bankCode;
     }
 
@@ -101,11 +104,19 @@ public class InstallmentDetailDto {
         this.forceCvc = forceCvc;
     }
 
-    public List<InstallmentPrice> getInstallmentPrices() {
+    public List<InstallmentPriceDto> getInstallmentPrices() {
         return installmentPrices;
     }
 
-    public void setInstallmentPrices(List<InstallmentPrice> installmentPrices) {
+    public void setInstallmentPrices(List<InstallmentPriceDto> installmentPrices) {
         this.installmentPrices = installmentPrices;
+    }
+
+    public int getCommercial() {
+        return commercial;
+    }
+
+    public void setCommercial(int commercial) {
+        this.commercial = commercial;
     }
 }

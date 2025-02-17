@@ -1,30 +1,32 @@
 package com.example.ecommercebasic.dto.payment;
 
+import java.math.BigDecimal;
+
 public class InstallmentPriceDto {
 
-    private double installmentPrice;
-    private double totalPrice;
+    private BigDecimal installmentPrice;
+    private BigDecimal totalPrice;
     private int installmentNumber;
 
-    public InstallmentPriceDto(double installmentPrice, double totalPrice, int installmentNumber) {
+    public InstallmentPriceDto(BigDecimal installmentPrice, BigDecimal totalPrice, int installmentNumber) {
         this.installmentPrice = installmentPrice;
         this.totalPrice = totalPrice;
         this.installmentNumber = installmentNumber;
     }
 
-    public double getInstallmentPrice() {
+    public BigDecimal getInstallmentPrice() {
         return installmentPrice;
     }
 
-    public void setInstallmentPrice(double installmentPrice) {
+    public void setInstallmentPrice(BigDecimal installmentPrice) {
         this.installmentPrice = installmentPrice;
     }
 
-    public double getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
+    public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
 

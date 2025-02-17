@@ -1,9 +1,11 @@
 package com.example.ecommercebasic.service.payment;
 
 
+import com.example.ecommercebasic.dto.payment.InstallmentInfoDto;
 import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDto;
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.service.product.OrderService;
+import com.iyzipay.model.InstallmentInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,7 @@ public class PaymentService {
         return paymentStrategy.payCallBack(collections);
     }
 
-    public String getBin(String binCode) {
+    public InstallmentInfoDto getBin(String binCode) {
         PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
         return paymentStrategy.getBin(binCode);
     }

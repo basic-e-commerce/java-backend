@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.service.payment.paymentprovider;
 
-import com.example.ecommercebasic.dto.payment.InstallmentResponseDto;
+import com.example.ecommercebasic.builder.payment.PaymentBuilder;
+import com.example.ecommercebasic.dto.payment.InstallmentInfoDto;
 import com.example.ecommercebasic.dto.product.order.OrderDeliveryRequestDto;
 import com.example.ecommercebasic.dto.product.payment.CreditCardRequestDto;
 import com.example.ecommercebasic.entity.product.order.Order;
@@ -14,34 +15,34 @@ import com.iyzipay.model.Locale;
 import com.iyzipay.request.CreatePaymentRequest;
 import com.iyzipay.request.CreateThreedsPaymentRequest;
 import com.iyzipay.request.RetrieveBinNumberRequest;
+import com.iyzipay.request.RetrieveInstallmentInfoRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.stereotype.Service;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Service
 public class IyzicoPayment implements PaymentStrategy {
 
+
+
+
     @Value("${payment.iyzico.apiKey}")
-    private String apiKey;
+    private String apiKey = "sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo";
 
     @Value("${payment.iyzico.secretKey}")
-    private String apiSecret;
+    private String apiSecret = "sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP";
 
     @Value("${payment.iyzico.baseUrl}")
     private String apiUrl;
 
     @Value("${domain.test}")
-    private String baseUrl;
+    private String baseUrl ="https://sandbox-api.iyzipay.com";
 
     @Value("${payment.iyzico.callBack}")
-    private String callBackUrl;
+    private String callBackUrl = "/api/v1/payment/payCallBack";
 
 
     @Override
@@ -86,10 +87,7 @@ public class IyzicoPayment implements PaymentStrategy {
         }else{
             System.out.println("Bir kısım başarılı");
 
-            Options options = new Options();
-            options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
-            options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
-            options.setBaseUrl("https://sandbox-api.iyzipay.com");
+            Options options = getOptions();
 
             CreateThreedsPaymentRequest request = new CreateThreedsPaymentRequest();
             request.setLocale(Locale.TR.getValue());
@@ -102,7 +100,6 @@ public class IyzicoPayment implements PaymentStrategy {
             System.out.println("conversationId: "+threedsPayment.getConversationId());
 
 
-
             if (threedsPayment.getStatus().equals("success")) {
                 return "Ödeme başarılı!";
             }else
@@ -112,223 +109,99 @@ public class IyzicoPayment implements PaymentStrategy {
     }
 
     @Override
-    public String getBin(String bin) {
-            System.out.println("binnnn :" + bin);
+    public InstallmentInfoDto getBin(String bin) {
 
-            // Bin numarasını alalım
-            RetrieveBinNumberRequest retrieveBinNumberRequest = new RetrieveBinNumberRequest();
-            retrieveBinNumberRequest.setBinNumber(bin);
-
-            // API için gerekli seçenekler
-            Options options = new Options();
-            options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
-            options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
-            options.setBaseUrl("https://sandbox-api.iyzipay.com");
-
-            // Bin numarasını alıyoruz
-            BinNumber binNumber = BinNumber.retrieve(retrieveBinNumberRequest, options);
-            System.out.println("binNumber: " + binNumber);
-
-            if (binNumber.getCardType().equals("CREDIT_CARD")) {
-
-                // Bkm taksit fiyatını oluşturuyoruz
-                BkmInstallmentPrice bkmInstallmentPrice = new BkmInstallmentPrice();
-                bkmInstallmentPrice.setInstallmentNumber(Integer.parseInt(bin));
-                bkmInstallmentPrice.setTotalPrice(BigDecimal.valueOf(10000));
-
-                // WebClient ile API isteği yapıyoruz
-                WebClient.Builder builder = WebClient.builder();
-                WebClient webClient = builder.baseUrl("https://api.iyzipay.com").build();
-
-                System.out.println("---------------------------");
-
-                // HMACSHA256 imzası oluşturuyoruz
-                try {
-                    String uriPath = "/payment/iyzipos/installment";
-                    String requestBody = "{\"installmentNumber\":" + bkmInstallmentPrice.getInstallmentNumber() + ",\"totalPrice\":\"" + bkmInstallmentPrice.getTotalPrice() + "\"}";
-
-                    String authorization = generateAuthorizationString(uriPath, requestBody);
-
-                    Mono<InstallmentResponseDto> installmentResponseDtoMono = webClient.post()
-                            .uri("/payment/iyzipos/installment")
-                            .header("Authorization", authorization)
-                            .bodyValue(bkmInstallmentPrice)
-                            .retrieve()
-                            .bodyToMono(InstallmentResponseDto.class);
-
-                    // API yanıtını alıyoruz
-                    InstallmentResponseDto response = installmentResponseDtoMono.block(); // Senkronize yapıyoruz
-
-                    // Yanıtı işliyoruz
-                    if (response != null) {
-                        System.out.println("Status: " + response.getStatus());
-                        System.out.println("Locale: " + response.getLocale());
-                        System.out.println("System Time: " + response.getSystemTime());
-                        System.out.println("Conversation ID: " + response.getConversationId());
-
-                        System.out.println("Installment Details:");
-                        response.getInstallmentDetails().forEach(detail -> {
-                            System.out.println("  Bin Number: " + detail.getBinNumber());
-                            System.out.println("  Price: " + detail.getPrice());
-                            System.out.println("  Card Type: " + detail.getCardType());
-                            System.out.println("  Bank Name: " + detail.getBankName());
-
-                            System.out.println("  Installment Prices:");
-                            detail.getInstallmentPrices().forEach(price -> {
-                                System.out.println("    Installment Number: " + price.getInstallmentNumber());
-                                System.out.println("    Installment Price: " + price.getInstallmentPrice());
-                                System.out.println("    Total Price: " + price.getTotalPrice());
-                            });
-                        });
-                    } else {
-                        System.out.println("Response is null or empty");
-                    }
-
-                } catch (Exception e) {
-                    System.err.println("Error generating HMACSHA256 or making request: " + e.getMessage());
-                    return "error";
-                }
-
-                return "success";
-            } else {
-                return "error";
-            }
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /**
         System.out.println("binnnn :" + bin);
         RetrieveBinNumberRequest retrieveBinNumberRequest = new RetrieveBinNumberRequest();
         retrieveBinNumberRequest.setBinNumber(bin);
 
-        Options options = new Options();
-        options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
-        options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
-        options.setBaseUrl("https://sandbox-api.iyzipay.com");
+        Options options = getOptions();
+
         BinNumber binNumber = BinNumber.retrieve(retrieveBinNumberRequest, options);
         System.out.println("binNumber: "+binNumber);
 
         if (binNumber.getCardType().equals("CREDIT_CARD")){
 
-            BkmInstallmentPrice bkmInstallmentPrice = new BkmInstallmentPrice();
-            bkmInstallmentPrice.setInstallmentNumber(Integer.parseInt(bin));
-            bkmInstallmentPrice.setTotalPrice(BigDecimal.valueOf(10000));
+            RetrieveInstallmentInfoRequest retrieveInstallmentInfoRequest = new RetrieveInstallmentInfoRequest();
+            retrieveInstallmentInfoRequest.setBinNumber(bin);
+            retrieveInstallmentInfoRequest.setPrice(BigDecimal.valueOf(10000));
+            retrieveInstallmentInfoRequest.setCurrency(Currency.TRY.name());
 
-            System.out.println(bkmInstallmentPrice.getInstallmentNumber());
-            System.out.println(bkmInstallmentPrice.getTotalPrice());
+            InstallmentInfo installmentInfo = InstallmentInfo.retrieve(retrieveInstallmentInfoRequest,options);
+            System.out.println("installmentInfo: "+installmentInfo);;
 
-            WebClient.Builder builder = WebClient.builder();
-            WebClient build = builder.baseUrl("https://api.iyzipay.com").build();
-
-            System.out.println("---------------------------");
-            Mono<InstallmentResponseDto> installmentResponseDtoMono = build.post()
-                    .uri("/payment/iyzipos/installment")
-                    .bodyValue(bkmInstallmentPrice)
-                    .retrieve()
-                    .bodyToMono(InstallmentResponseDto.class);
-
-            installmentResponseDtoMono.subscribe(response -> {
-                System.out.println("error: "+response.getErrorCode());
-                System.out.println("Error MEssage: "+ response.getErrorMessage());
-                System.out.println("Error group: "+response.getErrorGroup());
-            });
-            System.out.println("installmentResponseDtoMono: ");
-
-            installmentResponseDtoMono.subscribe(response -> {
-                System.out.println("Status: " + response.getStatus());
-                System.out.println("Locale: " + response.getLocale());
-                System.out.println("System Time: " + response.getSystemTime());
-                System.out.println("Conversation ID: " + response.getConversationId());
-
-                System.out.println("Installment Details:");
-                response.getInstallmentDetails().forEach(detail -> {
-                    System.out.println("  Bin Number: " + detail.getBinNumber());
-                    System.out.println("  Price: " + detail.getPrice());
-                    System.out.println("  Card Type: " + detail.getCardType());
-                    System.out.println("  Bank Name: " + detail.getBankName());
-
-                    System.out.println("  Installment Prices:");
-                    detail.getInstallmentPrices().forEach(price -> {
-                        System.out.println("    Installment Number: " + price.getInstallmentNumber());
-                        System.out.println("    Installment Price: " + price.getInstallmentPrice());
-                        System.out.println("    Total Price: " + price.getTotalPrice());
-                    });
-                });
-            });
-
-            return "success";
-
+            return PaymentBuilder.installmentInfoDto(installmentInfo);
         }else
-            return "error";**/
+            throw new BadRequestException("Geçersiz Kart");
 
     }
 
-    public static String generateAuthorizationString(String uriPath, String requestBody) throws Exception {
-        // Benzersiz bir random key oluşturuyoruz
-        String randomKey = String.valueOf(System.currentTimeMillis()) + "123456789"; // örnek random key
-
-        // payload (istek verisini) oluşturuyoruz
-        String payload = randomKey + uriPath + requestBody;
-
-        // HMACSHA256 ile hash oluşturuyoruz
-        String encryptedData = hmacSha256(payload, "sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
-
-        // Authorization string oluşturuyoruz
-        String authorizationString = "apiKey:" + "sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo"
-                + "&randomKey:" + randomKey
-                + "&signature:" + encryptedData;
-
-        // Base64 encoding
-        String base64EncodedAuthorization = Base64.getEncoder().encodeToString(authorizationString.getBytes(StandardCharsets.UTF_8));
-
-        // Final authorization string'i döndürüyoruz
-        return "IYZWSv2 " + base64EncodedAuthorization;
-    }
-
-    // HMACSHA256 hash fonksiyonu
-    private static String hmacSha256(String data, String key) throws Exception {
-        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256Hmac.init(secretKeySpec);
-
-        byte[] hash = sha256Hmac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hash) {
-            hexString.append(String.format("%02x", b));
-        }
-
-        return hexString.toString();
-    }
+//    // HMACSHA256 hash ve Base64 encode işlemi
+//    public  String generateAuthorizationString(String code) throws Exception {
+//        String requestData = "{\"installmentNumber\":"+code+",\"totalPrice\":10000,\"locale\":\"tr\",\"conversationId\":\"123456789\"}";
+//
+//        String secretKey = "sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP";
+//        String apiKey = "sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo";
+//
+//        String uriPath = "/payment/iyzipos/installment";
+//        String payload = "123456789" + uriPath + requestData;
+//
+//        Mac mac = Mac.getInstance("HmacSHA256");
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+//        mac.init(secretKeySpec);
+//        byte[] encryptedDataBytes = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
+//
+//        String encryptedData = Base64.getEncoder().encodeToString(encryptedDataBytes);
+//
+//        String authorizationString = "apiKey:" + apiKey
+//                + "&randomKey:" + "123456789"
+//                + "&signature:" + encryptedData;
+//
+//        return "IYZWSv2 " + Base64.getEncoder().encodeToString(authorizationString.getBytes(StandardCharsets.UTF_8));
+//
+//
+//
+//        /**
+//        // Benzersiz randomKey oluşturma (zaman damgası ve sabit bir string)
+//        String randomKey = System.currentTimeMillis() + "123456789";
+//
+//        // URI path örneği: "/payment/bin/check"
+//        String uriPath = "/payment/bin/check";
+//
+//        // Payload oluşturma
+//        String payload = (requestData == null || requestData.isEmpty())
+//                ? randomKey + uriPath
+//                : randomKey + uriPath + requestData;
+//
+//        // HMACSHA256 işlemi
+//        Mac mac = Mac.getInstance("HmacSHA256");
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
+//        mac.init(secretKeySpec);
+//        byte[] encryptedDataBytes = mac.doFinal(payload.getBytes());
+//
+//        // Base64 encoding
+//        String encryptedData = Base64.getEncoder().encodeToString(encryptedDataBytes);
+//
+//        // Authorization string oluşturma
+//        String authorizationString = "apiKey:" + apiKey
+//                + "&randomKey:" + randomKey
+//                + "&signature:" + encryptedData;
+//
+//        // Base64 encoding
+//        String base64EncodedAuthorization = Base64.getEncoder().encodeToString(authorizationString.getBytes());
+//
+//        // Sonuç: IYZWSv2 + base64EncodedAuthorization
+//        return "IYZWSv2 " + base64EncodedAuthorization;
+//
+//        **/
+//    }
 
 
     public Options getOptions() {
         Options options = new Options();
-        options.setApiKey("sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo");
-        options.setSecretKey("sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP");
-        options.setBaseUrl("https://sandbox-api.iyzipay.com");
+        options.setApiKey(apiKey);
+        options.setSecretKey(apiSecret);
+        options.setBaseUrl(baseUrl);
         return options;
     }
 
@@ -345,7 +218,7 @@ public class IyzicoPayment implements PaymentStrategy {
         request.setBasketId(order.getOrderCode());
         request.setPaymentChannel(PaymentChannel.WEB.name());
         request.setPaymentGroup(PaymentGroup.PRODUCT.name());
-        request.setCallbackUrl("https://litysofttest1.site/payment/payCallBack");
+        request.setCallbackUrl("https://litysofttest1.site"+"/api/v1/payment/payCallBack");
         return request;
     }
 
