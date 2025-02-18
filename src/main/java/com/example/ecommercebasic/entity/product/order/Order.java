@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.entity.product.order;
 
+import com.example.ecommercebasic.entity.payment.Payment;
 import com.example.ecommercebasic.entity.user.User;
 import jakarta.persistence.*;
 
@@ -26,6 +27,9 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.PENDING;
+
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<Payment> payments = new ArrayList<>();
 
     private String orderCode;
 
@@ -93,5 +97,13 @@ public class Order {
 
     public void setOrderCode(String orderCode) {
         this.orderCode = orderCode;
+    }
+
+    public List<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<Payment> payments) {
+        this.payments = payments;
     }
 }

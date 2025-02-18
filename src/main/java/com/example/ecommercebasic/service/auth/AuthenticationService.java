@@ -81,7 +81,7 @@ public class AuthenticationService {
                     + "; Max-Age=" + Integer.parseInt(maxAge)
                     + "; SameSite=" + sameSite);
 
-            return new AuthenticationResponseDto(accessToken);
+            return new AuthenticationResponseDto(accessToken,"","","");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -123,7 +123,7 @@ public class AuthenticationService {
                     + "; Max-Age=" + Integer.parseInt(maxAge)
                     + "; SameSite=" + sameSite);
 
-            return new AuthenticationResponseDto(accessToken);
+            return new AuthenticationResponseDto(accessToken,"","","");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -133,7 +133,7 @@ public class AuthenticationService {
         RefreshToken refreshToken = refreshTokenService.getRefreshTokenHash(refreshTokenHash);
 
         if (refreshToken.isActive() && refreshToken.getExpirationTime().isBefore(LocalDateTime.now())) {
-            return  new AuthenticationResponseDto(jwtUtils.generateAccessToken(refreshToken.getUser().getUsername()));
+            return  new AuthenticationResponseDto(jwtUtils.generateAccessToken(refreshToken.getUser().getUsername()),"","","");
         }else
             throw new TokenExpiredException(ApplicationConstant.TRY_LOGIN);
 

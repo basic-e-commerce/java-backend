@@ -2,6 +2,8 @@ package com.example.ecommercebasic.service.payment.paymentprovider;
 
 import com.example.ecommercebasic.builder.payment.PaymentBuilder;
 import com.example.ecommercebasic.dto.payment.InstallmentInfoDto;
+import com.example.ecommercebasic.dto.payment.PayCallBackDto;
+import com.example.ecommercebasic.dto.payment.ProcessCreditCardDto;
 import com.example.ecommercebasic.dto.product.order.OrderDeliveryRequestDto;
 import com.example.ecommercebasic.dto.product.payment.CreditCardRequestDto;
 import com.example.ecommercebasic.entity.product.order.Order;
@@ -18,10 +20,14 @@ import com.iyzipay.request.RetrieveBinNumberRequest;
 import com.iyzipay.request.RetrieveInstallmentInfoRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class IyzicoPayment implements PaymentStrategy {
@@ -44,13 +50,17 @@ public class IyzicoPayment implements PaymentStrategy {
     @Value("${payment.iyzico.callBack}")
     private String callBackUrl = "/api/v1/payment/payCallBack";
 
-
+    @Retryable(
+            value = {IOException.class, TimeoutException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000) // 2 saniye bekleyerek yeniden dene
+    )  // Eğer ödeme sağlayıcısı geçici bir hata döndürürse (örneğin, zaman aşımı ya da bağlantı hatası), Spring otomatik olarak 3 defa yeniden deneyecek.
     @Override
-    public String processCreditCardPayment(double amount, Order order, CreditCardRequestDto creditCardRequestDto, OrderDeliveryRequestDto orderDeliveryRequestDto, HttpServletRequest httpServletRequest) {
+    public ProcessCreditCardDto processCreditCardPayment(double amount, Order order, CreditCardRequestDto creditCardRequestDto, OrderDeliveryRequestDto orderDeliveryRequestDto, String conversationId, HttpServletRequest httpServletRequest) {
         System.out.println("toplam: "+order.getTotalPrice());
         Options options = getOptions();
 
-        CreatePaymentRequest request = getCreatePaymentRequest(order);
+        CreatePaymentRequest request = getCreatePaymentRequest(order,conversationId);
         PaymentCard paymentCard = getPaymentCard(creditCardRequestDto);
         request.setPaymentCard(paymentCard);
 
@@ -69,11 +79,17 @@ public class IyzicoPayment implements PaymentStrategy {
         ThreedsInitialize threedsInitialize = ThreedsInitialize.create(request, options);
         System.out.println(threedsInitialize);
 
-        return threedsInitialize.getHtmlContent();
+        return new ProcessCreditCardDto(
+                threedsInitialize.getConversationId(),
+                order.getId(),
+                threedsInitialize.getHtmlContent(),
+                threedsInitialize.getStatus()
+        );
     }
 
+
     @Override
-    public String payCallBack(Map<String, String> collections) {
+    public PayCallBackDto payCallBack(Map<String, String> collections) {
         for (Map.Entry<String, String> entry : collections.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
@@ -81,9 +97,13 @@ public class IyzicoPayment implements PaymentStrategy {
         String paymentId = collections.get("paymentId");
         String conversationId = collections.get("conversationId");
         String mdStatus = collections.get("mdStatus");
+        System.out.println("mdstatus: "+mdStatus);
 
         if (!"success".equalsIgnoreCase(status)) {
-            return "Ödeme başarısız oldu!";
+            return new PayCallBackDto(
+                    conversationId,
+                    status
+            );
         }else{
             System.out.println("Bir kısım başarılı");
 
@@ -101,9 +121,15 @@ public class IyzicoPayment implements PaymentStrategy {
 
 
             if (threedsPayment.getStatus().equals("success")) {
-                return "Ödeme başarılı!";
+                return new PayCallBackDto(
+                        conversationId,
+                        status
+                );
             }else
-                throw new BadRequestException("Ödeme Tamamlanamadı");
+                return new PayCallBackDto(
+                        conversationId,
+                        status
+                );
         }
 
     }
@@ -136,66 +162,6 @@ public class IyzicoPayment implements PaymentStrategy {
 
     }
 
-//    // HMACSHA256 hash ve Base64 encode işlemi
-//    public  String generateAuthorizationString(String code) throws Exception {
-//        String requestData = "{\"installmentNumber\":"+code+",\"totalPrice\":10000,\"locale\":\"tr\",\"conversationId\":\"123456789\"}";
-//
-//        String secretKey = "sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP";
-//        String apiKey = "sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo";
-//
-//        String uriPath = "/payment/iyzipos/installment";
-//        String payload = "123456789" + uriPath + requestData;
-//
-//        Mac mac = Mac.getInstance("HmacSHA256");
-//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-//        mac.init(secretKeySpec);
-//        byte[] encryptedDataBytes = mac.doFinal(payload.getBytes(StandardCharsets.UTF_8));
-//
-//        String encryptedData = Base64.getEncoder().encodeToString(encryptedDataBytes);
-//
-//        String authorizationString = "apiKey:" + apiKey
-//                + "&randomKey:" + "123456789"
-//                + "&signature:" + encryptedData;
-//
-//        return "IYZWSv2 " + Base64.getEncoder().encodeToString(authorizationString.getBytes(StandardCharsets.UTF_8));
-//
-//
-//
-//        /**
-//        // Benzersiz randomKey oluşturma (zaman damgası ve sabit bir string)
-//        String randomKey = System.currentTimeMillis() + "123456789";
-//
-//        // URI path örneği: "/payment/bin/check"
-//        String uriPath = "/payment/bin/check";
-//
-//        // Payload oluşturma
-//        String payload = (requestData == null || requestData.isEmpty())
-//                ? randomKey + uriPath
-//                : randomKey + uriPath + requestData;
-//
-//        // HMACSHA256 işlemi
-//        Mac mac = Mac.getInstance("HmacSHA256");
-//        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
-//        mac.init(secretKeySpec);
-//        byte[] encryptedDataBytes = mac.doFinal(payload.getBytes());
-//
-//        // Base64 encoding
-//        String encryptedData = Base64.getEncoder().encodeToString(encryptedDataBytes);
-//
-//        // Authorization string oluşturma
-//        String authorizationString = "apiKey:" + apiKey
-//                + "&randomKey:" + randomKey
-//                + "&signature:" + encryptedData;
-//
-//        // Base64 encoding
-//        String base64EncodedAuthorization = Base64.getEncoder().encodeToString(authorizationString.getBytes());
-//
-//        // Sonuç: IYZWSv2 + base64EncodedAuthorization
-//        return "IYZWSv2 " + base64EncodedAuthorization;
-//
-//        **/
-//    }
-
 
     public Options getOptions() {
         Options options = new Options();
@@ -205,12 +171,11 @@ public class IyzicoPayment implements PaymentStrategy {
         return options;
     }
 
-    public CreatePaymentRequest getCreatePaymentRequest(Order order) {
-        String uuid = UUID.randomUUID().toString();
+    public CreatePaymentRequest getCreatePaymentRequest(Order order,String conversationId) {
         CreatePaymentRequest request = new CreatePaymentRequest();
 
         request.setLocale(Locale.TR.getValue());
-        request.setConversationId(uuid);
+        request.setConversationId(conversationId);
         request.setPrice(BigDecimal.valueOf(order.getTotalPrice()));
         request.setPaidPrice(BigDecimal.valueOf(order.getTotalPrice()));
         request.setCurrency(Currency.TRY.name());
