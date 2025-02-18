@@ -2,30 +2,31 @@ package com.example.ecommercebasic.dto.user.auth;
 
 public class AuthenticationResponseDto {
     private String accessToken;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String username;
-    private String phoneNo;
 
-    public AuthenticationResponseDto(String accessToken, String name, String username, String phoneNo) {
+    public AuthenticationResponseDto(String accessToken, String firstName, String lastName, String username) {
         this.accessToken = accessToken;
-        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.username = username;
-        this.phoneNo = phoneNo;
+
     }
 
     public String getAccessToken() {
         return accessToken;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public String getPhoneNo() {
-        return phoneNo;
+    public String getLastName() {
+        return lastName;
     }
 }

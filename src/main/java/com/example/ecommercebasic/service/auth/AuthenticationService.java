@@ -6,9 +6,11 @@ import com.example.ecommercebasic.dto.user.auth.AuthenticationRequestDto;
 import com.example.ecommercebasic.dto.user.auth.AuthenticationResponseDto;
 import com.example.ecommercebasic.entity.auth.RefreshToken;
 import com.example.ecommercebasic.entity.user.Roles;
+import com.example.ecommercebasic.entity.user.User;
 import com.example.ecommercebasic.exception.InvalidFormatException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.exception.TokenExpiredException;
+import com.example.ecommercebasic.service.user.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,12 +37,14 @@ public class AuthenticationService {
     private final JwtUtils jwtUtils;
     private final RegexValidation regexValidation;
     private final RefreshTokenService refreshTokenService;
+    private final UserService userService;
 
-    public AuthenticationService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, RegexValidation regexValidation, RefreshTokenService refreshTokenService) {
+    public AuthenticationService(AuthenticationManager authenticationManager, JwtUtils jwtUtils, RegexValidation regexValidation, RefreshTokenService refreshTokenService, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
         this.regexValidation = regexValidation;
         this.refreshTokenService = refreshTokenService;
+        this.userService = userService;
     }
 
 
@@ -81,7 +85,8 @@ public class AuthenticationService {
                     + "; Max-Age=" + Integer.parseInt(maxAge)
                     + "; SameSite=" + sameSite);
 
-            return new AuthenticationResponseDto(accessToken,"","","");
+            User user = userService.getUserByUsername(authenticatedUser.getName());
+            return new AuthenticationResponseDto(accessToken, user.getFirstName(),user.getLastName(), user.getUsername());
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -123,7 +128,8 @@ public class AuthenticationService {
                     + "; Max-Age=" + Integer.parseInt(maxAge)
                     + "; SameSite=" + sameSite);
 
-            return new AuthenticationResponseDto(accessToken,"","","");
+            User user = userService.getUserByUsername(authenticatedUser.getName());
+            return new AuthenticationResponseDto(accessToken, user.getFirstName(), user.getLastName(), user.getUsername());
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -133,7 +139,8 @@ public class AuthenticationService {
         RefreshToken refreshToken = refreshTokenService.getRefreshTokenHash(refreshTokenHash);
 
         if (refreshToken.isActive() && refreshToken.getExpirationTime().isBefore(LocalDateTime.now())) {
-            return  new AuthenticationResponseDto(jwtUtils.generateAccessToken(refreshToken.getUser().getUsername()),"","","");
+            User user = userService.getUserByUsername(refreshToken.getUser().getUsername());
+            return  new AuthenticationResponseDto(jwtUtils.generateAccessToken(refreshToken.getUser().getUsername()),user.getFirstName(), user.getLastName(), user.getUsername());
         }else
             throw new TokenExpiredException(ApplicationConstant.TRY_LOGIN);
 
