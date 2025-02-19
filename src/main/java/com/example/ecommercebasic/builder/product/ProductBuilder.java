@@ -1,9 +1,10 @@
 package com.example.ecommercebasic.builder.product;
 
 import com.example.ecommercebasic.config.validation.RegexValidation;
-import com.example.ecommercebasic.dto.product.ProductRequestDto;
-import com.example.ecommercebasic.dto.product.ProductResponseDto;
-import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
+import com.example.ecommercebasic.dto.product.productdto.ProductModelRequestDto;
+import com.example.ecommercebasic.dto.product.productdto.ProductRequestDto;
+import com.example.ecommercebasic.dto.product.productdto.ProductResponseDto;
+import com.example.ecommercebasic.dto.product.productdto.ProductSmallResponseDto;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.UnitType;
 import org.springframework.stereotype.Component;
@@ -51,4 +52,15 @@ public class ProductBuilder {
         );
     }
 
+    public Product productModelRequestDtoToProduct(ProductModelRequestDto productModelRequestDto) {
+        return new Product(
+                productModelRequestDto.getProductName(),
+                RegexValidation.sanitize(productModelRequestDto.getDescription()),
+                productModelRequestDto.getQuantity(),
+                productModelRequestDto.getPrice(),
+                productModelRequestDto.getDiscountPrice(),
+                productModelRequestDto.isStatus(),
+                UnitType.fromValue(productModelRequestDto.getUnitType())
+        );
+    }
 }

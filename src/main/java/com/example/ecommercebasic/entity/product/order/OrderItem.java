@@ -18,9 +18,9 @@ public class OrderItem {
     private Product product;  // Satın alınan ürün
 
     private int quantity; // Miktar
-    private float currentPrice; // O anki fiyat
+    private double currentPrice; // O anki fiyat
 
-    public OrderItem(Product product, int quantity, float currentPrice) {
+    public OrderItem(Product product, int quantity, double currentPrice) {
         this.product = product;
         this.quantity = quantity;
         this.currentPrice = currentPrice;
@@ -53,11 +53,11 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public float getcurrentPrice() {
+    public double getcurrentPrice() {
         return currentPrice;
     }
 
-    public void setcurrentPrice(float currentPrice) {
+    public void setcurrentPrice(double currentPrice) {
         this.currentPrice = currentPrice;
     }
 }

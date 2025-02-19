@@ -1,9 +1,6 @@
 package com.example.ecommercebasic.controller.product;
 
-import com.example.ecommercebasic.dto.product.ProductRemoveDto;
-import com.example.ecommercebasic.dto.product.ProductRequestDto;
-import com.example.ecommercebasic.dto.product.ProductResponseDto;
-import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
+import com.example.ecommercebasic.dto.product.productdto.*;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.service.product.ProductService;
 import org.springframework.http.HttpStatus;
@@ -25,6 +22,10 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody ProductRequestDto productRequestDto) {
         return new ResponseEntity<>(productService.createProduct(productRequestDto), HttpStatus.CREATED);
+    }
+    @PostMapping("/model")
+    public ResponseEntity<ProductResponseDto> createProductModel(@ModelAttribute ProductModelRequestDto productModelRequestDto) {
+        return new ResponseEntity<>(productService.createProductModel(productModelRequestDto),HttpStatus.OK);
     }
 
     @GetMapping

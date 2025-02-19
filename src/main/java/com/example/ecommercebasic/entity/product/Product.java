@@ -20,9 +20,9 @@ public class Product {
     private String productCode;
     private String description;
     private int quantity;
-    private float price;
+    private double price;
     @Column(columnDefinition = "FLOAT DEFAULT 0")
-    private float discountPrice;
+    private double discountPrice;
     private boolean status;
 
     @Enumerated(EnumType.STRING)
@@ -45,7 +45,7 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<ProductAttribute> productAttributes = new ArrayList<>();
 
-    public Product(String productName, String description, int quantity, float price, boolean status, UnitType unitType) {
+    public Product(String productName, String description, int quantity, double price, boolean status, UnitType unitType) {
         this.productName = productName;
         this.description = description;
         this.quantity = quantity;
@@ -54,7 +54,7 @@ public class Product {
         this.unitType = unitType;
     }
 
-    public Product(String productName, String description, int quantity, float price, float discountPrice, boolean status, UnitType unitType) {
+    public Product(String productName, String description, int quantity, double price, double discountPrice, boolean status, UnitType unitType) {
         this.productName = productName;
         this.description = description;
         this.quantity = quantity;
@@ -111,11 +111,11 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -151,11 +151,11 @@ public class Product {
         this.images = images;
     }
 
-    public float getDiscountPrice() {
+    public double getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(float discountPrice) {
+    public void setDiscountPrice(double discountPrice) {
         this.discountPrice = discountPrice;
     }
 

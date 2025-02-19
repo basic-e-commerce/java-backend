@@ -1,26 +1,20 @@
-package com.example.ecommercebasic.dto.product;
+package com.example.ecommercebasic.dto.product.productdto;
 
-import java.util.List;
-
-public class ProductResponseDto {
+public class ProductSmallResponseDto {
     private int id;
     private String name;
-    private String description;
     private String coverImage;
-    private float price;
+    private double price;
+    private double discountPrice;
     private String unitType;
-    private float discountPrice;
-    private List<String> images;
 
-    public ProductResponseDto(int id, String name, String description, String coverImage, float price, String unitType, float discountPrice, List<String> images) {
+    public ProductSmallResponseDto(int id, String name, String coverImage, double price, double discountPrice, String unitType) {
         this.id = id;
         this.name = name;
-        this.description = description;
         this.coverImage = coverImage;
         this.price = price;
-        this.unitType = unitType;
         this.discountPrice = discountPrice;
-        this.images = images;
+        this.unitType = unitType;
     }
 
     public int getId() {
@@ -39,22 +33,6 @@ public class ProductResponseDto {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<String> getImages() {
-        return images;
-    }
-
-    public void setImages(List<String> images) {
-        this.images = images;
-    }
-
     public String getCoverImage() {
         return coverImage;
     }
@@ -63,19 +41,19 @@ public class ProductResponseDto {
         this.coverImage = coverImage;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    public float getDiscountPrice() {
+    public double getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(float discountPrice) {
+    public void setDiscountPrice(double discountPrice) {
         this.discountPrice = discountPrice;
     }
 

@@ -4,10 +4,10 @@ public class BasketResponseDto {
     private int id;
     private String name;
     private String coverImage;
-    private float price;
-    private float discountPrice;
+    private double price;
+    private double discountPrice;
 
-    public BasketResponseDto(int id, String name, String coverImage, float price, float discountPrice) {
+    public BasketResponseDto(int id, String name, String coverImage, double price, double discountPrice) {
         this.id = id;
         this.name = name;
         this.coverImage = coverImage;
@@ -39,19 +39,19 @@ public class BasketResponseDto {
         this.coverImage = coverImage;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    public float getDiscountPrice() {
+    public double getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(float discountPrice) {
+    public void setDiscountPrice(double discountPrice) {
         this.discountPrice = discountPrice;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.ecommercebasic.dto.product;
+package com.example.ecommercebasic.dto.product.productdto;
 
 import java.util.List;
 

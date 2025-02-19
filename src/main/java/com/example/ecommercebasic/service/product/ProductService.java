@@ -2,10 +2,7 @@ package com.example.ecommercebasic.service.product;
 
 import com.example.ecommercebasic.builder.product.ProductBuilder;
 import com.example.ecommercebasic.constant.ApplicationConstant;
-import com.example.ecommercebasic.dto.product.ProductRemoveDto;
-import com.example.ecommercebasic.dto.product.ProductRequestDto;
-import com.example.ecommercebasic.dto.product.ProductResponseDto;
-import com.example.ecommercebasic.dto.product.ProductSmallResponseDto;
+import com.example.ecommercebasic.dto.product.productdto.*;
 import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.ImageType;
 import com.example.ecommercebasic.entity.product.Product;
@@ -17,7 +14,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +59,38 @@ public class ProductService {
         }
         product.setCategories(productCategories);
         return productRepository.save(product);
+    }
+
+    @Transactional
+    public ProductResponseDto createProductModel(ProductModelRequestDto productModelRequestDto) {
+
+        if (productModelRequestDto.getQuantity() <=0)
+            throw new BadRequestException("Quantity must be greater than 0");
+
+        if (productModelRequestDto.getPrice() <=0)
+            throw new BadRequestException("Price must be greater than 0");
+
+        if (productRepository.existsByProductNameEqualsIgnoreCase(productModelRequestDto.getProductName()))
+            throw new BadRequestException("Product name already exists");
+
+        Product product = productBuilder.productModelRequestDtoToProduct(productModelRequestDto);
+        List<Category> categories = productModelRequestDto.getCategoryId().stream().map(categoryService::findById).toList();
+        Set<Category> productCategories = new HashSet<>();
+
+        for (int i = 0;i<categories.size();i++) {
+            if (categories.get(i).isSubCategory()) {
+                productCategories.add(categories.get(i));
+            }else
+                throw new BadRequestException("Category is not a sub category: "+categories.get(i).getName());
+        }
+        product.setCategories(productCategories);
+
+        String coverImage = updateProductCoverImageWithProduct(productModelRequestDto.getCoverImage(), product);
+        product.setCoverUrl(coverImage);
+        List<String> images = updateProductImageWithProduct(productModelRequestDto.getImages(),product);
+        product.setImages(images);
+
+        return productBuilder.productToProductResponseDto(productRepository.save(product));
     }
 
     public String addCategoryProduct(List<Integer> categoryId,int productId){
@@ -187,6 +215,12 @@ public class ProductService {
         return "Product cover image updated successfully";
     }
 
+    @Transactional
+    public String updateProductCoverImageWithProduct(MultipartFile file, Product product) {
+        String path = ImageType.PRODUCT_COVER_IMAGE.getValue()+"/"+product.getId()+"/";
+        return fileService.uploadImage(file,path);
+    }
+
 
 
     @Transactional
@@ -208,6 +242,19 @@ public class ProductService {
     }
 
     @Transactional
+    public List<String> updateProductImageWithProduct(MultipartFile[] files, Product product) {
+        ArrayList<String> images = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            String path = ImageType.PRODUCT_IMAGE.getValue()+"/"+product.getId()+"/";
+            String newPath = fileService.uploadImage(file,path);
+            images.add(newPath);
+        }
+        return images;
+    }
+
+
+    @Transactional
     public String removeProductImage(ProductRemoveDto productRemoveDto) {
         Product product = findById(productRemoveDto.getId());
         for (String image : productRemoveDto.getImages()) {
@@ -224,4 +271,6 @@ public class ProductService {
     public List<ProductSmallResponseDto> getAllProductSmall() {
         return productRepository.findAll().stream().map(productBuilder::productToProductSmallResponseDto).collect(Collectors.toList());
     }
+
+
 }
