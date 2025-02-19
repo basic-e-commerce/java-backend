@@ -12,6 +12,7 @@ import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.ProductRepository;
+import com.example.ecommercebasic.service.product.attribute.AttributeService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,12 +30,15 @@ public class ProductService {
     private final FileService fileService;
     private final ProductBuilder productBuilder;
     private final ProductRepository productRepository;
+    private final AttributeService attributeService;
 
-    public ProductService(CategoryService categoryService, FileService fileService, ProductBuilder productBuilder, ProductRepository productRepository) {
+
+    public ProductService(CategoryService categoryService, FileService fileService, ProductBuilder productBuilder, ProductRepository productRepository, AttributeService attributeService) {
         this.categoryService = categoryService;
         this.fileService = fileService;
         this.productBuilder = productBuilder;
         this.productRepository = productRepository;
+        this.attributeService = attributeService;
     }
 
     public Product createProduct(ProductRequestDto productRequestDto) {
