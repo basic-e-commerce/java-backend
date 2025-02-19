@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.entity.product;
 
+import com.example.ecommercebasic.entity.product.attribute.ProductAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -41,6 +42,9 @@ public class Product {
     @ElementCollection
     private List<String> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "product")
+    private List<ProductAttribute> productAttributes = new ArrayList<>();
+
     public Product(String productName, String description, int quantity, float price, boolean status, UnitType unitType) {
         this.productName = productName;
         this.description = description;
@@ -67,7 +71,6 @@ public class Product {
     private void generateProductData() {
         if (productName != null) {
             this.productLinkName = productName.trim().toLowerCase()
-                    .replaceAll("[^a-zA-Z0-9\\s]", "") // Özel karakterleri kaldır
                     .replaceAll("\\s+", "-"); // Boşlukları "-" ile değiştir
         }
 
@@ -162,5 +165,21 @@ public class Product {
 
     public void setUnitType(UnitType unitType) {
         this.unitType = unitType;
+    }
+
+    public String getProductLinkName() {
+        return productLinkName;
+    }
+
+    public void setProductLinkName(String productLinkName) {
+        this.productLinkName = productLinkName;
+    }
+
+    public List<ProductAttribute> getProductAttributes() {
+        return productAttributes;
+    }
+
+    public void setProductAttributes(List<ProductAttribute> productAttributes) {
+        this.productAttributes = productAttributes;
     }
 }

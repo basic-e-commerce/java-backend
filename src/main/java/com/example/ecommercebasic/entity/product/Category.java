@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.entity.product;
 
+import com.example.ecommercebasic.entity.product.attribute.Attribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -35,6 +36,9 @@ public class Category {
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isSubCategory;
+
+    @OneToMany(mappedBy = "category")
+    private List<Attribute> attributes = new ArrayList<>();  // Bu kategoriye ait özellikler
 
     public Category() {
     }
@@ -99,5 +103,13 @@ public class Category {
 
     public void setSubCategory(boolean subCategory) {
         isSubCategory = subCategory;
+    }
+
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
     }
 }
