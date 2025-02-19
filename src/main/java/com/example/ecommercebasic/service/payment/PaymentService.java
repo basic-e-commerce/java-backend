@@ -75,18 +75,18 @@ public class PaymentService {
     }
 
 
-    public String payCallBack(Map<String, String> collections) {
-        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
-        PayCallBackDto payCallBackDto = paymentStrategy.payCallBack(collections);
-        if (payCallBackDto.getStatus().equals("success")) {
-            Payment payment = findByConversationId(payCallBackDto.getConversationId());
-            payment.setStatus(PaymentStatus.SUCCESS);
-            paymentRepository.save(payment);
-            return "Ödeme Başarılı";
-        }else
-            return  "Ödeme başarısız";
+        public String payCallBack(Map<String, String> collections) {
+            PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
+            PayCallBackDto payCallBackDto = paymentStrategy.payCallBack(collections);
+            if (payCallBackDto.getStatus().equals("success")) {
+                Payment payment = findByConversationId(payCallBackDto.getConversationId());
+                payment.setStatus(PaymentStatus.SUCCESS);
+                paymentRepository.save(payment);
+                return "Ödeme Başarılı";
+            }else
+                return  "Ödeme başarısız";
 
-    }
+        }
 
     public InstallmentInfoDto getBin(String binCode) {
         PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
