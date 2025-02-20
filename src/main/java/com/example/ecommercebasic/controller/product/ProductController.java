@@ -25,6 +25,7 @@ public class ProductController {
     }
     @PostMapping("/model")
     public ResponseEntity<ProductResponseDto> createProductModel(@ModelAttribute ProductModelRequestDto productModelRequestDto) {
+        System.out.println("asddsa");
         return new ResponseEntity<>(productService.createProductModel(productModelRequestDto),HttpStatus.OK);
     }
 

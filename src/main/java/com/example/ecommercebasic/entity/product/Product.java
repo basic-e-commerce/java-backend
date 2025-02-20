@@ -1,6 +1,6 @@
 package com.example.ecommercebasic.entity.product;
 
-import com.example.ecommercebasic.entity.product.attribute.ProductAttribute;
+import com.example.ecommercebasic.entity.product.attribute.Attribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -42,8 +42,13 @@ public class Product {
     @ElementCollection
     private List<String> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product")
-    private List<ProductAttribute> productAttributes = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "product_attribute_mapping",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "attribute_id")
+    )
+    private List<Attribute> attributes = new ArrayList<>();
 
     public Product(String productName, String description, int quantity, double price, boolean status, UnitType unitType) {
         this.productName = productName;
@@ -175,11 +180,19 @@ public class Product {
         this.productLinkName = productLinkName;
     }
 
-    public List<ProductAttribute> getProductAttributes() {
-        return productAttributes;
+    public String getProductCode() {
+        return productCode;
     }
 
-    public void setProductAttributes(List<ProductAttribute> productAttributes) {
-        this.productAttributes = productAttributes;
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
     }
 }

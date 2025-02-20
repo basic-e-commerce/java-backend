@@ -2,6 +2,9 @@ package com.example.ecommercebasic.entity.product.attribute;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "attribute_value")
 public class AttributeValue {
@@ -10,15 +13,13 @@ public class AttributeValue {
     @SequenceGenerator(name = "attibute_value_seq", sequenceName = "attibute_value_seq", allocationSize = 1)
     private int id;
 
-    private String value;  // Örneğin, "8GB", "Mavi", "L" vb.
+    private String value;
 
-    @ManyToOne
-    @JoinColumn(name = "attribute_id")
-    private Attribute attribute;  // Bu değer hangi özelliğe ait?
+    @ManyToMany(mappedBy = "values")
+    private List<Attribute> attributes = new ArrayList<>();
 
-    public AttributeValue(String value, Attribute attribute) {
+    public AttributeValue(String value) {
         this.value = value;
-        this.attribute = attribute;
     }
 
     public AttributeValue() {
@@ -40,11 +41,11 @@ public class AttributeValue {
         this.value = value;
     }
 
-    public Attribute getAttribute() {
-        return attribute;
+    public List<Attribute> getAttributes() {
+        return attributes;
     }
 
-    public void setAttribute(Attribute attribute) {
-        this.attribute = attribute;
+    public void setAttributes(List<Attribute> attributes) {
+        this.attributes = attributes;
     }
 }

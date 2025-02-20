@@ -37,7 +37,7 @@ public class Category {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isSubCategory;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany
     private List<Attribute> attributes = new ArrayList<>();  // Bu kategoriye ait özellikler
 
     public Category() {
