@@ -6,6 +6,7 @@ import com.example.ecommercebasic.dto.product.CategorySmallDto;
 import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.ImageType;
 import com.example.ecommercebasic.entity.product.Product;
+import com.example.ecommercebasic.entity.product.attribute.Attribute;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.CategoryRepository;
 import jakarta.transaction.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,13 +42,14 @@ public class CategoryService {
         Category category = new Category();
         if (categoryRequestDto.getParentCategoryId() != 0 ) {
             Category parentCategory = findById(categoryRequestDto.getParentCategoryId());
+            Set<Attribute> attributes = parentCategory.getAttributes();
             parentCategory.setSubCategory(false);
-            for (Product product : parentCategory.getProducts()) {
-                System.out.println(product.getProductName());
-            }
-            category.setProducts(parentCategory.getProducts());
+            parentCategory.setAttributes(null);
             parentCategory.setProducts(null);
+
+            category.setProducts(parentCategory.getProducts());
             category.setParentCategory(parentCategory);
+            category.setAttributes(attributes);
             categoryRepository.save(parentCategory);
         }
 
@@ -77,7 +80,6 @@ public class CategoryService {
     public String delete(Integer categoryId) {
         // Kategori var mı diye kontrol et
         Category category = findById(categoryId);
-
         // Alt kategorileri recursive olarak sil
         deleteCategoryRecursively(category);
 
@@ -101,6 +103,10 @@ public class CategoryService {
             categoryRepository.deleteCategoryProductRelations(category.getId());
             category.setProducts(null);
             categoryRepository.save(category);
+        }
+
+        if (category.getAttributes() != null ) {
+            category.setAttributes(null);
         }
 
         categoryRepository.delete(category);
@@ -128,5 +134,9 @@ public class CategoryService {
 
     public Category findByCategoryName(String categoryName) {
         return categoryRepository.findByNameEqualsIgnoreCase(categoryName).orElseThrow(() -> new IllegalArgumentException("Invalid category name."));
+    }
+
+    public void save(Category category) {
+        categoryRepository.save(category);
     }
 }

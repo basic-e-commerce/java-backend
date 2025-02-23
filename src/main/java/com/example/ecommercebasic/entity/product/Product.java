@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.entity.product;
 
 import com.example.ecommercebasic.entity.product.attribute.Attribute;
+import com.example.ecommercebasic.entity.product.attribute.ProductAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -16,7 +17,8 @@ public class Product {
     private int id;
     private String productName;
     private String productLinkName;
-
+    @Enumerated(EnumType.STRING)
+    private ProductType productType;
     private String productCode;
     private String description;
     private int quantity;
@@ -42,13 +44,11 @@ public class Product {
     @ElementCollection
     private List<String> images = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "product_attribute_mapping",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "attribute_id")
-    )
-    private List<Attribute> attributes = new ArrayList<>();
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductAttribute> productAttribute = new ArrayList<>();
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean isDeleted = false;
 
     public Product(String productName, String description, int quantity, double price, boolean status, UnitType unitType) {
         this.productName = productName;
@@ -57,6 +57,8 @@ public class Product {
         this.price = price;
         this.status = status;
         this.unitType = unitType;
+        this.productType= ProductType.BASIC;
+        this.isDeleted = false;
     }
 
     public Product(String productName, String description, int quantity, double price, double discountPrice, boolean status, UnitType unitType) {
@@ -67,6 +69,23 @@ public class Product {
         this.discountPrice = discountPrice;
         this.status = status;
         this.unitType = unitType;
+        this.productType= ProductType.BASIC;
+        this.isDeleted = false;
+    }
+
+    public Product(String productName, String productLinkName, String productCode, String description, double price, double discountPrice, boolean status, UnitType unitType, Set<Category> categories, String coverUrl, List<String> images, List<ProductAttribute> productAttribute) {
+        this.productName = productName;
+        this.productLinkName = productLinkName;
+        this.productCode = productCode;
+        this.description = description;
+        this.price = price;
+        this.discountPrice = discountPrice;
+        this.status = status;
+        this.unitType = unitType;
+        this.categories = categories;
+        this.coverUrl = coverUrl;
+        this.images = images;
+        this.productAttribute = productAttribute;
     }
 
     public Product() {}
@@ -188,11 +207,27 @@ public class Product {
         this.productCode = productCode;
     }
 
-    public List<Attribute> getAttributes() {
-        return attributes;
+    public List<ProductAttribute> getAttributes() {
+        return productAttribute;
     }
 
-    public void setAttributes(List<Attribute> attributes) {
-        this.attributes = attributes;
+    public void setAttributes(List<ProductAttribute> productAttribute) {
+        this.productAttribute = productAttribute;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public ProductType getProductType() {
+        return productType;
+    }
+
+    public void setProductType(ProductType productType) {
+        this.productType = productType;
     }
 }

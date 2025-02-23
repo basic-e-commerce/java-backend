@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.entity.product.attribute;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -15,8 +16,10 @@ public class AttributeValue {
 
     private String value;
 
-    @ManyToMany(mappedBy = "values")
-    private List<Attribute> attributes = new ArrayList<>();
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "attribute_id")
+    private Attribute attribute;
 
     public AttributeValue(String value) {
         this.value = value;
@@ -41,11 +44,12 @@ public class AttributeValue {
         this.value = value;
     }
 
-    public List<Attribute> getAttributes() {
-        return attributes;
+
+    public Attribute getAttribute() {
+        return attribute;
     }
 
-    public void setAttributes(List<Attribute> attributes) {
-        this.attributes = attributes;
+    public void setAttribute(Attribute attribute) {
+        this.attribute = attribute;
     }
 }

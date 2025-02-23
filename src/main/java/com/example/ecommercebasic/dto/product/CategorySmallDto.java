@@ -1,7 +1,10 @@
 package com.example.ecommercebasic.dto.product;
 
 
+import com.example.ecommercebasic.entity.product.attribute.Attribute;
+
 import java.util.List;
+import java.util.Set;
 
 public class CategorySmallDto {
     private int id;
@@ -9,13 +12,15 @@ public class CategorySmallDto {
     private String url;
     private boolean isSubCategory;
     private List<CategorySmallDto> subCategories;
+    private Set<Attribute> attributes;
 
-    public CategorySmallDto(int id, String name, String url, boolean isSubCategory, List<CategorySmallDto> subCategories) {
+    public CategorySmallDto(int id, String name, String url, boolean isSubCategory, List<CategorySmallDto> subCategories, Set<Attribute> attributes) {
         this.id = id;
         this.name = name;
         this.url = url;
         this.isSubCategory = isSubCategory;
         this.subCategories = subCategories;
+        this.attributes = attributes;
     }
 
     public int getId() {
@@ -56,5 +61,13 @@ public class CategorySmallDto {
 
     public void setSubCategory(boolean subCategory) {
         isSubCategory = subCategory;
+    }
+
+    public Set<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Set<Attribute> attributes) {
+        this.attributes = attributes;
     }
 }

@@ -2,10 +2,13 @@ package com.example.ecommercebasic.entity.product.attribute;
 
 import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.Product;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "attribute")
@@ -21,18 +24,10 @@ public class Attribute {
 
     private String name;  // Özelliğin adı (RAM, Renk, Beden vb.)
 
-    @ManyToMany
-    @JoinTable(
-            name = "attribute_value_mapping",
-            joinColumns = @JoinColumn(name = "attribute_id"),
-            inverseJoinColumns = @JoinColumn(name = "value_id")
-    )
-    private List<AttributeValue> values = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<AttributeValue> attributeValues = new HashSet<>();
 
-    @ManyToMany(mappedBy = "attributes")
-    private List<Product> products = new ArrayList<>();
-
-    public Attribute(AttributeType attributeType, String name) {
+    public Attribute(String name,AttributeType attributeType) {
         this.attributeType = attributeType;
         this.name = name;
     }
@@ -64,19 +59,11 @@ public class Attribute {
         this.attributeType = attributeType;
     }
 
-    public List<AttributeValue> getValues() {
-        return values;
+    public Set<AttributeValue> getAttributeValues() {
+        return attributeValues;
     }
 
-    public void setValues(List<AttributeValue> values) {
-        this.values = values;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
+    public void setAttributeValues(Set<AttributeValue> attributeValues) {
+        this.attributeValues = attributeValues;
     }
 }

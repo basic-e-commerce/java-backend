@@ -38,7 +38,7 @@ public class Category {
     private boolean isSubCategory;
 
     @OneToMany
-    private List<Attribute> attributes = new ArrayList<>();  // Bu kategoriye ait özellikler
+    private Set<Attribute> attributes = new HashSet<>();
 
     public Category() {
     }
@@ -105,11 +105,11 @@ public class Category {
         isSubCategory = subCategory;
     }
 
-    public List<Attribute> getAttributes() {
+    public Set<Attribute> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(List<Attribute> attributes) {
+    public void setAttributes(Set<Attribute> attributes) {
         this.attributes = attributes;
     }
 }

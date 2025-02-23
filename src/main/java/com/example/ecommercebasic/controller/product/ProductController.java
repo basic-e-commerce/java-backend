@@ -2,6 +2,7 @@ package com.example.ecommercebasic.controller.product;
 
 import com.example.ecommercebasic.dto.product.productdto.*;
 import com.example.ecommercebasic.entity.product.Product;
+import com.example.ecommercebasic.entity.product.attribute.AttributeValue;
 import com.example.ecommercebasic.service.product.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +25,15 @@ public class ProductController {
         return new ResponseEntity<>(productService.createProduct(productRequestDto), HttpStatus.CREATED);
     }
     @PostMapping("/model")
-    public ResponseEntity<ProductResponseDto> createProductModel(@ModelAttribute ProductModelRequestDto productModelRequestDto) {
-        System.out.println("asddsa");
-        return new ResponseEntity<>(productService.createProductModel(productModelRequestDto),HttpStatus.OK);
+    public ResponseEntity<ProductResponseDto> createBasicProductModel(@ModelAttribute ProductModelRequestDto productModelRequestDto) {
+        return new ResponseEntity<>(productService.createBasicProductModel(productModelRequestDto),HttpStatus.OK);
     }
+
+    @PutMapping
+    public ResponseEntity<ProductResponseDto> updateProduct(@RequestBody ProductRequestDto productRequestDto) {
+
+    }
+    
 
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
@@ -67,6 +73,10 @@ public class ProductController {
     public ResponseEntity<String> addCategoryProduct(@RequestParam List<Integer> categoriesId,@RequestParam Integer productId) {
         return new ResponseEntity<>(productService.addCategoryProduct(categoriesId, productId), HttpStatus.OK);
     }
+    @PutMapping("/add-attribute")
+    public ResponseEntity<String> addAttributeProduct(@RequestParam Integer productId, @RequestParam Integer attributeId, @RequestParam List<Integer> attributeValueIds ) {
+        return new ResponseEntity<>(productService.addAttribute(productId, attributeId,attributeValueIds), HttpStatus.OK);
+    }
 
     @PutMapping("/remove-category")
     public ResponseEntity<String> removeCategoryProduct(@RequestParam List<Integer> categoriesId,@RequestParam Integer productId) {
@@ -92,6 +102,8 @@ public class ProductController {
     public ResponseEntity<String> removeProductImage(@RequestBody ProductRemoveDto productRemoveDto) {
         return new ResponseEntity<>(productService.removeProductImage(productRemoveDto),HttpStatus.OK);
     }
+
+
 
 
 

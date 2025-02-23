@@ -6,6 +6,7 @@ import com.example.ecommercebasic.dto.product.productdto.*;
 import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.ImageType;
 import com.example.ecommercebasic.entity.product.Product;
+import com.example.ecommercebasic.entity.product.attribute.Attribute;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.ProductRepository;
@@ -62,7 +63,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductResponseDto createProductModel(ProductModelRequestDto productModelRequestDto) {
+    public ProductResponseDto createBasicProductModel(ProductModelRequestDto productModelRequestDto) {
 
         if (productModelRequestDto.getQuantity() <=0)
             throw new BadRequestException("Quantity must be greater than 0");
@@ -272,5 +273,12 @@ public class ProductService {
         return productRepository.findAll().stream().map(productBuilder::productToProductSmallResponseDto).collect(Collectors.toList());
     }
 
+    public String addAttribute(Integer productId,Integer attributeId,List<Integer> AttributeValueId){
+        Product product = findById(productId);
+        Attribute attribute = attributeService.findById(attributeId);
+
+        productRepository.save(product);
+        return "Product added successfully";
+    }
 
 }
