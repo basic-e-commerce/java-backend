@@ -15,6 +15,9 @@ import java.util.Set;
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     Optional<Category> existsByNameEqualsIgnoreCase(String name);
     List<Category> findAllByParentCategoryIsNull();
+    @Query(value = "SELECT * FROM category WHERE is_sub_category = true", nativeQuery = true)
+    List<Category> findSubCategories();
+
 
     @Transactional
     @Modifying

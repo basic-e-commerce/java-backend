@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.service.product;
 
 import com.example.ecommercebasic.builder.product.CategoryBuilder;
+import com.example.ecommercebasic.builder.product.ProductBuilder;
 import com.example.ecommercebasic.dto.product.CategoryRequestDto;
 import com.example.ecommercebasic.dto.product.CategorySmallDto;
 import com.example.ecommercebasic.entity.product.Category;
@@ -26,12 +27,14 @@ public class CategoryService {
     private final CategoryBuilder categoryBuilder;
     private final FileService fileService;
     private final ProductRepository productRepository;
+    private final ProductBuilder productBuilder;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryBuilder categoryBuilder, FileService fileService, ProductRepository productRepository) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryBuilder categoryBuilder, FileService fileService, ProductRepository productRepository, ProductBuilder productBuilder) {
         this.categoryRepository = categoryRepository;
         this.categoryBuilder = categoryBuilder;
         this.fileService = fileService;
         this.productRepository = productRepository;
+        this.productBuilder = productBuilder;
     }
 
 
@@ -195,5 +198,10 @@ public class CategoryService {
             allSubCategories.add(subCategory);
             findSubCategories(subCategory, allSubCategories);
         }
+    }
+
+    public List<CategorySmallDto> findSubCategory() {
+        List<Category> categories = categoryRepository.findSubCategories();
+        return categories.stream().map(categoryBuilder::buildCategory).toList();
     }
 }

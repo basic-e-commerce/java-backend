@@ -29,6 +29,11 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.findParentCategories() , HttpStatus.OK);
     }
 
+    @GetMapping("/sub-categories")
+    public ResponseEntity<List<CategorySmallDto>> getSubCategory() {
+        return new ResponseEntity<>(categoryService.findSubCategory(),HttpStatus.OK);
+    }
+
     @GetMapping("/by-id")
     public ResponseEntity<CategorySmallDto> getCategoryById(@RequestParam Integer categoryId) {
         return new ResponseEntity<>(categoryService.getCategoryById(categoryId),HttpStatus.OK);
