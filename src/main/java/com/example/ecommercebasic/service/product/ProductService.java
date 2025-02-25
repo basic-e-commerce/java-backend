@@ -153,13 +153,14 @@ public class ProductService {
         Category category = categoryService.findById(categoryId);
         Set<ProductSmallResponseDto> products = new HashSet<>();
         if (!category.isSubCategory()){
-            Set<Category> categories = categoryService.getAllSubCategories(category);
+            Set<Category> categories = categoryService.getLeafCategories(category);
             for (Category subCategory : categories){
-                products = productRepository
+                System.out.println("subCategory: " + subCategory.getName());
+                products.addAll(productRepository
                         .findAllByCategoriesAndStatus(subCategory,true)
                         .stream()
                         .map(productBuilder::productToProductSmallResponseDto)
-                        .collect(Collectors.toSet());
+                        .collect(Collectors.toSet()));
             }
         }else{
             products = productRepository
@@ -332,7 +333,7 @@ public class ProductService {
             sort = Sort.by(Sort.Direction.fromString(filterRequest.getSortDirection()), filterRequest.getSortBy());
         }
         Category category = categoryService.findById(filterRequest.getCategoryId());
-        Set<Integer> subCategories = categoryService.getAllSubCategories(category).stream().map(Category::getId).collect(Collectors.toSet());
+        Set<Integer> subCategories = categoryService.getLeafCategories(category).stream().map(Category::getId).collect(Collectors.toSet());
         for (Integer inte: subCategories){
             System.out.println(inte);
         }

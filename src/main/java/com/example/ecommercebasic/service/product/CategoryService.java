@@ -186,19 +186,29 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
-    public Set<Category> getAllSubCategories(Category category) {
-        Set<Category> allSubCategories = new HashSet<>();
-        findSubCategories(category, allSubCategories);
-        return allSubCategories;
+    public Set<Category> getLeafCategories(Category category) {
+        Set<Category> leafCategories = new HashSet<>();
+        findLeafCategories(category, leafCategories);
+        return leafCategories;
     }
 
-    private void findSubCategories(Category category, Set<Category> allSubCategories) {
+    private void findLeafCategories(Category category, Set<Category> leafCategories) {
+        if (category == null) {
+            return;
+        }
+
+        // Eğer alt kategorisi yoksa, bu bir yaprak kategoridir
+        if (category.getSubCategories() == null || category.getSubCategories().isEmpty()) {
+            leafCategories.add(category);
+            return;
+        }
+
+        // Alt kategorileri dolaş ve yaprakları ekle
         for (Category subCategory : category.getSubCategories()) {
-            System.out.println("findSubCategories: "+subCategory.getId());
-            allSubCategories.add(subCategory);
-            findSubCategories(subCategory, allSubCategories);
+            findLeafCategories(subCategory, leafCategories);
         }
     }
+
 
     public List<CategorySmallDto> findSubCategory() {
         List<Category> categories = categoryRepository.findSubCategories();
