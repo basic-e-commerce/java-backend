@@ -31,7 +31,6 @@ public class Category {
     private Set<Category> subCategories = new HashSet<>();
 
     @ManyToMany(mappedBy = "categories", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    // İlişkinin ters tarafı
     private Set<Product> products = new HashSet<>();
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")

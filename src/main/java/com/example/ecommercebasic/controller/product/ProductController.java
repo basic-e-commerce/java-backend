@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.controller.product;
 
+import com.example.ecommercebasic.dto.product.attribute.ProductFilterRequest;
 import com.example.ecommercebasic.dto.product.productdto.*;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.attribute.AttributeValue;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -29,11 +31,17 @@ public class ProductController {
         return new ResponseEntity<>(productService.createBasicProductModel(productModelRequestDto),HttpStatus.OK);
     }
 
-    @PutMapping
-    public ResponseEntity<ProductResponseDto> updateProduct(@RequestBody ProductRequestDto productRequestDto) {
-
+    @PostMapping("/model/variant")
+    public ResponseEntity<ProductResponseDto> createVariantProductModel(@ModelAttribute ProductVariantModelRequestDto productModelRequestDto) {
+        return new ResponseEntity<>(productService.createVariantProductModel(productModelRequestDto),HttpStatus.OK);
     }
-    
+
+
+
+    @PutMapping
+    public ResponseEntity<ProductResponseDto> updateProduct(@RequestParam Integer productId,@RequestBody ProductRequestDto productRequestDto) {
+        return new ResponseEntity<>(productService.updateProduct(productId,productRequestDto),HttpStatus.CREATED);
+    }
 
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
@@ -46,12 +54,20 @@ public class ProductController {
     }
 
     @GetMapping("/category")
-    public ResponseEntity<List<ProductSmallResponseDto>> getAllProductsByCategoryAndTrue(@RequestParam int categoryId) {
+    public ResponseEntity<Set<ProductSmallResponseDto>> getAllProductsByCategoryAndTrue(@RequestParam int categoryId) {
         return new ResponseEntity<>(productService.getAllProductsByCategoryAndTrue(categoryId),HttpStatus.OK);
     }
+
     @GetMapping("/category/by-name")
     public ResponseEntity<List<ProductSmallResponseDto>> getAllProductsByCategoryNameAndTrue(@RequestParam String categoryName) {
         return new ResponseEntity<>(productService.getAllProductsByCategoryNameAndTrue(categoryName),HttpStatus.OK);
+    }
+
+    @GetMapping("/category/filter")
+    public ResponseEntity<List<ProductSmallResponseDto>> filterProductsByCategory(@RequestBody ProductFilterRequest filterRequest,
+                                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                                  @RequestParam(defaultValue = "10") int size){
+        return new ResponseEntity<>(productService.filterProductsByCategory(filterRequest,page,size),HttpStatus.OK);
     }
 
     @GetMapping("/id")
@@ -72,10 +88,6 @@ public class ProductController {
     @PutMapping("/add-category")
     public ResponseEntity<String> addCategoryProduct(@RequestParam List<Integer> categoriesId,@RequestParam Integer productId) {
         return new ResponseEntity<>(productService.addCategoryProduct(categoriesId, productId), HttpStatus.OK);
-    }
-    @PutMapping("/add-attribute")
-    public ResponseEntity<String> addAttributeProduct(@RequestParam Integer productId, @RequestParam Integer attributeId, @RequestParam List<Integer> attributeValueIds ) {
-        return new ResponseEntity<>(productService.addAttribute(productId, attributeId,attributeValueIds), HttpStatus.OK);
     }
 
     @PutMapping("/remove-category")

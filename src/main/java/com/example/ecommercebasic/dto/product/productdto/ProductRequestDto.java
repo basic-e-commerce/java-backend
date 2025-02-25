@@ -10,10 +10,12 @@ public class ProductRequestDto {
     private float discountPrice;
     private String unitType;
     private boolean status;
+    private String productCode;
+
 
     private List<Integer> categoryId;
 
-    public ProductRequestDto(String productName, String description, int quantity, float price, float discountPrice, String unitType, boolean status, List<Integer> categoryId) {
+    public ProductRequestDto(String productName, String description, int quantity, float price, float discountPrice, String unitType, boolean status, String productCode, List<Integer> categoryId) {
         this.productName = productName;
         this.description = description;
         this.quantity = quantity;
@@ -21,6 +23,7 @@ public class ProductRequestDto {
         this.discountPrice = discountPrice;
         this.unitType = unitType;
         this.status = status;
+        this.productCode = productCode;
         this.categoryId = categoryId;
     }
 
@@ -62,5 +65,13 @@ public class ProductRequestDto {
 
     public void setUnitType(String unitType) {
         this.unitType = unitType;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
     }
 }

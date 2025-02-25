@@ -16,6 +16,7 @@ public class ProductBuilder {
         return new Product(
                 productRequestDto.getProductName(),
                 RegexValidation.sanitize(productRequestDto.getDescription()),
+                productRequestDto.getProductCode(),
                 productRequestDto.getQuantity(),
                 productRequestDto.getPrice(),
                 productRequestDto.getDiscountPrice(),
@@ -55,6 +56,7 @@ public class ProductBuilder {
     public Product productModelRequestDtoToProduct(ProductModelRequestDto productModelRequestDto) {
         return new Product(
                 productModelRequestDto.getProductName(),
+                productModelRequestDto.getProductCode(),
                 RegexValidation.sanitize(productModelRequestDto.getDescription()),
                 productModelRequestDto.getQuantity(),
                 productModelRequestDto.getPrice(),

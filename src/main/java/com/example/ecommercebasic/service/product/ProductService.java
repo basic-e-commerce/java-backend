@@ -2,19 +2,25 @@ package com.example.ecommercebasic.service.product;
 
 import com.example.ecommercebasic.builder.product.ProductBuilder;
 import com.example.ecommercebasic.constant.ApplicationConstant;
+import com.example.ecommercebasic.dto.product.attribute.ProductFilterRequest;
 import com.example.ecommercebasic.dto.product.productdto.*;
-import com.example.ecommercebasic.entity.product.Category;
-import com.example.ecommercebasic.entity.product.ImageType;
-import com.example.ecommercebasic.entity.product.Product;
+import com.example.ecommercebasic.entity.product.*;
 import com.example.ecommercebasic.entity.product.attribute.Attribute;
+import com.example.ecommercebasic.entity.product.attribute.AttributeValue;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.ProductRepository;
 import com.example.ecommercebasic.service.product.attribute.AttributeService;
+import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,15 +33,13 @@ public class ProductService {
     private final FileService fileService;
     private final ProductBuilder productBuilder;
     private final ProductRepository productRepository;
-    private final AttributeService attributeService;
 
 
-    public ProductService(CategoryService categoryService, FileService fileService, ProductBuilder productBuilder, ProductRepository productRepository, AttributeService attributeService) {
+    public ProductService(CategoryService categoryService, FileService fileService, ProductBuilder productBuilder, ProductRepository productRepository) {
         this.categoryService = categoryService;
         this.fileService = fileService;
         this.productBuilder = productBuilder;
         this.productRepository = productRepository;
-        this.attributeService = attributeService;
     }
 
     public Product createProduct(ProductRequestDto productRequestDto) {
@@ -94,11 +98,16 @@ public class ProductService {
         return productBuilder.productToProductResponseDto(productRepository.save(product));
     }
 
+    public ProductResponseDto createVariantProductModel(ProductVariantModelRequestDto productModelRequestDto) {
+        return null;
+    }
+
+
     public String addCategoryProduct(List<Integer> categoryId,int productId){
         Product product = findById(productId);
 
         List<Category> categories = categoryId.stream().map(categoryService::findById).toList();
-        Set<Category> productCategories = new HashSet<>();
+        Set<Category> productCategories = product.getCategories();
 
         for (int i = 0;i<categories.size();i++) {
             if (categories.get(i).isSubCategory()) {
@@ -118,7 +127,7 @@ public class ProductService {
             if (product.getCategories().contains(categories.get(i))) {
                 product.getCategories().remove(categories.get(i));
             }else
-                throw new BadRequestException("CAtegories do not exist");
+                throw new BadRequestException("Categories do not exist");
         }
         productRepository.save(product);
         return "Product removed successfully";
@@ -140,13 +149,27 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public List<ProductSmallResponseDto> getAllProductsByCategoryAndTrue(int categoryId) {
+    public Set<ProductSmallResponseDto> getAllProductsByCategoryAndTrue(int categoryId) {
         Category category = categoryService.findById(categoryId);
-        return productRepository
-                .findAllByCategoriesAndStatus(category,true)
-                .stream()
-                .map(productBuilder::productToProductSmallResponseDto)
-                .collect(Collectors.toList());
+        Set<ProductSmallResponseDto> products = new HashSet<>();
+        if (!category.isSubCategory()){
+            Set<Category> categories = categoryService.getAllSubCategories(category);
+            for (Category subCategory : categories){
+                products = productRepository
+                        .findAllByCategoriesAndStatus(subCategory,true)
+                        .stream()
+                        .map(productBuilder::productToProductSmallResponseDto)
+                        .collect(Collectors.toSet());
+            }
+        }else{
+            products = productRepository
+                    .findAllByCategoriesAndStatus(category,true)
+                    .stream()
+                    .map(productBuilder::productToProductSmallResponseDto)
+                    .collect(Collectors.toSet());
+        }
+
+        return products;
     }
     public ProductResponseDto findByIdDto(int id){
         return productBuilder.productToProductResponseDto(findById(id));
@@ -273,12 +296,95 @@ public class ProductService {
         return productRepository.findAll().stream().map(productBuilder::productToProductSmallResponseDto).collect(Collectors.toList());
     }
 
-    public String addAttribute(Integer productId,Integer attributeId,List<Integer> AttributeValueId){
+    public ProductResponseDto updateProduct(Integer productId, ProductRequestDto productRequestDto) {
         Product product = findById(productId);
-        Attribute attribute = attributeService.findById(attributeId);
-
-        productRepository.save(product);
-        return "Product added successfully";
+        product.setProductName(productRequestDto.getProductName());
+        product.setDescription(productRequestDto.getDescription());
+        product.setPrice(productRequestDto.getPrice());
+        product.setDiscountPrice(productRequestDto.getDiscountPrice());
+        switch (productRequestDto.getUnitType()){
+            case "kg":
+                product.setUnitType(UnitType.KILOGRAM);
+                break;
+            case "g":
+                product.setUnitType(UnitType.GRAM);
+                break;
+            case "L":
+                product.setUnitType(UnitType.LITER);
+                break;
+            case "ml":
+                product.setUnitType(UnitType.MILLILITER);
+                break;
+            case "unit":
+                product.setUnitType(UnitType.UNIT);
+                break;
+            default:
+                throw new BadRequestException(ApplicationConstant.BAD_REQUEST +":"+ productRequestDto.getUnitType());
+        }
+        product.setStatus(productRequestDto.isStatus());
+        Product save = productRepository.save(product);
+        return productBuilder.productToProductResponseDto(save);
     }
+
+    public List<ProductSmallResponseDto> filterProductsByCategory(ProductFilterRequest filterRequest,int page,int size) {
+        Sort sort = Sort.unsorted();
+        if (filterRequest.getSortBy() != null) {
+            sort = Sort.by(Sort.Direction.fromString(filterRequest.getSortDirection()), filterRequest.getSortBy());
+        }
+        Category category = categoryService.findById(filterRequest.getCategoryId());
+        Set<Integer> subCategories = categoryService.getAllSubCategories(category).stream().map(Category::getId).collect(Collectors.toSet());
+        for (Integer inte: subCategories){
+            System.out.println(inte);
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Specification<Product> spec = filterProducts(subCategories,filterRequest.getMinPrice(),filterRequest.getMaxPrice(),true);
+        return productRepository.findAll(spec,pageable).stream().map(productBuilder::productToProductSmallResponseDto).collect(Collectors.toList());
+    }
+
+    public Specification<Product> filterProducts(Set<Integer> categoriesId, Double minPrice, Double maxPrice,boolean isAvailable) {
+        return Specification
+                .where(hasCategories(categoriesId))
+                .and(hasMinPrice(minPrice))
+                .and(hasMaxPrice(maxPrice))
+                .and(isAvailable(isAvailable))
+                .and(isDeleted(false));
+    }
+
+    public static Specification<Product> hasCategories(Set<Integer> categoryIds) {
+        return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            if (categoryIds == null || categoryIds.isEmpty()) return null;
+            Join<Product, Category> categoryJoin = root.join("categories", JoinType.INNER);
+            return categoryJoin.get("id").in(categoryIds);
+        };
+    }
+
+
+    public static Specification<Product> hasProductType(ProductType productType) {
+        return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
+                productType == null ? null : cb.equal(root.get("productType"), productType);
+    }
+
+    public static Specification<Product> hasMinPrice(Double minPrice) {
+        return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
+                minPrice == null ? null : cb.greaterThanOrEqualTo(root.get("discountPrice"), minPrice);
+    }
+
+    public static Specification<Product> hasMaxPrice(Double maxPrice) {
+        return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
+                maxPrice == null ? null : cb.lessThanOrEqualTo(root.get("discountPrice"), maxPrice);
+    }
+
+    public static Specification<Product> isAvailable(boolean status) {
+        return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
+                cb.equal(root.get("status"), status);
+    }
+
+    public static Specification<Product> isDeleted(boolean isDeleted) {
+        return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
+                cb.equal(root.get("isDeleted"), isDeleted);
+    }
+
+
 
 }

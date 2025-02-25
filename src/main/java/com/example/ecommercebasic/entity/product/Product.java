@@ -61,9 +61,10 @@ public class Product {
         this.isDeleted = false;
     }
 
-    public Product(String productName, String description, int quantity, double price, double discountPrice, boolean status, UnitType unitType) {
+    public Product(String productName, String description,String productCode, int quantity, double price, double discountPrice, boolean status, UnitType unitType) {
         this.productName = productName;
         this.description = description;
+        this.productCode = productCode;
         this.quantity = quantity;
         this.price = price;
         this.discountPrice = discountPrice;
