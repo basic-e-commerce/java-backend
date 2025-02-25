@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -198,27 +195,33 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-
     public String deleteProductById(int id) {
         Product product = findById(id);
-        if (!product.getCategories().isEmpty()){
-            for (Category category : product.getCategories()) {
-                product.getCategories().remove(category);
+
+        if (!product.getCategories().isEmpty()) {
+            Iterator<Category> iterator = product.getCategories().iterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                iterator.remove(); // güvenli bir şekilde öğeyi siler
             }
         }
 
-        if (product.getCoverUrl() != null)
+        if (product.getCoverUrl() != null) {
             fileService.deleteImage(product.getCoverUrl());
+        }
 
-        if (!product.getImages().isEmpty()){
-            for (int i = 0;i<product.getImages().size();i++) {
+        if (!product.getImages().isEmpty()) {
+            for (int i = 0; i < product.getImages().size(); i++) {
                 fileService.deleteImage(product.getImages().get(i));
             }
         }
+
         productRepository.save(product);
         productRepository.delete(product);
+
         return "Product deleted successfully";
     }
+
 
     @Transactional
     public String updateProductCoverImage(MultipartFile file, int id) {
