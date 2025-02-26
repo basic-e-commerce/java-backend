@@ -13,14 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       # Backend - Spring Boot Build and Dockerization
       - name: Build Spring Boot Project
-        run: |
-          mvn clean install
+        run: mvn clean install
 
       - name: Build Docker Image for Spring Boot
-        run: |
-          docker-compose up --build
+        run: docker-compose up --build
 
       # Setup SSH Key to access the server (Optional)
       - name: Setup SSH Key for Server
