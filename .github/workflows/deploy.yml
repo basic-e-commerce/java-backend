@@ -20,6 +20,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no root@89.213.248.57 "whoami"
 
+
       # Backend - Spring Boot Build and Dockerization
       - name: Build Spring Boot Project
         run: mvn clean install
