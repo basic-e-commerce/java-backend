@@ -29,4 +29,6 @@ jobs:
       - name: Setup SSH Key for Server
         uses: webfactory/ssh-agent@v0.5.3
         with:
+          host: 89.213.248.57
+          username: root
           ssh-private-key: ${{ secrets.ECOMMERCESECRET }}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
