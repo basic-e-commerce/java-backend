@@ -13,12 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-
-      - name: Clear Maven cache
-        run: rm -rf ~/.m2/repository/*
-
       # Backend - Spring Boot Build and Dockerization
       - name: Build Spring Boot Project
         run: |
