@@ -16,6 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no root@89.213.248.57 "whoami"
+
       # Backend - Spring Boot Build and Dockerization
       - name: Build Spring Boot Project
         run: mvn clean install
@@ -23,9 +27,7 @@ jobs:
       - name: Build Docker Image for Spring Boot
         run: docker-compose up --build
           # Test SSH connection to the server
-      - name: Test SSH Connection
-        run: |
-          ssh -o StrictHostKeyChecking=no root@89.213.248.57 "whoami"
+
 
       # Setup SSH Key to access the server (Optional)
       - name: Setup SSH Key for Server
