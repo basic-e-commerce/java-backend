@@ -1,0 +1,32 @@
+name: CI/CD for Backend
+
+on:
+  push:
+    branches:
+      - main  # veya kullandığınız branch adı
+  pull_request:
+    branches:
+      - main  # veya kullandığınız branch adı
+
+jobs:
+  build_and_deploy_backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      # Backend - Spring Boot Build and Dockerization
+      - name: Build Spring Boot Project
+        run: |
+          ./mvnw clean install -DskipTests  # Maven ile projeyi derliyoruz
+
+      - name: Build Docker Image for Spring Boot
+        run: |
+          docker-compose up --build
+
+      # Setup SSH Key to access the server (Optional)
+      - name: Setup SSH Key for Server
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.ECOMMERCESECRET }}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
