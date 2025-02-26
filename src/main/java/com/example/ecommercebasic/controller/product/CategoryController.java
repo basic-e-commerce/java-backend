@@ -31,6 +31,7 @@ public class CategoryController {
 
     @GetMapping("/sub-categories")
     public ResponseEntity<List<CategorySmallDto>> getSubCategory() {
+
         return new ResponseEntity<>(categoryService.findSubCategory(),HttpStatus.OK);
     }
 
