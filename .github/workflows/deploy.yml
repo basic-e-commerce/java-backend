@@ -19,7 +19,7 @@ jobs:
       # Backend - Spring Boot Build and Dockerization
       - name: Build Spring Boot Project
         run: |
-          ./mvnw clean install -DskipTests  # Maven ile projeyi derliyoruz
+          mvn clean install
 
       - name: Build Docker Image for Spring Boot
         run: |
