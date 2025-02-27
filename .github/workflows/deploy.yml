@@ -38,6 +38,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no root@89.213.248.57 " 
             cd /home/ubuntu/projects/proje3/java-backend && 
+            mvn -v &&
             git pull && 
             mvn clean install && 
             docker-compose down && 
