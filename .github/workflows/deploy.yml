@@ -27,18 +27,16 @@ jobs:
           username: root
           ssh-private-key: ${{ secrets.ECOMMERCESECRET }}
 
-      # Install Maven on GitHub Actions runner
-      - name: Install Maven
-        run: |
-          sudo apt-get update
-          sudo apt-get install maven
+      # Set Maven Path in GitHub Actions environment
+      - name: Set Maven Path
+        run: echo "/usr/local/maven/bin" >> $GITHUB_PATH  # Sunucudaki Maven yolunu ekle
 
       # Deploy to Server using SSH (Build & Run Docker)
       - name: Build and Run Docker on Server
         run: |
           ssh -o StrictHostKeyChecking=no root@89.213.248.57 " 
             cd /home/ubuntu/projects/proje3/java-backend && 
-            mvn -v &&
+            mvn -v &&   # Maven versiyonunu kontrol et
             git pull && 
             mvn clean install && 
             docker-compose down && 
