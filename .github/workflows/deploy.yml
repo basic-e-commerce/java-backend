@@ -13,41 +13,33 @@ on:
     paths:
       - 'src/**'
       - '.github/workflows/deploy.yml'
+
 jobs:
   build_and_deploy_backend:
     runs-on: ubuntu-latest
 
     steps:
 
-      # Setup SSH Key to access the server (Optional)
+      # Setup SSH Key to access the server
       - name: Setup SSH Key for Server
         uses: webfactory/ssh-agent@v0.5.3
         with:
           host: 89.213.248.57
           username: root
-          ssh-private-key: ${{secrets.ECOMMERCESECRET}}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
+          ssh-private-key: ${{ secrets.ECOMMERCESECRET }}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
 
-      - name: Test SSH Connection
+      - name: Test SSH Connection and Change Directory
         run: |
           ssh -o StrictHostKeyChecking=no root@89.213.248.57 "cd /home/ubuntu/projects/proje3/java-backend && pwd && echo 'SSH bağlantısı başarılı!'"
-          pwd
-      
 
+      # Backend - Spring Boot Build and Dockerization
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Test SSH Connection
-        run: |
-          pwd
-
-
-      # Backend - Spring Boot Build and Dockerization
+      # Backend - Spring Boot Build
       - name: Build Spring Boot Project
         run: mvn clean install
 
+      # Build Docker Image for Spring Boot
       - name: Build Docker Image for Spring Boot
         run: docker-compose up --build
-          # Test SSH connection to the server
-
-
-
