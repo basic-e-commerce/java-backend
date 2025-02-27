@@ -30,7 +30,7 @@ jobs:
       - name: Test SSH Connection
         run: |
           ssh -o StrictHostKeyChecking=no root@89.213.248.57 "cd /home/ubuntu/projects/proje3/java-backend && pwd && echo 'SSH bağlantısı başarılı!'"
-      
+          pwd
       
 
       - name: Checkout code
