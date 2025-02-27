@@ -28,18 +28,12 @@ jobs:
           username: root
           ssh-private-key: ${{ secrets.ECOMMERCESECRET }}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
 
-      - name: Test SSH Connection and Change Directory
+      # Deploy to Server using SSH (Build & Run Docker)
+      - name: Build and Run Docker on Server
         run: |
-          ssh -o StrictHostKeyChecking=no root@89.213.248.57 "cd /home/ubuntu/projects/proje3/java-backend && pwd && echo 'SSH bağlantısı başarılı!'"
+          ssh -o StrictHostKeyChecking=no root@89.213.248.57 "
+            cd /home/ubuntu/projects/proje3/java-backend && \
+            mvn clean install && \
+            docker-compose down && \
+            docker-compose up -d --build"
 
-      # Backend - Spring Boot Build and Dockerization
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      # Backend - Spring Boot Build
-      - name: Build Spring Boot Project
-        run: mvn clean install
-
-      # Build Docker Image for Spring Boot
-      - name: Build Docker Image for Spring Boot
-        run: docker-compose up --build
