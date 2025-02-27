@@ -19,18 +19,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       # Setup SSH Key to access the server
       - name: Setup SSH Key for Server
         uses: webfactory/ssh-agent@v0.5.3
         with:
           host: 89.213.248.57
           username: root
-          ssh-private-key: ${{ secrets.ECOMMERCESECRET }}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
+          ssh-private-key: ${{ secrets.ECOMMERCESECRET }}
+
+      # Install Maven on GitHub Actions runner
+      - name: Install Maven
+        run: |
+          sudo apt-get update
+          sudo apt-get install maven
 
       # Deploy to Server using SSH (Build & Run Docker)
       - name: Build and Run Docker on Server
         run: |
-          ssh -o StrictHostKeyChecking=no root@89.213.248.57 "
-            cd /home/ubuntu/projects/proje3/java-backend && pwd && git pull && mvn clean install && docker-compose down && docker-compose up -d --build"
-
+          ssh -o StrictHostKeyChecking=no root@89.213.248.57 " 
+            cd /home/ubuntu/projects/proje3/java-backend && 
+            git pull && 
+            mvn clean install && 
+            docker-compose down && 
+            docker-compose up -d --build
+          "
