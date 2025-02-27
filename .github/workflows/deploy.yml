@@ -18,6 +18,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # Setup SSH Key to access the server (Optional)
+      - name: Setup SSH Key for Server
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          host: 89.213.248.57
+          username: root
+          ssh-private-key: ${{secrets.ECOMMERCESECRET}}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
+
+      - name: Test SSH Connection
+        run: ssh -o StrictHostKeyChecking=no root@89.213.248.57 "echo 'SSH bağlantısı başarılı!'"
+
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -35,10 +48,4 @@ jobs:
           # Test SSH connection to the server
 
 
-      # Setup SSH Key to access the server (Optional)
-      - name: Setup SSH Key for Server
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          host: 89.213.248.57
-          username: root
-          ssh-private-key: ${{secrets.ECOMMERCESECRET}}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
+
