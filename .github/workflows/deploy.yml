@@ -28,8 +28,10 @@ jobs:
           ssh-private-key: ${{secrets.ECOMMERCESECRET}}  # GitHub Secrets'ta tanımladığınız SSH anahtarını kullanıyoruz
 
       - name: Test SSH Connection
-        run: ssh -o StrictHostKeyChecking=no root@89.213.248.57 "echo 'SSH bağlantısı başarılı!'"
-
+        run: |
+          ssh -o StrictHostKeyChecking=no root@89.213.248.57 "cd /home/ubuntu/projects/proje3/java-backend && pwd && echo 'SSH bağlantısı başarılı!'"
+      
+      
 
       - name: Checkout code
         uses: actions/checkout@v2
