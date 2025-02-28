@@ -32,7 +32,8 @@ public class FileService {
 
         try {
             if (!Files.exists(path)) {
-                Files.createDirectories(path);
+                Path path1 = Files.createDirectories(path);
+                System.out.println("path1: "+ path1);
             }
 
             String originalFileName = file.getOriginalFilename();
@@ -49,6 +50,7 @@ public class FileService {
             String newFileName = UUID.randomUUID() + fileExtension;
 
             Path filePath = path.resolve(newFileName);
+            System.out.println("filePath: "+ filePath);
 
             // Aynı isimde bir dosya var mı kontrol et
             if (Files.exists(filePath)) {
