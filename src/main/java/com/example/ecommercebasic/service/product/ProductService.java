@@ -40,6 +40,8 @@ public class ProductService {
     }
 
     public Product createProduct(ProductRequestDto productRequestDto) {
+        if (productRequestDto.getPrice()<productRequestDto.getDiscountPrice())
+            throw new BadRequestException("Price must be greater than discount price");
         if (productRequestDto.getQuantity() <=0)
             throw new BadRequestException("Quantity must be greater than 0");
 
@@ -65,7 +67,8 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto createBasicProductModel(ProductModelRequestDto productModelRequestDto) {
-
+        if (productModelRequestDto.getPrice()<productModelRequestDto.getDiscountPrice())
+            throw new BadRequestException("Price must be greater than discount price");
         if (productModelRequestDto.getQuantity() <=0)
             throw new BadRequestException("Quantity must be greater than 0");
 
@@ -301,6 +304,10 @@ public class ProductService {
     }
 
     public ProductResponseDto updateProduct(Integer productId, ProductRequestDto productRequestDto) {
+
+        if (productRequestDto.getPrice()<productRequestDto.getDiscountPrice())
+            throw new BadRequestException("Price must be greater than discount price");
+
         Product product = findById(productId);
         product.setProductName(productRequestDto.getProductName());
         product.setDescription(productRequestDto.getDescription());
