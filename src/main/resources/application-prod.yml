@@ -46,3 +46,13 @@ jwt:
 regex:
   email: ^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$
   password: ^(?=.*[A-Z]).{8,}$
+
+payment:
+  iyzico:
+    apiKey: sandbox-JbYzNd3TVSGRKgrKKFiM5Ha7MJP7YZSo
+    secretKey: sandbox-mvXUSAUVAUhj7pNFFsbrKvWjGL5cEaUP
+    baseUrl: https://sandbox-api.iyzipay.com
+    callBack: /api/v1/payment/payCallBack
+
+domain:
+  test: https://litysofttest1.site
