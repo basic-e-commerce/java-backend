@@ -26,9 +26,9 @@ logging:
 
 upload:
   dir: /var/www/upload/
-  url: http://localhost:8080/
+  url: https://litysofttest1.site/
   file:
-    url: http://localhost:8080/api/v1/upload/
+    url: https://litysofttest1.site/api/v1/upload/
 
 cookie:
   refreshTokenCookie:
