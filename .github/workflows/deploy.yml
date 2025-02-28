@@ -1,44 +1,44 @@
-name: CI/CD for Backend
-
-on:
-  push:
-    branches:
-      - main  # veya kullandığınız branch adı
-    paths:
-      - 'src/**'
-      - '.github/workflows/deploy.yml'
-  pull_request:
-    branches:
-      - main  # veya kullandığınız branch adı
-    paths:
-      - 'src/**'
-      - '.github/workflows/deploy.yml'
-
-jobs:
-  build_and_deploy_backend:
-    runs-on: ubuntu-latest
-
-    steps:
-      # Setup SSH Key to access the server
-      - name: Setup SSH Key for Server
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          host: 89.213.248.57
-          username: root
-          ssh-private-key: ${{ secrets.ECOMMERCESECRET }}
-
-      # Set Maven Path in GitHub Actions environment
-      - name: Set Maven Path
-        run: echo "/usr/local/maven/bin" >> $GITHUB_PATH  # Sunucudaki Maven yolunu ekle
-
-      # Deploy to Server using SSH (Build & Run Docker)
-      - name: Build and Run Docker on Server
-        run: |
-          ssh -o StrictHostKeyChecking=no root@89.213.248.57 " 
-            cd /home/ubuntu/projects/proje3/java-backend && 
-            mvn -v &&   # Maven versiyonunu kontrol et
-            git pull && 
-            mvn clean install && 
-            docker-compose down && 
-            docker-compose up -d --build
-          "
+#name: CI/CD for Backend
+#
+#on:
+#  push:
+#    branches:
+#      - main  # veya kullandığınız branch adı
+#    paths:
+#      - 'src/**'
+#      - '.github/workflows/deploy.yml'
+#  pull_request:
+#    branches:
+#      - main  # veya kullandığınız branch adı
+#    paths:
+#      - 'src/**'
+#      - '.github/workflows/deploy.yml'
+#
+#jobs:
+#  build_and_deploy_backend:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      # Setup SSH Key to access the server
+#      - name: Setup SSH Key for Server
+#        uses: webfactory/ssh-agent@v0.5.3
+#        with:
+#          host: 89.213.248.57
+#          username: root
+#          ssh-private-key: ${{ secrets.ECOMMERCESECRET }}
+#
+#      # Set Maven Path in GitHub Actions environment
+#      - name: Set Maven Path
+#        run: echo "/usr/local/maven/bin" >> $GITHUB_PATH  # Sunucudaki Maven yolunu ekle
+#
+#      # Deploy to Server using SSH (Build & Run Docker)
+#      - name: Build and Run Docker on Server
+#        run: |
+#          ssh -o StrictHostKeyChecking=no root@89.213.248.57 "
+#            cd /home/ubuntu/projects/proje3/java-backend &&
+#            mvn -v &&   # Maven versiyonunu kontrol et
+#            git pull &&
+#            mvn clean install &&
+#            docker-compose down &&
+#            docker-compose up -d --build
+#          "
