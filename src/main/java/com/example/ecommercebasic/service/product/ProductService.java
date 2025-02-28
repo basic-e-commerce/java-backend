@@ -89,13 +89,14 @@ public class ProductService {
                 throw new BadRequestException("Category is not a sub category: "+categories.get(i).getName());
         }
         product.setCategories(productCategories);
+        Product saveProduct = productRepository.save(product);
 
-        String coverImage = updateProductCoverImageWithProduct(productModelRequestDto.getCoverImage(), product);
+        String coverImage = updateProductCoverImageWithProduct(productModelRequestDto.getCoverImage(), saveProduct);
         product.setCoverUrl(coverImage);
-        List<String> images = updateProductImageWithProduct(productModelRequestDto.getImages(),product);
+        List<String> images = updateProductImageWithProduct(productModelRequestDto.getImages(),saveProduct);
         product.setImages(images);
 
-        return productBuilder.productToProductResponseDto(productRepository.save(product));
+        return productBuilder.productToProductResponseDto(productRepository.save(saveProduct));
     }
 
     public ProductResponseDto createVariantProductModel(ProductVariantModelRequestDto productModelRequestDto) {
