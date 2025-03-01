@@ -30,13 +30,15 @@ services:
       - POSTGRES_DB=ecommerce
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # 🔥 Kalıcı veri deposu ekledik
     networks:
       - mynetwork
 
 
 volumes:
+  postgres_data:  # 🔥 Postgres için kalıcı veri deposu
   upload-data:
-    driver: local
 
 
 networks:
