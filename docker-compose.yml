@@ -12,7 +12,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - upload-data:/var/www/upload
+      - /var/www/upload:/var/www/upload
     networks:
       - mynetwork
 
