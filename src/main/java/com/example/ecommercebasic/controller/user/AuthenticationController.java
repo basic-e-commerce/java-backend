@@ -34,6 +34,12 @@ public class AuthenticationController {
         return new ResponseEntity<>(authenticationService.refresh(refreshToken),HttpStatus.OK);
     }
 
+    @PostMapping("/refresh/logout")
+    public ResponseEntity<String> logout(@CookieValue(name = "refresh_token")String refreshToken){
+        System.out.println("ref: "+refreshToken);
+        return new ResponseEntity<>(authenticationService.logout(refreshToken),HttpStatus.OK);
+    }
+
     @PostMapping("/ref")
     public ResponseEntity<String> ref(@CookieValue(name = "refresh_token")String refreshToken){
         return new ResponseEntity<>("send ref: "+refreshToken,HttpStatus.OK);

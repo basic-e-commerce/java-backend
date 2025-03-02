@@ -34,4 +34,9 @@ public class RefreshTokenService {
     public RefreshToken getRefreshTokenHash(String refreshTokenHash) {
         return refreshTokenRepository.findByRefreshTokenHash(refreshTokenHash).orElseThrow(()-> new NotFoundException(ApplicationConstant.NOT_FOUND));
     }
+
+
+    public void save(RefreshToken refresh) {
+        refreshTokenRepository.save(refresh);
+    }
 }

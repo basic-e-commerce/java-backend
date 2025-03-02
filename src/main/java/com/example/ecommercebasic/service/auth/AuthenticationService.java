@@ -10,12 +10,14 @@ import com.example.ecommercebasic.entity.user.User;
 import com.example.ecommercebasic.exception.InvalidFormatException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.exception.TokenExpiredException;
+import com.example.ecommercebasic.exception.UnAuthorizedException;
 import com.example.ecommercebasic.service.user.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
@@ -143,6 +145,21 @@ public class AuthenticationService {
             return  new AuthenticationResponseDto(jwtUtils.generateAccessToken(refreshToken.getUser().getUsername()),user.getFirstName(), user.getLastName(), user.getUsername());
         }else
             throw new TokenExpiredException(ApplicationConstant.TRY_LOGIN);
+
+    }
+
+    public String logout(String refreshToken) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("name: "+authentication.getPrincipal());
+        User user = userService.getUserByUsername(authentication.getPrincipal().toString());
+
+        RefreshToken refresh = refreshTokenService.getRefreshTokenHash(refreshToken);
+        if (user.getRefreshTokens().contains(refresh)) {
+            refresh.setActive(false);
+            refreshTokenService.save(refresh);
+            return "success logged out";
+        }else
+            throw new UnAuthorizedException("Geçersiz İstek");
 
     }
 }
