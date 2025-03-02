@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/api/v1/auth/a").hasAuthority(Roles.ROLE_ADMIN.getAuthority())
                         .requestMatchers(HttpMethod.GET,"/api/v1/auth/c").hasAuthority(Roles.ROLE_CUSTOMER.getAuthority())
                         .requestMatchers(HttpMethod.GET,"/api/v1/product/not-secure").permitAll()
+
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/customer/add-address").hasAuthority(Roles.ROLE_CUSTOMER.getAuthority())
                         .anyRequest().permitAll())
                 .cors(cors->cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class)

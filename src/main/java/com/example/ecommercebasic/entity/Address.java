@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.entity;
 
 import com.example.ecommercebasic.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,6 +13,7 @@ public class Address {
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private User user;
 
     private String country;

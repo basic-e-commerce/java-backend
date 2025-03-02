@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.entity.auth;
 
 import com.example.ecommercebasic.entity.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;  // Token'ın benzersiz ID'si
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")  // User ile ilişki kuruyoruz
     private User user;  // Kullanıcı ID'si (veya username)
