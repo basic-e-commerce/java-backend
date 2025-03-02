@@ -1,11 +1,14 @@
 package com.example.ecommercebasic.entity.user;
 
+import com.example.ecommercebasic.entity.Address;
 import com.example.ecommercebasic.entity.auth.RefreshToken;
 import jakarta.persistence.*;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,6 +44,9 @@ public abstract class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<RefreshToken> refreshTokens = new HashSet<>();  // Kullanıcının refresh token'ları
+
+    @OneToMany(mappedBy = "user")
+    private List<Address> addresses = new ArrayList<>();
 
 
     public User(String firstName, String lastName, String username, String password, Set<Roles> authorities, boolean enabled, boolean accountNonLocked) {
