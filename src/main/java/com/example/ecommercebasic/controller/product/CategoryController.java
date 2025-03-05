@@ -23,6 +23,10 @@ public class CategoryController {
     public ResponseEntity<String> createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
         return new ResponseEntity<>(categoryService.createCategory(categoryRequestDto), HttpStatus.CREATED);
     }
+    @PutMapping
+    public ResponseEntity<String> updateCategory(@RequestParam int id,@RequestParam String name) {
+        return new ResponseEntity<>(categoryService.updateCategory(id,name),HttpStatus.OK);
+    }
 
     @GetMapping("/parent")
     public ResponseEntity<List<CategorySmallDto>> getParentCategory() {

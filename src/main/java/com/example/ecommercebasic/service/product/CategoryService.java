@@ -214,4 +214,11 @@ public class CategoryService {
         List<Category> categories = categoryRepository.findSubCategories();
         return categories.stream().map(categoryBuilder::buildCategory).toList();
     }
+
+    public String updateCategory(int id, String name) {
+        Category category = findById(id);
+        category.setName(name);
+        categoryRepository.save(category);
+        return "success update category";
+    }
 }

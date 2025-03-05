@@ -24,7 +24,6 @@ public class Product {
     private String description;
     private int quantity;
     private BigDecimal price;
-    @Column(columnDefinition = "FLOAT DEFAULT 0")
     private BigDecimal discountPrice;
     private boolean status;
 

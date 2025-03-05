@@ -29,8 +29,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.PENDING;
 
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    private List<Payment> payments = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id")
+    private Payment payments;
 
     private String orderCode;
 
@@ -100,11 +101,11 @@ public class Order {
         this.orderCode = orderCode;
     }
 
-    public List<Payment> getPayments() {
+    public Payment getPayments() {
         return payments;
     }
 
-    public void setPayments(List<Payment> payments) {
+    public void setPayments(Payment payments) {
         this.payments = payments;
     }
 }

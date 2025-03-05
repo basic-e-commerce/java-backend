@@ -42,6 +42,11 @@ public class PaymentController {
         return new ResponseEntity<>(paymentService.getBin(bin,amount),HttpStatus.OK);
     }
 
+    @PostMapping("/refund")
+    public ResponseEntity<String> refund(@RequestParam String paymentId,@RequestParam BigDecimal amount) {
+        return new ResponseEntity<>(paymentService.refund(paymentId,amount),HttpStatus.OK);
+    }
+
 
 
 }

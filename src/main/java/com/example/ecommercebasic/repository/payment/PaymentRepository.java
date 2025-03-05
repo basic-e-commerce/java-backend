@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByConversationId(String conversationId);
+    Optional<Payment> findByPaymentUniqId(String paymentId);
 }

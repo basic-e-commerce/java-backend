@@ -14,4 +14,5 @@ public interface PaymentStrategy {
     ProcessCreditCardDto processCreditCardPayment(BigDecimal totalAmount,Order order, PaymentCreditCardRequestDto paymentCreditCardRequestDto, String conversationId, HttpServletRequest httpServletRequest);
     PayCallBackDto payCallBack(Map<String, String> collections);
     InstallmentInfoDto getBin(String bin,BigDecimal price);
+    String refund(String paymentId,BigDecimal refundAmount);
 }

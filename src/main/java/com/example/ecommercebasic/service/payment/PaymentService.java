@@ -6,6 +6,7 @@ import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDt
 import com.example.ecommercebasic.entity.payment.Payment;
 import com.example.ecommercebasic.entity.payment.PaymentStatus;
 import com.example.ecommercebasic.entity.product.order.Order;
+import com.example.ecommercebasic.entity.product.order.OrderStatus;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.exception.ResourceAlreadyExistException;
@@ -23,27 +24,23 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.*;
 
 @Service
 public class PaymentService {
     private final OrderService orderService;
     private final PaymentRepository paymentRepository;
-    private final WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
-    public PaymentService(OrderService orderService, PaymentRepository paymentRepository, WebInvocationPrivilegeEvaluator privilegeEvaluator) {
+
+    public PaymentService(OrderService orderService, PaymentRepository paymentRepository) {
         this.orderService = orderService;
         this.paymentRepository = paymentRepository;
-        this.privilegeEvaluator = privilegeEvaluator;
     }
-
     @Transactional
     public String processCreditCardPayment(PaymentCreditCardRequestDto paymentCreditCardRequestDto, HttpServletRequest httpServletRequest) {
         Order order = orderService.findByOrderCode(paymentCreditCardRequestDto.getOrderCode());
-        boolean hasSuccessfulPayment = order.getPayments()
-                .stream()
-                .anyMatch(payment -> payment.getStatus().equals(PaymentStatus.SUCCESS));
-
-        if (hasSuccessfulPayment)
+        PaymentStatus hasSuccessfulPayment = order.getPayments().getStatus();
+        if (hasSuccessfulPayment.equals(PaymentStatus.SUCCESS))
             throw new ResourceAlreadyExistException("Bu sipariş için zaten başarılı bir ödeme var!");
 
         String conversationId = UUID.randomUUID().toString();
@@ -57,7 +54,6 @@ public class PaymentService {
                 paymentCreditCardRequestDto.getOrderDeliveryRequestDto().getCity(),
                 paymentCreditCardRequestDto.getOrderDeliveryRequestDto().getPostalCode(),
                 paymentCreditCardRequestDto.getCreditCardRequestDto().getCardHolderName(),
-                paymentCreditCardRequestDto.getCreditCardRequestDto().getCardNumber(),
                 conversationId,
                 "İslem Baslatılıyor",
                 PaymentStatus.PROCESS,
@@ -69,29 +65,63 @@ public class PaymentService {
         BigDecimal totalPrice = processTotalPrice(order.getTotalPrice());
         String binNumber = paymentCreditCardRequestDto.getCreditCardRequestDto().getCardNumber().substring(0, 6);
 
-
-        if (paymentCreditCardRequestDto.getInstallmentNumber() != 1){
-            InstallmentInfoDto bin = getBin(binNumber,totalPrice);
+        if (paymentCreditCardRequestDto.getInstallmentNumber() != 1) {
+            InstallmentInfoDto bin = getBin(binNumber, totalPrice);
             InstallmentPriceDto installmentPrice = getInstallmentPrice(binNumber, bin, paymentCreditCardRequestDto.getInstallmentNumber());
             totalPrice = installmentPrice.getTotalPrice();
         }
 
-        ProcessCreditCardDto processCreditCardDto = paymentStrategy.processCreditCardPayment(
-                totalPrice,
-                order,
-                paymentCreditCardRequestDto,
-                conversationId,
-                httpServletRequest
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        BigDecimal finalTotalPrice = totalPrice;
+        Future<ProcessCreditCardDto> future = executor.submit(() ->
+                paymentStrategy.processCreditCardPayment(finalTotalPrice, order, paymentCreditCardRequestDto, conversationId, httpServletRequest)
         );
-        savePayment.setPaymentUniqId(processCreditCardDto.getPaymentId());
-        paymentRepository.save(savePayment);
 
-        if (processCreditCardDto.getConversationId().equals(conversationId) && processCreditCardDto.getStatus().equals("success")) {
-            return processCreditCardDto.getGetHtmlContent();
-        }else
-            throw new BadRequestException("Invalid request");
+        try {
+            ProcessCreditCardDto processCreditCardDto = future.get(10, TimeUnit.SECONDS);
+            savePayment.setPaymentUniqId(processCreditCardDto.getPaymentId());
+            paymentRepository.save(savePayment);
+
+            if (processCreditCardDto.getConversationId().equals(conversationId) && processCreditCardDto.getStatus().equals("success")) {
+                return processCreditCardDto.getGetHtmlContent();
+            } else {
+                throw new BadRequestException("Invalid request");
+            }
+
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw new BadRequestException("Ödeme işlemi zaman aşımına uğradı.");
+        } catch (ExecutionException e) {
+            throw new BadRequestException("Ödeme işlemi sırasında hata oluştu: " + e.getCause().getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("İşlem kesildi.");
+        } finally {
+            executor.shutdown(); // Thread kapanıyor
+        }
     }
 
+    public String refund(String paymentId, BigDecimal refundAmount){
+        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
+        Payment payment = findByPaymentId(paymentId);
+
+        if (!payment.getStatus().equals(PaymentStatus.SUCCESS))
+            throw new BadRequestException("İşlem iadeye uygun değildir");
+
+        String refundPaymentId = paymentStrategy.refund(paymentId, refundAmount);
+        System.out.println(refundPaymentId);
+        Payment payment1 = findByPaymentId(refundPaymentId);
+        payment1.setStatus(PaymentStatus.REFUNDED);
+        paymentRepository.save(payment1);
+
+        Order order = orderService.findByPayment(payment);
+        order.setStatus(OrderStatus.REDELIVERED);
+        orderService.save(order);
+
+        return refundPaymentId;
+    }
+
+    // Taksite göre fiyatı ayarlama
     private InstallmentPriceDto getInstallmentPrice(String binNumber, InstallmentInfoDto bin,int installmentNumber) {
         // Bin numarasına sahip InstallmentDetailDto'yu bul
         for (InstallmentDetailDto detail : bin.getInstallmentDetails()) {
@@ -145,4 +175,9 @@ public class PaymentService {
     public Payment findByConversationId(String conversationId) {
         return paymentRepository.findByConversationId(conversationId).orElseThrow(()-> new NotFoundException("Payment Not Found"));
     }
+    public Payment findByPaymentId(String paymentId) {
+        return paymentRepository.findByPaymentUniqId(paymentId).orElseThrow(()-> new NotFoundException("Payment Not Found"));
+    }
+
+
 }

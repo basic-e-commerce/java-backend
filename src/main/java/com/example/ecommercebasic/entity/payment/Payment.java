@@ -21,7 +21,6 @@ public class Payment {
     private String zipCode;
 
     private String cardHolderName;
-    private String cardNumber;
 
     private String conversationId;
     private String paymentUniqId;
@@ -33,7 +32,7 @@ public class Payment {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order; // Hangi siparişe ait olduğu
 
-    public Payment(String name, String surname, String username, String phoneNo, String identityNo, String country, String city, String zipCode, String cardHolderName, String cardNumber, String conversationId, String paymentUniqId, PaymentStatus status, Order order) {
+    public Payment(String name, String surname, String username, String phoneNo, String identityNo, String country, String city, String zipCode, String cardHolderName, String conversationId, String paymentUniqId, PaymentStatus status, Order order) {
         this.name = name;
         this.surname = surname;
         this.username = username;
@@ -43,7 +42,6 @@ public class Payment {
         this.city = city;
         this.zipCode = zipCode;
         this.cardHolderName = cardHolderName;
-        this.cardNumber = cardNumber;
         this.conversationId = conversationId;
         this.paymentUniqId = paymentUniqId;
         this.status = status;
@@ -131,14 +129,6 @@ public class Payment {
 
     public void setCardHolderName(String cardHolderName) {
         this.cardHolderName = cardHolderName;
-    }
-
-    public String getCardNumber() {
-        return cardNumber;
-    }
-
-    public void setCardNumber(String cardNumber) {
-        this.cardNumber = cardNumber;
     }
 
     public PaymentStatus getStatus() {

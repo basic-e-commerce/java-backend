@@ -5,6 +5,7 @@ import com.example.ecommercebasic.config.validation.RegexValidation;
 import com.example.ecommercebasic.dto.product.order.BasketResponseDto;
 import com.example.ecommercebasic.dto.product.order.OrderRequestDto;
 import com.example.ecommercebasic.dto.product.order.OrderResponseDto;
+import com.example.ecommercebasic.entity.payment.Payment;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.entity.product.order.OrderItem;
@@ -92,5 +93,13 @@ public class OrderService {
                     productById.getPrice(),
                     productById.getDiscountPrice());
         }).toList();
+    }
+
+    public Order save(Order order) {
+        return orderRepository.save(order);
+    }
+
+    public Order findByPayment(Payment payment) {
+        return orderRepository.findByPayments(payment).orElseThrow(() -> new BadRequestException("Payment not found"));
     }
 }

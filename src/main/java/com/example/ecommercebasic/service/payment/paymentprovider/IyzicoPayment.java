@@ -7,6 +7,7 @@ import com.example.ecommercebasic.dto.payment.ProcessCreditCardDto;
 import com.example.ecommercebasic.dto.product.order.OrderDeliveryRequestDto;
 import com.example.ecommercebasic.dto.product.payment.CreditCardRequestDto;
 import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDto;
+import com.example.ecommercebasic.entity.payment.Payment;
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.entity.product.order.OrderItem;
 import com.example.ecommercebasic.exception.BadRequestException;
@@ -15,10 +16,7 @@ import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.model.Currency;
 import com.iyzipay.model.Locale;
-import com.iyzipay.request.CreatePaymentRequest;
-import com.iyzipay.request.CreateThreedsPaymentRequest;
-import com.iyzipay.request.RetrieveBinNumberRequest;
-import com.iyzipay.request.RetrieveInstallmentInfoRequest;
+import com.iyzipay.request.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
@@ -161,6 +159,20 @@ public class IyzicoPayment implements PaymentStrategy {
         }else
             throw new BadRequestException("Geçersiz Kart");
 
+    }
+
+    @Override
+    public String refund(String paymentId, BigDecimal refundAmount) {
+        Options options = getOptions();
+
+        CreateRefundV2Request createRefundV2Request = new CreateRefundV2Request();
+        createRefundV2Request.setPaymentId(paymentId);
+        createRefundV2Request.setPrice(refundAmount);
+
+        Refund refund = Refund.createV2(createRefundV2Request, options);
+        System.out.println(refund.getPaymentId());
+
+        return refund.getPaymentId();
     }
 
 

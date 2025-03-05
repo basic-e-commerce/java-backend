@@ -7,6 +7,8 @@ public enum OrderStatus {
     SHIPPED,       // Sipariş kargo firmasına teslim edildi.
     DELIVERED,    // Sipariş müşteri tarafından teslim alındı.
     CANCELLED,     // Müşteri veya satıcı tarafından iptal edildi.
-    REFUNDED,     // İade işlemi tamamlandı, ücret iade edildi.
-    FAILED        // Ödeme başarısız oldu veya işlem tamamlanamadı.
+
+    RESHIPPED,     // İade Kargoyu Müşteri kargoya geri verdi
+    REDELIVERED    // İade Kargo ulaşıldı
+
 }
