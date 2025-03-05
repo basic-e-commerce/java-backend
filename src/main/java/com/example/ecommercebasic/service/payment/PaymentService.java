@@ -65,6 +65,7 @@ public class PaymentService {
         );
         System.out.println(5);
         Payment savePayment = paymentRepository.save(payment);
+        System.out.println("save payment: "+savePayment.getId());
         System.out.println(6);
         PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod(paymentCreditCardRequestDto.getPaymentMethod());
         BigDecimal totalPrice = processTotalPrice(order.getTotalPrice());
