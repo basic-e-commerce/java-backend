@@ -5,9 +5,12 @@ import com.example.ecommercebasic.dto.product.productdto.ProductModelRequestDto;
 import com.example.ecommercebasic.dto.product.productdto.ProductRequestDto;
 import com.example.ecommercebasic.dto.product.productdto.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.productdto.ProductSmallResponseDto;
+import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.UnitType;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 @Component
 public class ProductBuilder {
@@ -30,6 +33,10 @@ public class ProductBuilder {
                 product.getId(),
                 product.getProductName(),
                 product.getDescription(),
+                product.getProductCode(),
+                product.getQuantity(),
+                product.isStatus(),
+                product.getCategories().stream().map(Category::getId).collect(Collectors.toList()),
                 product.getCoverUrl(),
                 product.getPrice(),
                 product.getUnitType().getValue(),

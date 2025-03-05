@@ -7,16 +7,25 @@ public class ProductResponseDto {
     private int id;
     private String name;
     private String description;
-    private String coverImage;
+    private String productCode;
     private BigDecimal price;
-    private String unitType;
     private BigDecimal discountPrice;
+    private String unitType;
+    private int quantity;
+    private boolean status;
+    private List<Integer> categoryId;
+    private String coverImage;
     private List<String> images;
 
-    public ProductResponseDto(int id, String name, String description, String coverImage, BigDecimal price, String unitType, BigDecimal discountPrice, List<String> images) {
+
+    public ProductResponseDto(int id, String name, String description, String productCode, int quantity, boolean status, List<Integer> categoryId, String coverImage, BigDecimal price, String unitType, BigDecimal discountPrice, List<String> images) {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.productCode = productCode;
+        this.quantity = quantity;
+        this.status = status;
+        this.categoryId = categoryId;
         this.coverImage = coverImage;
         this.price = price;
         this.unitType = unitType;
@@ -86,5 +95,37 @@ public class ProductResponseDto {
 
     public void setUnitType(String unitType) {
         this.unitType = unitType;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public List<Integer> getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(List<Integer> categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

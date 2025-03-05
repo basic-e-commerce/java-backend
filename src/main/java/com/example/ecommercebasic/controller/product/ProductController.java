@@ -36,8 +36,6 @@ public class ProductController {
         return new ResponseEntity<>(productService.createVariantProductModel(productModelRequestDto),HttpStatus.OK);
     }
 
-
-
     @PutMapping
     public ResponseEntity<ProductResponseDto> updateProduct(@RequestParam Integer productId,@RequestBody ProductRequestDto productRequestDto) {
         return new ResponseEntity<>(productService.updateProduct(productId,productRequestDto),HttpStatus.CREATED);
