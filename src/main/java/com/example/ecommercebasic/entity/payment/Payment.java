@@ -1,6 +1,7 @@
 package com.example.ecommercebasic.entity.payment;
 
 import com.example.ecommercebasic.entity.product.order.Order;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -28,6 +29,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status; // SUCCESS, FAILED gibi durumlar
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order; // Hangi siparişe ait olduğu

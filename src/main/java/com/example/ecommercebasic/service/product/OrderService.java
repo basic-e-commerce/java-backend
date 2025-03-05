@@ -3,9 +3,12 @@ package com.example.ecommercebasic.service.product;
 import com.example.ecommercebasic.builder.product.order.OrderBuilder;
 import com.example.ecommercebasic.config.validation.RegexValidation;
 import com.example.ecommercebasic.dto.product.order.BasketResponseDto;
+import com.example.ecommercebasic.dto.product.order.OrderFilterRequest;
 import com.example.ecommercebasic.dto.product.order.OrderRequestDto;
 import com.example.ecommercebasic.dto.product.order.OrderResponseDto;
 import com.example.ecommercebasic.entity.payment.Payment;
+import com.example.ecommercebasic.entity.payment.PaymentStatus;
+import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.entity.product.order.OrderItem;
@@ -14,15 +17,22 @@ import com.example.ecommercebasic.entity.user.User;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.repository.product.OrderRepository;
 import com.example.ecommercebasic.service.user.CustomerService;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.criteria.*;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,4 +112,37 @@ public class OrderService {
     public Order findByPayment(Payment payment) {
         return orderRepository.findByPayments(payment).orElseThrow(() -> new BadRequestException("Payment not found"));
     }
+
+    public List<Order> filterOrdersByRequest(OrderFilterRequest filterRequest, int page, int size) {
+        Sort sort = Sort.unsorted();
+        if (filterRequest.getSortBy() != null) {
+            sort = Sort.by(Sort.Direction.fromString(filterRequest.getSortDirection()), filterRequest.getSortBy());
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PaymentStatus paymentStatus = PaymentStatus.valueOf(filterRequest.getPaymentStatus());
+        Specification<Order> spec = filterOrders(paymentStatus);
+
+        return orderRepository.findAll(spec, pageable).getContent();
+    }
+
+
+    public Specification<Order> filterOrders(PaymentStatus paymentStatus) {
+        return Specification
+                .where(hasPaymentStatus(paymentStatus));
+    }
+
+
+    public Specification<Order> hasPaymentStatus(PaymentStatus paymentStatus) {
+        return (Root<Order> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
+            if (paymentStatus == null) return null;
+            // Order ile Payment arasında INNER JOIN yap
+            Join<Order, Payment> paymentJoin = root.join("payments", JoinType.INNER);
+
+            return cb.equal(paymentJoin.get("status"), paymentStatus);
+        };
+    }
+
+
+
 }

@@ -1,8 +1,12 @@
 package com.example.ecommercebasic.controller.product;
 
+import com.example.ecommercebasic.dto.product.attribute.ProductFilterRequest;
 import com.example.ecommercebasic.dto.product.order.BasketResponseDto;
+import com.example.ecommercebasic.dto.product.order.OrderFilterRequest;
 import com.example.ecommercebasic.dto.product.order.OrderRequestDto;
 import com.example.ecommercebasic.dto.product.order.OrderResponseDto;
+import com.example.ecommercebasic.entity.payment.Payment;
+import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.service.product.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +37,13 @@ public class OrderController {
     @GetMapping("/basket")
     public ResponseEntity<List<BasketResponseDto>> showBasket(@RequestParam List<Integer> productIds) {
         return new ResponseEntity<>(orderService.showBasket(productIds), HttpStatus.OK);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Order>> getOrderFilter(@RequestBody OrderFilterRequest filterRequest,
+                                            @RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
+        return new ResponseEntity<>(orderService.filterOrdersByRequest(filterRequest,page,size),HttpStatus.OK);
     }
 
 }

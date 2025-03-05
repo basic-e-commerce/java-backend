@@ -5,12 +5,9 @@ import com.example.ecommercebasic.constant.ApplicationConstant;
 import com.example.ecommercebasic.dto.product.attribute.ProductFilterRequest;
 import com.example.ecommercebasic.dto.product.productdto.*;
 import com.example.ecommercebasic.entity.product.*;
-import com.example.ecommercebasic.entity.product.attribute.Attribute;
-import com.example.ecommercebasic.entity.product.attribute.AttributeValue;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.ProductRepository;
-import com.example.ecommercebasic.service.product.attribute.AttributeService;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
@@ -370,7 +367,7 @@ public class ProductService {
                 .and(isDeleted(false));
     }
 
-    public static Specification<Product> hasCategories(Set<Integer> categoryIds) {
+    public Specification<Product> hasCategories(Set<Integer> categoryIds) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
             if (categoryIds == null || categoryIds.isEmpty()) return null;
             Join<Product, Category> categoryJoin = root.join("categories", JoinType.INNER);
@@ -379,27 +376,27 @@ public class ProductService {
     }
 
 
-    public static Specification<Product> hasProductType(ProductType productType) {
+    public Specification<Product> hasProductType(ProductType productType) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
                 productType == null ? null : cb.equal(root.get("productType"), productType);
     }
 
-    public static Specification<Product> hasMinPrice(Double minPrice) {
+    public Specification<Product> hasMinPrice(Double minPrice) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
                 minPrice == null ? null : cb.greaterThanOrEqualTo(root.get("discountPrice"), minPrice);
     }
 
-    public static Specification<Product> hasMaxPrice(Double maxPrice) {
+    public Specification<Product> hasMaxPrice(Double maxPrice) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
                 maxPrice == null ? null : cb.lessThanOrEqualTo(root.get("discountPrice"), maxPrice);
     }
 
-    public static Specification<Product> isAvailable(boolean status) {
+    public Specification<Product> isAvailable(boolean status) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
                 cb.equal(root.get("status"), status);
     }
 
-    public static Specification<Product> isDeleted(boolean isDeleted) {
+    public Specification<Product> isDeleted(boolean isDeleted) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) ->
                 cb.equal(root.get("isDeleted"), isDeleted);
     }

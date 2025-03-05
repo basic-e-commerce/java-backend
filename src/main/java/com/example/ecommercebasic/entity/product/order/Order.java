@@ -34,6 +34,8 @@ public class Order {
     private Payment payments;
 
     private String orderCode;
+    private LocalDateTime deliveryDate = null;
+    private LocalDateTime createDate = LocalDateTime.now();
 
     public Order() {
     }
@@ -107,5 +109,21 @@ public class Order {
 
     public void setPayments(Payment payments) {
         this.payments = payments;
+    }
+
+    public LocalDateTime getDeliveryDate() {
+        return deliveryDate;
+    }
+
+    public void setDeliveryDate(LocalDateTime deliveryDate) {
+        this.deliveryDate = deliveryDate;
+    }
+
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
     }
 }
