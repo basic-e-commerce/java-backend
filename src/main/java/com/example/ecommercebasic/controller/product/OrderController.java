@@ -46,4 +46,9 @@ public class OrderController {
         return new ResponseEntity<>(orderService.filterOrdersByRequest(filterRequest,page,size),HttpStatus.OK);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Order>> getAllOrders() {
+        return new ResponseEntity<>(orderService.getAll(),HttpStatus.OK);
+    }
+
 }
