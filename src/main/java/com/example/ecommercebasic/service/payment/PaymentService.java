@@ -39,11 +39,12 @@ public class PaymentService {
     @Transactional
     public String processCreditCardPayment(PaymentCreditCardRequestDto paymentCreditCardRequestDto, HttpServletRequest httpServletRequest) {
         Order order = orderService.findByOrderCode(paymentCreditCardRequestDto.getOrderCode());
-        System.out.println(1);
-        PaymentStatus hasSuccessfulPayment = order.getPayments().getStatus();
-        System.out.println(2);
-        if (hasSuccessfulPayment.equals(PaymentStatus.SUCCESS))
-            throw new ResourceAlreadyExistException("Bu sipariş için zaten başarılı bir ödeme var!");
+
+        if(order.getPayments() != null){
+            if (order.getPayments().getStatus().equals(PaymentStatus.SUCCESS))
+                throw new ResourceAlreadyExistException("Bu sipariş için zaten başarılı bir ödeme var!");
+        }
+
         System.out.println(3);
         String conversationId = UUID.randomUUID().toString();
         System.out.println(4);
