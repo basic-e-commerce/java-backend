@@ -57,27 +57,29 @@ public class IyzicoPayment implements PaymentStrategy {
     @Override
     public ProcessCreditCardDto processCreditCardPayment(BigDecimal topAmount,Order order, PaymentCreditCardRequestDto paymentCreditCardRequestDto, String conversationId, HttpServletRequest httpServletRequest) {
         System.out.println("toplam: "+topAmount);
+        System.out.println(7);
         Options options = getOptions();
 
         CreatePaymentRequest request = getCreatePaymentRequest(order,conversationId,paymentCreditCardRequestDto.getTotalPrice(),paymentCreditCardRequestDto.getInstallmentNumber());
+        System.out.println(8);
         PaymentCard paymentCard = getPaymentCard(paymentCreditCardRequestDto.getCreditCardRequestDto());
         request.setPaymentCard(paymentCard);
-
+        System.out.println(9);
         Buyer buyer = getBuyer(paymentCreditCardRequestDto.getOrderDeliveryRequestDto(),httpServletRequest);
         request.setBuyer(buyer);
-
+        System.out.println(10);
         Address shippingAddress = getShippingAddress(paymentCreditCardRequestDto.getOrderDeliveryRequestDto());
         request.setShippingAddress(shippingAddress);
-
+        System.out.println(11);
         Address billingAddress = getBillingAddress(paymentCreditCardRequestDto.getOrderDeliveryRequestDto());
         request.setBillingAddress(billingAddress);
-
+        System.out.println(12);
         List<BasketItem> basketItems = getBasketItems(order);
         request.setBasketItems(basketItems);
-
+        System.out.println(13);
         ThreedsInitialize threedsInitialize = ThreedsInitialize.create(request, options);
         System.out.println(threedsInitialize);
-
+        System.out.println(14);
         return new ProcessCreditCardDto(
                 threedsInitialize.getConversationId(),
                 threedsInitialize.getPaymentId(),

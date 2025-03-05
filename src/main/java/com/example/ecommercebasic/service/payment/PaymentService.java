@@ -39,11 +39,14 @@ public class PaymentService {
     @Transactional
     public String processCreditCardPayment(PaymentCreditCardRequestDto paymentCreditCardRequestDto, HttpServletRequest httpServletRequest) {
         Order order = orderService.findByOrderCode(paymentCreditCardRequestDto.getOrderCode());
+        System.out.println(1);
         PaymentStatus hasSuccessfulPayment = order.getPayments().getStatus();
+        System.out.println(2);
         if (hasSuccessfulPayment.equals(PaymentStatus.SUCCESS))
             throw new ResourceAlreadyExistException("Bu sipariş için zaten başarılı bir ödeme var!");
-
+        System.out.println(3);
         String conversationId = UUID.randomUUID().toString();
+        System.out.println(4);
         Payment payment = new Payment(
                 paymentCreditCardRequestDto.getOrderDeliveryRequestDto().getName(),
                 paymentCreditCardRequestDto.getOrderDeliveryRequestDto().getSurname(),
@@ -59,28 +62,37 @@ public class PaymentService {
                 PaymentStatus.PROCESS,
                 order
         );
+        System.out.println(5);
         Payment savePayment = paymentRepository.save(payment);
-
+        System.out.println(6);
         PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod(paymentCreditCardRequestDto.getPaymentMethod());
         BigDecimal totalPrice = processTotalPrice(order.getTotalPrice());
         String binNumber = paymentCreditCardRequestDto.getCreditCardRequestDto().getCardNumber().substring(0, 6);
+        System.out.println(15 +"    "+ binNumber);
 
         if (paymentCreditCardRequestDto.getInstallmentNumber() != 1) {
             InstallmentInfoDto bin = getBin(binNumber, totalPrice);
+            System.out.println(16);
             InstallmentPriceDto installmentPrice = getInstallmentPrice(binNumber, bin, paymentCreditCardRequestDto.getInstallmentNumber());
             totalPrice = installmentPrice.getTotalPrice();
+            System.out.println(17);
         }
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
+        System.out.println(18);
         BigDecimal finalTotalPrice = totalPrice;
+        System.out.println(19);
         Future<ProcessCreditCardDto> future = executor.submit(() ->
                 paymentStrategy.processCreditCardPayment(finalTotalPrice, order, paymentCreditCardRequestDto, conversationId, httpServletRequest)
         );
 
+        System.out.println(20);
         try {
             ProcessCreditCardDto processCreditCardDto = future.get(10, TimeUnit.SECONDS);
+            System.out.println(21);
             savePayment.setPaymentUniqId(processCreditCardDto.getPaymentId());
             paymentRepository.save(savePayment);
+            System.out.println(22);
 
             if (processCreditCardDto.getConversationId().equals(conversationId) && processCreditCardDto.getStatus().equals("success")) {
                 return processCreditCardDto.getGetHtmlContent();
