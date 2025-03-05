@@ -1,13 +1,14 @@
 package com.example.ecommercebasic.dto.product.productdto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductRequestDto {
     private String productName;
     private String description;
     private int quantity;
-    private float price;
-    private float discountPrice;
+    private BigDecimal price;
+    private BigDecimal discountPrice;
     private String unitType;
     private boolean status;
     private String productCode;
@@ -15,7 +16,7 @@ public class ProductRequestDto {
 
     private List<Integer> categoryId;
 
-    public ProductRequestDto(String productName, String description, int quantity, float price, float discountPrice, String unitType, boolean status, String productCode, List<Integer> categoryId) {
+    public ProductRequestDto(String productName, String description, int quantity, BigDecimal price, BigDecimal discountPrice, String unitType, boolean status, String productCode, List<Integer> categoryId) {
         this.productName = productName;
         this.description = description;
         this.quantity = quantity;
@@ -39,7 +40,7 @@ public class ProductRequestDto {
         return quantity;
     }
 
-    public float getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
@@ -51,11 +52,11 @@ public class ProductRequestDto {
         return categoryId;
     }
 
-    public float getDiscountPrice() {
+    public BigDecimal getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(float discountPrice) {
+    public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
     }
 

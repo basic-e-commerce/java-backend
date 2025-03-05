@@ -1,5 +1,6 @@
 package com.example.ecommercebasic.dto.product.productdto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductResponseDto {
@@ -7,12 +8,12 @@ public class ProductResponseDto {
     private String name;
     private String description;
     private String coverImage;
-    private double price;
+    private BigDecimal price;
     private String unitType;
-    private double discountPrice;
+    private BigDecimal discountPrice;
     private List<String> images;
 
-    public ProductResponseDto(int id, String name, String description, String coverImage, double price, String unitType, double discountPrice, List<String> images) {
+    public ProductResponseDto(int id, String name, String description, String coverImage, BigDecimal price, String unitType, BigDecimal discountPrice, List<String> images) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -63,19 +64,19 @@ public class ProductResponseDto {
         this.coverImage = coverImage;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public double getDiscountPrice() {
+    public BigDecimal getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(double discountPrice) {
+    public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
     }
 

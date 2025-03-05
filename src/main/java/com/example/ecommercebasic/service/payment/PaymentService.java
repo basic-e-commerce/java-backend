@@ -1,9 +1,7 @@
 package com.example.ecommercebasic.service.payment;
 
 
-import com.example.ecommercebasic.dto.payment.InstallmentInfoDto;
-import com.example.ecommercebasic.dto.payment.PayCallBackDto;
-import com.example.ecommercebasic.dto.payment.ProcessCreditCardDto;
+import com.example.ecommercebasic.dto.payment.*;
 import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDto;
 import com.example.ecommercebasic.entity.payment.Payment;
 import com.example.ecommercebasic.entity.payment.PaymentStatus;
@@ -13,10 +11,16 @@ import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.exception.ResourceAlreadyExistException;
 import com.example.ecommercebasic.repository.payment.PaymentRepository;
 import com.example.ecommercebasic.service.product.OrderService;
+import com.iyzipay.model.InstallmentDetail;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,10 +28,12 @@ import java.util.UUID;
 public class PaymentService {
     private final OrderService orderService;
     private final PaymentRepository paymentRepository;
+    private final WebInvocationPrivilegeEvaluator privilegeEvaluator;
 
-    public PaymentService(OrderService orderService, PaymentRepository paymentRepository) {
+    public PaymentService(OrderService orderService, PaymentRepository paymentRepository, WebInvocationPrivilegeEvaluator privilegeEvaluator) {
         this.orderService = orderService;
         this.paymentRepository = paymentRepository;
+        this.privilegeEvaluator = privilegeEvaluator;
     }
 
     @Transactional
@@ -53,20 +59,32 @@ public class PaymentService {
                 paymentCreditCardRequestDto.getCreditCardRequestDto().getCardHolderName(),
                 paymentCreditCardRequestDto.getCreditCardRequestDto().getCardNumber(),
                 conversationId,
+                "İslem Baslatılıyor",
                 PaymentStatus.PROCESS,
                 order
         );
-        paymentRepository.save(payment);
+        Payment savePayment = paymentRepository.save(payment);
 
         PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod(paymentCreditCardRequestDto.getPaymentMethod());
+        BigDecimal totalPrice = processTotalPrice(order.getTotalPrice());
+        String binNumber = paymentCreditCardRequestDto.getCreditCardRequestDto().getCardNumber().substring(0, 6);
+
+
+        if (paymentCreditCardRequestDto.getInstallmentNumber() != 1){
+            InstallmentInfoDto bin = getBin(binNumber,totalPrice);
+            InstallmentPriceDto installmentPrice = getInstallmentPrice(binNumber, bin, paymentCreditCardRequestDto.getInstallmentNumber());
+            totalPrice = installmentPrice.getTotalPrice();
+        }
+
         ProcessCreditCardDto processCreditCardDto = paymentStrategy.processCreditCardPayment(
-                order.getTotalPrice(),
+                totalPrice,
                 order,
-                paymentCreditCardRequestDto.getCreditCardRequestDto(),
-                paymentCreditCardRequestDto.getOrderDeliveryRequestDto(),
+                paymentCreditCardRequestDto,
                 conversationId,
                 httpServletRequest
         );
+        savePayment.setPaymentUniqId(processCreditCardDto.getPaymentId());
+        paymentRepository.save(savePayment);
 
         if (processCreditCardDto.getConversationId().equals(conversationId) && processCreditCardDto.getStatus().equals("success")) {
             return processCreditCardDto.getGetHtmlContent();
@@ -74,23 +92,54 @@ public class PaymentService {
             throw new BadRequestException("Invalid request");
     }
 
+    private InstallmentPriceDto getInstallmentPrice(String binNumber, InstallmentInfoDto bin,int installmentNumber) {
+        // Bin numarasına sahip InstallmentDetailDto'yu bul
+        for (InstallmentDetailDto detail : bin.getInstallmentDetails()) {
+            if (detail.getBinNumber().equals(binNumber) && detail.getInstallmentPrices() != null) {
 
-        public String payCallBack(Map<String, String> collections) {
-            PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
-            PayCallBackDto payCallBackDto = paymentStrategy.payCallBack(collections);
-            if (payCallBackDto.getStatus().equals("success")) {
-                Payment payment = findByConversationId(payCallBackDto.getConversationId());
-                payment.setStatus(PaymentStatus.SUCCESS);
-                paymentRepository.save(payment);
-                return "Ödeme Başarılı";
-            }else
-                return  "Ödeme başarısız";
-
+                // İlgili taksit numarasına sahip InstallmentPriceDto'yu bul
+                for (InstallmentPriceDto priceDto : detail.getInstallmentPrices()) {
+                    if (priceDto.getInstallmentNumber() == installmentNumber) {
+                        return priceDto;
+                    }
+                }
+            }
         }
+        throw new BadRequestException("Invalid Card");
+    }
 
-    public InstallmentInfoDto getBin(String binCode) {
+    private BigDecimal processTotalPrice(BigDecimal totalPrice) {
+        BigDecimal kargoPrice = new  BigDecimal("75.00");
+        BigDecimal minPrice = new BigDecimal("2000.00");
+
+        if (totalPrice.compareTo(minPrice) < 0) {
+            totalPrice.add(kargoPrice);
+        }
+        return totalPrice;
+    }
+
+
+    public void payCallBack(Map<String, String> collections, HttpServletResponse httpServletResponse) throws IOException {
         PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
-        return paymentStrategy.getBin(binCode);
+        PayCallBackDto payCallBackDto = paymentStrategy.payCallBack(collections);
+
+        if (payCallBackDto.getStatus().equals("success")) {
+            Payment payment = findByConversationId(payCallBackDto.getConversationId());
+            payment.setStatus(PaymentStatus.SUCCESS);
+            paymentRepository.save(payment);
+            String redirectUrl = "https://litysofttest1.site/success-payment?orderCode=" + payment.getOrder().getOrderCode(); // Query parametreli URL
+            httpServletResponse.sendRedirect(redirectUrl);
+        }else{
+            Payment payment = findByConversationId(payCallBackDto.getConversationId());
+            payment.setStatus(PaymentStatus.FAILED);
+            String redirectUrl = "https://litysofttest1.site/success-payment?orderCode=" + payment.getOrder().getOrderCode(); // Query parametreli URL
+            httpServletResponse.sendRedirect(redirectUrl);
+        }
+    }
+
+    public InstallmentInfoDto getBin(String binCode,BigDecimal price) {
+        PaymentStrategy paymentStrategy = PaymentFactory.getPaymentMethod("IYZICO");
+        return paymentStrategy.getBin(binCode, price);
     }
 
     public Payment findByConversationId(String conversationId) {

@@ -1,13 +1,14 @@
 package com.example.ecommercebasic.dto.product.order;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class OrderResponseDto {
     private String orderCode;
-    private float totalPrice;
+    private BigDecimal totalPrice;
     private List<OrderItemResponseDto> orderItemResponseDtos;
 
-    public OrderResponseDto(String orderCode, float totalPrice, List<OrderItemResponseDto> orderItemResponseDtos) {
+    public OrderResponseDto(String orderCode, BigDecimal totalPrice, List<OrderItemResponseDto> orderItemResponseDtos) {
         this.orderCode = orderCode;
         this.totalPrice = totalPrice;
         this.orderItemResponseDtos = orderItemResponseDtos;
@@ -21,11 +22,11 @@ public class OrderResponseDto {
         this.orderCode = orderCode;
     }
 
-    public float getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(float totalPrice) {
+    public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
 

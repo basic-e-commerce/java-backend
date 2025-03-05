@@ -7,6 +7,7 @@ import com.example.ecommercebasic.repository.product.OrderItemRepository;
 import com.example.ecommercebasic.repository.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -26,10 +27,15 @@ public class OrderItemService {
     }
 
 
-    public float totalPrice(List<OrderItem> orderItems) {
-        float totalPrice = 0;
+    public BigDecimal totalPrice(List<OrderItem> orderItems) {
+        BigDecimal totalPrice = BigDecimal.valueOf(0);
         for (OrderItem orderItem : orderItems) {
-            totalPrice += orderItem.getcurrentPrice()*orderItem.getQuantity();
+            // getcurrentPrice() ve getQuantity() BigDecimal türüne dönüştürülür
+            BigDecimal itemPrice = orderItem.getcurrentPrice();
+            BigDecimal quantity = BigDecimal.valueOf(orderItem.getQuantity());
+
+            // Çarpma ve ekleme işlemleri BigDecimal metodları ile yapılır
+            totalPrice = totalPrice.add(itemPrice.multiply(quantity));
         }
         return totalPrice;
     }

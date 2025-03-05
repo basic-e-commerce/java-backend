@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +56,7 @@ public class OrderService {
         }
 
         List<OrderItem> orderItems = orderRequestDto.getOrderItems().stream().map(orderItemService::createOrderItem).toList();
-        float totalPrice = orderItemService.totalPrice(orderItems);
+        BigDecimal totalPrice = orderItemService.totalPrice(orderItems);
 
         String orderCode;
         while (orderRepository.existsByOrderCode(orderCode = regexValidation.generateUniqueOrderCode())) {}

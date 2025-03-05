@@ -6,6 +6,7 @@ import com.example.ecommercebasic.dto.payment.PayCallBackDto;
 import com.example.ecommercebasic.dto.payment.ProcessCreditCardDto;
 import com.example.ecommercebasic.dto.product.order.OrderDeliveryRequestDto;
 import com.example.ecommercebasic.dto.product.payment.CreditCardRequestDto;
+import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDto;
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.entity.product.order.OrderItem;
 import com.example.ecommercebasic.exception.BadRequestException;
@@ -56,21 +57,21 @@ public class IyzicoPayment implements PaymentStrategy {
             backoff = @Backoff(delay = 2000) // 2 saniye bekleyerek yeniden dene
     )  // Eğer ödeme sağlayıcısı geçici bir hata döndürürse (örneğin, zaman aşımı ya da bağlantı hatası), Spring otomatik olarak 3 defa yeniden deneyecek.
     @Override
-    public ProcessCreditCardDto processCreditCardPayment(double amount, Order order, CreditCardRequestDto creditCardRequestDto, OrderDeliveryRequestDto orderDeliveryRequestDto, String conversationId, HttpServletRequest httpServletRequest) {
-        System.out.println("toplam: "+order.getTotalPrice());
+    public ProcessCreditCardDto processCreditCardPayment(BigDecimal topAmount,Order order, PaymentCreditCardRequestDto paymentCreditCardRequestDto, String conversationId, HttpServletRequest httpServletRequest) {
+        System.out.println("toplam: "+topAmount);
         Options options = getOptions();
 
-        CreatePaymentRequest request = getCreatePaymentRequest(order,conversationId);
-        PaymentCard paymentCard = getPaymentCard(creditCardRequestDto);
+        CreatePaymentRequest request = getCreatePaymentRequest(order,conversationId,paymentCreditCardRequestDto.getTotalPrice(),paymentCreditCardRequestDto.getInstallmentNumber());
+        PaymentCard paymentCard = getPaymentCard(paymentCreditCardRequestDto.getCreditCardRequestDto());
         request.setPaymentCard(paymentCard);
 
-        Buyer buyer = getBuyer(orderDeliveryRequestDto,httpServletRequest);
+        Buyer buyer = getBuyer(paymentCreditCardRequestDto.getOrderDeliveryRequestDto(),httpServletRequest);
         request.setBuyer(buyer);
 
-        Address shippingAddress = getShippingAddress(orderDeliveryRequestDto);
+        Address shippingAddress = getShippingAddress(paymentCreditCardRequestDto.getOrderDeliveryRequestDto());
         request.setShippingAddress(shippingAddress);
 
-        Address billingAddress = getBillingAddress(orderDeliveryRequestDto);
+        Address billingAddress = getBillingAddress(paymentCreditCardRequestDto.getOrderDeliveryRequestDto());
         request.setBillingAddress(billingAddress);
 
         List<BasketItem> basketItems = getBasketItems(order);
@@ -81,6 +82,7 @@ public class IyzicoPayment implements PaymentStrategy {
 
         return new ProcessCreditCardDto(
                 threedsInitialize.getConversationId(),
+                threedsInitialize.getPaymentId(),
                 order.getId(),
                 threedsInitialize.getHtmlContent(),
                 threedsInitialize.getStatus()
@@ -119,7 +121,6 @@ public class IyzicoPayment implements PaymentStrategy {
             System.out.println("paymentId: "+threedsPayment.getPaymentId());
             System.out.println("conversationId: "+threedsPayment.getConversationId());
 
-
             if (threedsPayment.getStatus().equals("success")) {
                 return new PayCallBackDto(
                         conversationId,
@@ -135,7 +136,7 @@ public class IyzicoPayment implements PaymentStrategy {
     }
 
     @Override
-    public InstallmentInfoDto getBin(String bin) {
+    public InstallmentInfoDto getBin(String bin,BigDecimal price) {
 
         System.out.println("binnnn :" + bin);
         RetrieveBinNumberRequest retrieveBinNumberRequest = new RetrieveBinNumberRequest();
@@ -150,7 +151,7 @@ public class IyzicoPayment implements PaymentStrategy {
 
             RetrieveInstallmentInfoRequest retrieveInstallmentInfoRequest = new RetrieveInstallmentInfoRequest();
             retrieveInstallmentInfoRequest.setBinNumber(bin);
-            retrieveInstallmentInfoRequest.setPrice(BigDecimal.valueOf(10000));
+            retrieveInstallmentInfoRequest.setPrice(price);
             retrieveInstallmentInfoRequest.setCurrency(Currency.TRY.name());
 
             InstallmentInfo installmentInfo = InstallmentInfo.retrieve(retrieveInstallmentInfoRequest,options);
@@ -171,19 +172,19 @@ public class IyzicoPayment implements PaymentStrategy {
         return options;
     }
 
-    public CreatePaymentRequest getCreatePaymentRequest(Order order,String conversationId) {
+    public CreatePaymentRequest getCreatePaymentRequest(Order order,String conversationId,BigDecimal totalPrice,Integer installmentNumber) {
         CreatePaymentRequest request = new CreatePaymentRequest();
 
         request.setLocale(Locale.TR.getValue());
         request.setConversationId(conversationId);
-        request.setPrice(BigDecimal.valueOf(order.getTotalPrice()));
-        request.setPaidPrice(BigDecimal.valueOf(order.getTotalPrice()));
+        request.setPrice(order.getTotalPrice());
+        request.setPaidPrice(totalPrice);
         request.setCurrency(Currency.TRY.name());
-        request.setInstallment(1);
+        request.setInstallment(installmentNumber);
         request.setBasketId(order.getOrderCode());
         request.setPaymentChannel(PaymentChannel.WEB.name());
         request.setPaymentGroup(PaymentGroup.PRODUCT.name());
-        request.setCallbackUrl("https://litysofttest1.site"+"/api/v1/payment/payCallBack");
+        request.setCallbackUrl("https://litysofttest1.site/api/v1/payment/payCallBack");
         return request;
     }
 
@@ -259,7 +260,7 @@ public class IyzicoPayment implements PaymentStrategy {
         basketItem.setName(orderItem.getProduct().getProductName());
         basketItem.setCategory1((orderItem.getProduct().getCategories().stream().findFirst()).get().getName());
         basketItem.setItemType(BasketItemType.PHYSICAL.name());
-        basketItem.setPrice(BigDecimal.valueOf(orderItem.getcurrentPrice()*orderItem.getQuantity()));
+        basketItem.setPrice(BigDecimal.valueOf(orderItem.getQuantity()).multiply(orderItem.getcurrentPrice()));
         return basketItem;
     }
 }

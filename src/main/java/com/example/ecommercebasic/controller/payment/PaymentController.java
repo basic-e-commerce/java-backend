@@ -6,10 +6,13 @@ import com.example.ecommercebasic.dto.product.payment.PaymentCreditCardRequestDt
 import com.example.ecommercebasic.service.payment.PaymentService;
 import com.iyzipay.model.InstallmentInfo;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
@@ -30,13 +33,13 @@ public class PaymentController {
 
 
     @PostMapping("/payCallBack")
-    public ResponseEntity<String> payCallBack(@RequestParam Map<String, String> collections) {
-        return new ResponseEntity<>(paymentService.payCallBack(collections),HttpStatus.OK);
+    public void payCallBack(@RequestParam Map<String, String> collections, HttpServletResponse httpServletResponse) throws IOException {
+        paymentService.payCallBack(collections,httpServletResponse);
     }
 
     @GetMapping("/bin")
-    public ResponseEntity<InstallmentInfoDto> getBin(@RequestParam String bin) {
-        return new ResponseEntity<>(paymentService.getBin(bin),HttpStatus.OK);
+    public ResponseEntity<InstallmentInfoDto> getBin(@RequestParam String bin,@RequestParam BigDecimal amount) {
+        return new ResponseEntity<>(paymentService.getBin(bin,amount),HttpStatus.OK);
     }
 
 

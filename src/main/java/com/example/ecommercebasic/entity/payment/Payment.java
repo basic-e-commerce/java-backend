@@ -24,6 +24,7 @@ public class Payment {
     private String cardNumber;
 
     private String conversationId;
+    private String paymentUniqId;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status; // SUCCESS, FAILED gibi durumlar
@@ -32,7 +33,7 @@ public class Payment {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order; // Hangi siparişe ait olduğu
 
-    public Payment(String name, String surname, String username, String phoneNo, String identityNo, String country, String city, String zipCode, String cardHolderName, String cardNumber, String conversationId, PaymentStatus status, Order order) {
+    public Payment(String name, String surname, String username, String phoneNo, String identityNo, String country, String city, String zipCode, String cardHolderName, String cardNumber, String conversationId, String paymentUniqId, PaymentStatus status, Order order) {
         this.name = name;
         this.surname = surname;
         this.username = username;
@@ -44,6 +45,7 @@ public class Payment {
         this.cardHolderName = cardHolderName;
         this.cardNumber = cardNumber;
         this.conversationId = conversationId;
+        this.paymentUniqId = paymentUniqId;
         this.status = status;
         this.order = order;
     }
@@ -157,5 +159,13 @@ public class Payment {
 
     public String getConversationId() {
         return conversationId;
+    }
+
+    public String getPaymentUniqId() {
+        return paymentUniqId;
+    }
+
+    public void setPaymentUniqId(String paymentUniqId) {
+        this.paymentUniqId = paymentUniqId;
     }
 }

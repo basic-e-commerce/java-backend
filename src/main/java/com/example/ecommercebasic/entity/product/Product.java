@@ -5,6 +5,7 @@ import com.example.ecommercebasic.entity.product.attribute.ProductAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Entity
@@ -22,9 +23,9 @@ public class Product {
     private String productCode;
     private String description;
     private int quantity;
-    private double price;
+    private BigDecimal price;
     @Column(columnDefinition = "FLOAT DEFAULT 0")
-    private double discountPrice;
+    private BigDecimal discountPrice;
     private boolean status;
 
     @Enumerated(EnumType.STRING)
@@ -50,7 +51,7 @@ public class Product {
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isDeleted = false;
 
-    public Product(String productName, String description, int quantity, double price, boolean status, UnitType unitType) {
+    public Product(String productName, String description, int quantity, BigDecimal price, boolean status, UnitType unitType) {
         this.productName = productName;
         this.description = description;
         this.quantity = quantity;
@@ -61,7 +62,7 @@ public class Product {
         this.isDeleted = false;
     }
 
-    public Product(String productName, String description,String productCode, int quantity, double price, double discountPrice, boolean status, UnitType unitType) {
+    public Product(String productName, String description,String productCode, int quantity, BigDecimal price, BigDecimal discountPrice, boolean status, UnitType unitType) {
         this.productName = productName;
         this.description = description;
         this.productCode = productCode;
@@ -74,7 +75,7 @@ public class Product {
         this.isDeleted = false;
     }
 
-    public Product(String productName, String productLinkName, String productCode, String description, double price, double discountPrice, boolean status, UnitType unitType, Set<Category> categories, String coverUrl, List<String> images, List<ProductAttribute> productAttribute) {
+    public Product(String productName, String productLinkName, String productCode, String description, BigDecimal price, BigDecimal discountPrice, boolean status, UnitType unitType, Set<Category> categories, String coverUrl, List<String> images, List<ProductAttribute> productAttribute) {
         this.productName = productName;
         this.productLinkName = productLinkName;
         this.productCode = productCode;
@@ -136,11 +137,11 @@ public class Product {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -176,11 +177,11 @@ public class Product {
         this.images = images;
     }
 
-    public double getDiscountPrice() {
+    public BigDecimal getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(double discountPrice) {
+    public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
     }
 

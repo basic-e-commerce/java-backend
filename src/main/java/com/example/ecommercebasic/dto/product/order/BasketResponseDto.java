@@ -1,13 +1,15 @@
 package com.example.ecommercebasic.dto.product.order;
 
+import java.math.BigDecimal;
+
 public class BasketResponseDto {
     private int id;
     private String name;
     private String coverImage;
-    private double price;
-    private double discountPrice;
+    private BigDecimal price;
+    private BigDecimal discountPrice;
 
-    public BasketResponseDto(int id, String name, String coverImage, double price, double discountPrice) {
+    public BasketResponseDto(int id, String name, String coverImage, BigDecimal price, BigDecimal discountPrice) {
         this.id = id;
         this.name = name;
         this.coverImage = coverImage;
@@ -39,19 +41,19 @@ public class BasketResponseDto {
         this.coverImage = coverImage;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public double getDiscountPrice() {
+    public BigDecimal getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(double discountPrice) {
+    public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
     }
 }

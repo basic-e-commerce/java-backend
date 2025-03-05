@@ -40,13 +40,16 @@ public class ProductService {
     }
 
     public Product createProduct(ProductRequestDto productRequestDto) {
-        if (productRequestDto.getPrice()<productRequestDto.getDiscountPrice())
+        if (productRequestDto.getPrice().compareTo(productRequestDto.getDiscountPrice()) < 0) {
             throw new BadRequestException("Price must be greater than discount price");
+        }
+
         if (productRequestDto.getQuantity() <=0)
             throw new BadRequestException("Quantity must be greater than 0");
 
-        if (productRequestDto.getPrice() <=0)
+        if (productRequestDto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Price must be greater than 0");
+        }
 
         if (productRepository.existsByProductNameEqualsIgnoreCase(productRequestDto.getProductName()))
             throw new BadRequestException("Product name already exists");
@@ -67,13 +70,16 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto createBasicProductModel(ProductModelRequestDto productModelRequestDto) {
-        if (productModelRequestDto.getPrice()<productModelRequestDto.getDiscountPrice())
+        if (productModelRequestDto.getPrice().compareTo(productModelRequestDto.getDiscountPrice()) < 0) {
             throw new BadRequestException("Price must be greater than discount price");
+        }
+
         if (productModelRequestDto.getQuantity() <=0)
             throw new BadRequestException("Quantity must be greater than 0");
 
-        if (productModelRequestDto.getPrice() <=0)
+        if (productModelRequestDto.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Price must be greater than 0");
+        }
 
         if (productRepository.existsByProductNameEqualsIgnoreCase(productModelRequestDto.getProductName()))
             throw new BadRequestException("Product name already exists");
@@ -306,8 +312,9 @@ public class ProductService {
 
     public ProductResponseDto updateProduct(Integer productId, ProductRequestDto productRequestDto) {
 
-        if (productRequestDto.getPrice()<productRequestDto.getDiscountPrice())
+        if (productRequestDto.getPrice().compareTo(productRequestDto.getDiscountPrice()) < 0) {
             throw new BadRequestException("Price must be greater than discount price");
+        }
 
         Product product = findById(productId);
         product.setProductName(productRequestDto.getProductName());

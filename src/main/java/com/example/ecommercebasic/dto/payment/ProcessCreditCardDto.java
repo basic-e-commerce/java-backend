@@ -2,12 +2,14 @@ package com.example.ecommercebasic.dto.payment;
 
 public class ProcessCreditCardDto {
     private String conversationId;
+    private String paymentId;
     private long orderId;
     private String getHtmlContent;
     private String status;
 
-    public ProcessCreditCardDto(String conversationId, long orderId, String getHtmlContent, String status) {
+    public ProcessCreditCardDto(String conversationId, String paymentId, long orderId, String getHtmlContent, String status) {
         this.conversationId = conversationId;
+        this.paymentId = paymentId;
         this.orderId = orderId;
         this.getHtmlContent = getHtmlContent;
         this.status = status;
@@ -43,5 +45,13 @@ public class ProcessCreditCardDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
     }
 }

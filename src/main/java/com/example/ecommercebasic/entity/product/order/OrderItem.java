@@ -4,6 +4,8 @@ import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.UnitType;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "order_item")
 public class OrderItem {
@@ -18,9 +20,9 @@ public class OrderItem {
     private Product product;  // Satın alınan ürün
 
     private int quantity; // Miktar
-    private double currentPrice; // O anki fiyat
+    private BigDecimal currentPrice; // O anki fiyat
 
-    public OrderItem(Product product, int quantity, double currentPrice) {
+    public OrderItem(Product product, int quantity, BigDecimal currentPrice) {
         this.product = product;
         this.quantity = quantity;
         this.currentPrice = currentPrice;
@@ -53,11 +55,11 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public double getcurrentPrice() {
+    public BigDecimal getcurrentPrice() {
         return currentPrice;
     }
 
-    public void setcurrentPrice(double currentPrice) {
+    public void setcurrentPrice(BigDecimal currentPrice) {
         this.currentPrice = currentPrice;
     }
 }

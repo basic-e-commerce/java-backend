@@ -2,6 +2,7 @@ package com.example.ecommercebasic.dto.product.productdto;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductModelRequestDto {
@@ -9,15 +10,15 @@ public class ProductModelRequestDto {
     private String description;
     private String productCode;
     private int quantity;
-    private double price;
-    private double discountPrice;
+    private BigDecimal price;
+    private BigDecimal discountPrice;
     private String unitType;
     private boolean status;
     private List<Integer> categoryId;
     private MultipartFile[] images;
     private MultipartFile coverImage;
 
-    public ProductModelRequestDto(String productName, String description, String productCode, int quantity, double price, double discountPrice, String unitType, boolean status, List<Integer> categoryId, MultipartFile[] images, MultipartFile coverImage) {
+    public ProductModelRequestDto(String productName, String description, String productCode, int quantity, BigDecimal price, BigDecimal discountPrice, String unitType, boolean status, List<Integer> categoryId, MultipartFile[] images, MultipartFile coverImage) {
         this.productName = productName;
         this.description = description;
         this.productCode = productCode;
@@ -55,19 +56,19 @@ public class ProductModelRequestDto {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
-    public double getDiscountPrice() {
+    public BigDecimal getDiscountPrice() {
         return discountPrice;
     }
 
-    public void setDiscountPrice(double discountPrice) {
+    public void setDiscountPrice(BigDecimal discountPrice) {
         this.discountPrice = discountPrice;
     }
 

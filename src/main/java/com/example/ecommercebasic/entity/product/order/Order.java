@@ -4,6 +4,7 @@ import com.example.ecommercebasic.entity.payment.Payment;
 import com.example.ecommercebasic.entity.user.User;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ public class Order {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     private LocalDateTime orderDate = LocalDateTime.now();
-    private float totalPrice;
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.PENDING;
@@ -36,7 +37,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(User user, List<OrderItem> orderItems, float totalPrice, String orderCode) {
+    public Order(User user, List<OrderItem> orderItems, BigDecimal totalPrice, String orderCode) {
         this.user = user;
         this.orderItems = orderItems;
         this.totalPrice = totalPrice;
@@ -75,11 +76,11 @@ public class Order {
         this.orderDate = orderDate;
     }
 
-    public float getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(float totalPrice) {
+    public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
 
