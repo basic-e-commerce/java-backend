@@ -40,6 +40,7 @@ jobs:
           script: |
             cd /home/ubuntu/projects/proje3/java-backend
             sudo systemctl stop ecommerce || true
+            whoami
             rm -rf target/
             scp -r /github/workspace/target/* root@89.213.248.57:/home/ubuntu/projects/proje3/java-backend/target/
             sudo systemctl start ecommerce
