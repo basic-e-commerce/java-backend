@@ -2,9 +2,12 @@ package com.example.ecommercebasic.service.product;
 
 import com.example.ecommercebasic.dto.product.order.OrderItemRequestDto;
 import com.example.ecommercebasic.entity.product.Product;
+import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.entity.product.order.OrderItem;
+import com.example.ecommercebasic.entity.product.order.OrderStatus;
 import com.example.ecommercebasic.repository.product.OrderItemRepository;
 import com.example.ecommercebasic.repository.product.ProductRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,17 +16,35 @@ import java.util.List;
 @Service
 public class OrderItemService {
     private final OrderItemRepository orderItemRepository;
-    private final ProductService productService;
 
-    public OrderItemService(OrderItemRepository orderItemRepository, ProductService productService) {
+
+    public OrderItemService(OrderItemRepository orderItemRepository) {
         this.orderItemRepository = orderItemRepository;
-        this.productService = productService;
     }
 
-    public OrderItem createOrderItem(OrderItemRequestDto orderItemRequestDto) {
-        Product product = productService.findById(orderItemRequestDto.getProductId());
-        OrderItem orderItem = new OrderItem(product, orderItemRequestDto.getProductQuantity(), product.getDiscountPrice());
-        return orderItemRepository.save(orderItem);
+    public static Specification<OrderItem> hasProductAndSuccessfulOrder(Product product) {
+
+        bu method çalışmıyo
+        return (root, query, criteriaBuilder) -> {
+            // Join Order ile OrderItem
+            var orderJoin = root.join("order");
+
+            // Order'ın SUCCESS durumunda olması
+            var orderStatus = criteriaBuilder.equal(orderJoin.get("status"), OrderStatus.CONFIRMED);
+
+            // Product ile ilişkilendirilen OrderItem'ları getirmek
+            var productCondition = criteriaBuilder.equal(root.get("product"), product);
+
+            return criteriaBuilder.and(orderStatus, productCondition);
+        };
+    }
+
+    public List<OrderItem> findSuccessfulOrderItemsWithProduct(Product product) {
+        // OrderItem Specification ile sorgu yapma
+        Specification<OrderItem> specification = hasProductAndSuccessfulOrder(product);
+
+        // Sorguyu çalıştırarak sonuçları döndürme
+        return orderItemRepository.findAll(specification);
     }
 
 
@@ -40,7 +61,8 @@ public class OrderItemService {
         return totalPrice;
     }
 
-    public Product findProductById(int id) {
-        return productService.findById(id);
+    List<OrderItem> findAllByProduct(Product product) {
+        return orderItemRepository.findAllByProduct(product);
     }
+
 }

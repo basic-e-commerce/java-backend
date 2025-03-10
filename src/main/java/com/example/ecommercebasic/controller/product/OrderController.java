@@ -1,10 +1,11 @@
 package com.example.ecommercebasic.controller.product;
 
-import com.example.ecommercebasic.dto.product.attribute.ProductFilterRequest;
 import com.example.ecommercebasic.dto.product.order.BasketResponseDto;
 import com.example.ecommercebasic.dto.product.order.OrderFilterRequest;
 import com.example.ecommercebasic.dto.product.order.OrderRequestDto;
 import com.example.ecommercebasic.dto.product.order.OrderResponseDto;
+import com.example.ecommercebasic.dto.product.productdto.ProductFilterRequest;
+import com.example.ecommercebasic.dto.product.productdto.ProductSmallResponseDto;
 import com.example.ecommercebasic.entity.payment.Payment;
 import com.example.ecommercebasic.entity.product.order.Order;
 import com.example.ecommercebasic.service.product.OrderService;
@@ -49,6 +50,11 @@ public class OrderController {
     @GetMapping("/all")
     public ResponseEntity<List<Order>> getAllOrders() {
         return new ResponseEntity<>(orderService.getAll(),HttpStatus.OK);
+    }
+
+    @GetMapping("/order-success")
+    public ResponseEntity<List<ProductSmallResponseDto>> getOrderSuccess(@RequestBody ProductFilterRequest filterRequest,@RequestParam int page,@RequestParam int size) {
+        return new ResponseEntity<>(orderService.getProductSmallResponseWithTotalSold(filterRequest,page,size),HttpStatus.OK);
     }
 
 }

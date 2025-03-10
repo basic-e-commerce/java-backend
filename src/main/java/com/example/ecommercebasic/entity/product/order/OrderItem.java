@@ -22,10 +22,15 @@ public class OrderItem {
     private int quantity; // Miktar
     private BigDecimal currentPrice; // O anki fiyat
 
-    public OrderItem(Product product, int quantity, BigDecimal currentPrice) {
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+    public OrderItem(Product product, int quantity, BigDecimal currentPrice,Order order) {
         this.product = product;
         this.quantity = quantity;
         this.currentPrice = currentPrice;
+        this.order = order;
     }
 
     public OrderItem() {
@@ -61,5 +66,13 @@ public class OrderItem {
 
     public void setcurrentPrice(BigDecimal currentPrice) {
         this.currentPrice = currentPrice;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

@@ -2,6 +2,7 @@ package com.example.ecommercebasic.entity.product;
 
 import com.example.ecommercebasic.entity.product.attribute.Attribute;
 import com.example.ecommercebasic.entity.product.attribute.ProductAttribute;
+import com.example.ecommercebasic.entity.product.order.OrderItem;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -46,6 +47,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductAttribute> productAttribute = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isDeleted = false;
@@ -230,5 +234,13 @@ public class Product {
 
     public void setProductType(ProductType productType) {
         this.productType = productType;
+    }
+
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
     }
 }

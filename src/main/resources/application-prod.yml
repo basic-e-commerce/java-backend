@@ -6,9 +6,9 @@ spring:
   # http://localhost:8080/oauth2/authorization/google
   # Datasource Configuration (Veritabanı Bağlantısı)
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/e_commerce_basic}
-    username: ${POSTGRES_USER:postgres}
-    password: ${POSTGRES_PASSWORD:postgres}
+    url: jdbc:postgresql://localhost:5432/e_commerce_basic
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   # JPA Hibernate Configuration

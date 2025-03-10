@@ -56,7 +56,33 @@ public class ProductBuilder {
                 url,
                 product.getPrice(),
                 product.getDiscountPrice(),
-                product.getUnitType().getValue()
+                product.getUnitType().getValue(),
+                product.getQuantity(),
+                0,
+                product.getCategories().stream().map(Category::getName).toList(),
+                4.5,
+                5
+        );
+    }
+
+    public ProductSmallResponseDto productToProductSmallResponseDto(Product product,int soldQuantiy){
+        String url = "";
+        if (product.getCoverUrl()!= null) {
+            url = product.getCoverUrl();
+        }
+
+        return new ProductSmallResponseDto(
+                product.getId(),
+                product.getProductName(),
+                url,
+                product.getPrice(),
+                product.getDiscountPrice(),
+                product.getUnitType().getValue(),
+                product.getQuantity(),
+                soldQuantiy,
+                product.getCategories().stream().map(Category::getName).toList(),
+                4.5,
+                5
         );
     }
 

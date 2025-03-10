@@ -171,6 +171,11 @@ public class PaymentService {
             Payment payment = findByConversationId(payCallBackDto.getConversationId());
             payment.setStatus(PaymentStatus.SUCCESS);
             paymentRepository.save(payment);
+
+            Order order = orderService.findByPayment(payment);
+            order.setStatus(OrderStatus.CONFIRMED);
+            orderService.save(order);
+
             String redirectUrl = "https://litysofttest1.site/success-payment?orderCode=" + payment.getOrder().getOrderCode(); // Query parametreli URL
             httpServletResponse.sendRedirect(redirectUrl);
         }else{

@@ -10,6 +10,7 @@ import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.ProductRepository;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -177,7 +178,9 @@ public class ProductService {
         return products;
     }
     public ProductResponseDto findByIdDto(int id){
-        return productBuilder.productToProductResponseDto(findById(id));
+        Product product = findById(id);
+
+        return productBuilder.productToProductResponseDto(product);
     }
 
     public Product findById(int id) {
@@ -402,5 +405,11 @@ public class ProductService {
     }
 
 
+    public Page<Product> getAllProductsByFilter(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
 
+    public ProductSmallResponseDto getProductSmallResponseDto(Product product,int quantity) {
+        return productBuilder.productToProductSmallResponseDto(product,quantity);
+    }
 }
