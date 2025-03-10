@@ -23,8 +23,6 @@ public class OrderItemService {
     }
 
     public static Specification<OrderItem> hasProductAndSuccessfulOrder(Product product) {
-
-        bu method çalışmıyo
         return (root, query, criteriaBuilder) -> {
             // Join Order ile OrderItem
             var orderJoin = root.join("order");
