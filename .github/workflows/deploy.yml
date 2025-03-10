@@ -37,7 +37,7 @@ jobs:
         with:
           host: 89.213.248.57
           username: root
-          ssh-private-key: ${{ secrets.ECOMMERCESECRET }}
+          key: ${{ secrets.ECOMMERCESECRET }}
           script: |
             cd /home/ubuntu/projects/proje3/java-backend
             sudo systemctl stop ecommerce || true
