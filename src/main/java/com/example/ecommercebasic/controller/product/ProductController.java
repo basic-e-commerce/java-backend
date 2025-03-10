@@ -47,8 +47,8 @@ public class ProductController {
     }
 
     @GetMapping("/test")
-    public ResponseEntity<List<Product>> getAllProductstest() {
-        return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
+    public String getAllProductstest() {
+        return "test";
     }
 
     @GetMapping("/small")
