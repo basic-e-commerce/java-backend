@@ -42,7 +42,6 @@ jobs:
             sudo systemctl stop ecommerce || true
             rm -rf target/
             scp -r /github/workspace/target/* root@89.213.248.57:/home/ubuntu/projects/proje3/java-backend/target/
-            mvn clean package -DskipTests
             sudo systemctl start ecommerce
             sudo systemctl status ecommerce
 
