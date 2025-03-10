@@ -64,7 +64,7 @@ jobs:
          username: root
          key: ${{ secrets.ECOMMERCESECRET }}
          script: |
-          scp -r ${{ github.workspace }}/target/e-commerce-basic-0.0.1-SNAPSHOT.jar root@89.213.248.57:/home/ubuntu/projects/proje3/java-backend/target/
+          scp -r ${{ github.workspace }}/target/* root@89.213.248.57:/home/ubuntu/projects/proje3/java-backend/target/
 
       - name: Restart Service
         uses: appleboy/ssh-action@v1.0.3
