@@ -45,3 +45,4 @@ jobs:
             mvn clean package -DskipTests
             sudo systemctl start ecommerce
             sudo systemctl status ecommerce
+
