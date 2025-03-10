@@ -31,16 +31,50 @@ jobs:
       - name: Maven ile Projeyi Build Et
         run: mvn clean package -DskipTests
 
-      - name: Setup SSH Key for Server
+#      - name: Setup SSH Key for Server
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: 89.213.248.57
+#          username: root
+#          key: ${{ secrets.ECOMMERCESECRET }}
+#          script: |
+#            cd /home/ubuntu/projects/proje3/java-backend
+#            sudo systemctl stop ecommerce || true
+#            rm -rf target/
+#            mvn clean package -DskipTests
+#            sudo systemctl start ecommerce
+#            sudo systemctl status ecommerce
+
+      - name: Clean Target Directory
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: 89.213.248.57
-          username: root
-          key: ${{ secrets.ECOMMERCESECRET }}
-          script: |
-            cd /home/ubuntu/projects/proje3/java-backend
-            sudo systemctl stop ecommerce || true
-            rm -rf target/
-            mvn clean package -DskipTests
-            sudo systemctl start ecommerce
-            sudo systemctl status ecommerce
+         host: 89.213.248.57
+         username: root
+         key: ${{ secrets.ECOMMERCESECRET }}
+         script: |
+            sudo rm -rf /home/ubuntu/projects/proje3/java-backend/target/
+
+      - name: Build Project
+        run: mvn clean package -DskipTests
+
+      - name: Deploy JAR to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+         host: 89.213.248.57
+         username: root
+         key: ${{ secrets.ECOMMERCESECRET }}
+         script: |
+          scp -r ${{ github.workspace }}/target/e-commerce-basic-0.0.1-SNAPSHOT.jar root@89.213.248.57:/home/ubuntu/projects/proje3/java-backend/target/
+
+      - name: Restart Service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+         host: 89.213.248.57
+         username: root
+         key: ${{ secrets.ECOMMERCESECRET }}
+         script: |
+           sudo systemctl stop ecommerce || true
+           sudo systemctl daemon-reload
+           sudo systemctl start ecommerce
+           sudo systemctl status ecommerce
+
