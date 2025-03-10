@@ -31,16 +31,6 @@ jobs:
       - name: Maven ile Projeyi Build Et
         run: mvn clean package -DskipTests
 
-      - name: Install Maven on Server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 89.213.248.57
-          username: root
-          key: ${{ secrets.ECOMMERCESECRET }}
-          script: |
-            sudo apt update
-            sudo apt install -y maven
-
       - name: Setup SSH Key for Server
         uses: appleboy/ssh-action@v1.0.3
         with:
