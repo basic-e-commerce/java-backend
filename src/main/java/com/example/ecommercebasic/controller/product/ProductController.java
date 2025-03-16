@@ -48,7 +48,7 @@ public class ProductController {
 
     @GetMapping("/test")
     public String getAllProductstest() {
-        return "haktan abiye götten";
+        return "haktan abiye test";
     }
 
     @GetMapping("/small")

@@ -19,17 +19,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Depoyu Clone Et
-        uses: actions/checkout@v4
-
-      - name: Java'yı Kur
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Maven ile Projeyi Build Et
-        run: mvn clean package -DskipTests
 
       - name: Setup SSH Key for Server
         uses: appleboy/ssh-action@v1.0.3
