@@ -25,6 +25,8 @@ public class FileService {
     public FileService() {
     }
 
+
+
     public String uploadImage(MultipartFile file, String paths) {
         String newPath = uploadDir + paths;
         System.out.println("newPath: "+ newPath);
