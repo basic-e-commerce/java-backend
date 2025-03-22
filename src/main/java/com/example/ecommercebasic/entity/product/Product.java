@@ -1,5 +1,7 @@
 package com.example.ecommercebasic.entity.product;
 
+import com.example.ecommercebasic.entity.file.CoverImage;
+import com.example.ecommercebasic.entity.file.ProductImage;
 import com.example.ecommercebasic.entity.product.attribute.Attribute;
 import com.example.ecommercebasic.entity.product.attribute.ProductAttribute;
 import com.example.ecommercebasic.entity.product.order.OrderItem;
@@ -40,10 +42,7 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "category_id") // Bu taraf Category'e ait olmalı
     )
     private Set<Category> categories = new HashSet<>();
-    private String coverUrl;
 
-    @ElementCollection
-    private List<String> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductAttribute> productAttribute = new ArrayList<>();
@@ -53,6 +52,16 @@ public class Product {
 
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isDeleted = false;
+
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "cover_image_id")  // Bu, CoverImage tablosundaki foreign key olacak
+    private CoverImage coverImage;
+
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<ProductImage> productImages = new ArrayList<>();
+
+
 
     public Product(String productName, String description, int quantity, BigDecimal price, boolean status, UnitType unitType) {
         this.productName = productName;
@@ -88,8 +97,6 @@ public class Product {
         this.status = status;
         this.unitType = unitType;
         this.categories = categories;
-        this.coverUrl = coverUrl;
-        this.images = images;
         this.productAttribute = productAttribute;
     }
 
@@ -164,22 +171,6 @@ public class Product {
         this.categories = categories;
     }
 
-    public String getCoverUrl() {
-        return coverUrl;
-    }
-
-    public void setCoverUrl(String coverUrl) {
-        this.coverUrl = coverUrl;
-    }
-
-    public List<String> getImages() {
-        return images;
-    }
-
-    public void setImages(List<String> images) {
-        this.images = images;
-    }
-
     public BigDecimal getDiscountPrice() {
         return discountPrice;
     }
@@ -242,5 +233,21 @@ public class Product {
 
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
+    }
+
+    public CoverImage getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(CoverImage coverImage) {
+        this.coverImage = coverImage;
+    }
+
+    public List<ProductImage> getProductImages() {
+        return productImages;
+    }
+
+    public void setProductImages(List<ProductImage> productImages) {
+        this.productImages = productImages;
     }
 }

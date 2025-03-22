@@ -4,18 +4,26 @@ import java.util.List;
 
 public class ProductRemoveDto {
     private int id;
-    private List<String> images;
+    private List<Long> productImageId;
 
-    public ProductRemoveDto(int id, List<String> images) {
+    public ProductRemoveDto(int id, List<Long> productImageId) {
         this.id = id;
-        this.images = images;
+        this.productImageId = productImageId;
     }
 
     public int getId() {
         return id;
     }
 
-    public List<String> getImages() {
-        return images;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<Long> getProductImageId() {
+        return productImageId;
+    }
+
+    public void setProductImageId(List<Long> productImageId) {
+        this.productImageId = productImageId;
     }
 }

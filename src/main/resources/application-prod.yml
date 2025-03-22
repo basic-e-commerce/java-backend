@@ -25,10 +25,11 @@ logging:
     org.springframework.security: ${SPRING_SECURITY_LOG_LEVEL:TRACE}
 
 upload:
-  dir: /var/www/upload/
-  url: https://litysofttest1.site/
   file:
+    dir: /var/www/upload/ecommerce/
     url: https://litysofttest1.site/api/v1/upload/
+    product:
+      size: 10485760
 
 cookie:
   refreshTokenCookie:

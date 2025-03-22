@@ -2,12 +2,21 @@ package com.example.ecommercebasic.service.product;
 
 import com.example.ecommercebasic.builder.product.ProductBuilder;
 import com.example.ecommercebasic.constant.ApplicationConstant;
+import com.example.ecommercebasic.dto.file.CoverImageRequestDto;
+import com.example.ecommercebasic.dto.file.ImageRequestDto;
+import com.example.ecommercebasic.dto.file.ProductImageRequestDto;
 import com.example.ecommercebasic.dto.product.attribute.ProductFilterRequest;
 import com.example.ecommercebasic.dto.product.productdto.*;
+import com.example.ecommercebasic.entity.file.CoverImage;
+import com.example.ecommercebasic.entity.file.ImageType;
+import com.example.ecommercebasic.entity.file.ProductImage;
 import com.example.ecommercebasic.entity.product.*;
 import com.example.ecommercebasic.exception.BadRequestException;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.ProductRepository;
+import com.example.ecommercebasic.service.file.CoverImageService;
+import com.example.ecommercebasic.service.file.ImageService;
+import com.example.ecommercebasic.service.file.ProductImageService;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -25,16 +34,18 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
     private final CategoryService categoryService;
-    private final FileService fileService;
     private final ProductBuilder productBuilder;
     private final ProductRepository productRepository;
+    private final CoverImageService coverImageService;
+    private final ProductImageService productImageService;
 
 
-    public ProductService(CategoryService categoryService, FileService fileService, ProductBuilder productBuilder, ProductRepository productRepository) {
+    public ProductService(CategoryService categoryService , ProductBuilder productBuilder, ProductRepository productRepository, CoverImageService coverImageService, ProductImageService productImageService) {
         this.categoryService = categoryService;
-        this.fileService = fileService;
         this.productBuilder = productBuilder;
         this.productRepository = productRepository;
+        this.coverImageService = coverImageService;
+        this.productImageService = productImageService;
     }
 
     public Product createProduct(ProductRequestDto productRequestDto) {
@@ -83,6 +94,7 @@ public class ProductService {
             throw new BadRequestException("Product name already exists");
 
         Product product = productBuilder.productModelRequestDtoToProduct(productModelRequestDto);
+
         List<Category> categories = productModelRequestDto.getCategoryId().stream().map(categoryService::findById).toList();
         Set<Category> productCategories = new HashSet<>();
 
@@ -95,11 +107,24 @@ public class ProductService {
         product.setCategories(productCategories);
         Product saveProduct = productRepository.save(product);
 
-        String coverImage = updateProductCoverImageWithProduct(productModelRequestDto.getCoverImage(), saveProduct);
-        product.setCoverUrl(coverImage);
-        List<String> images = updateProductImageWithProduct(productModelRequestDto.getImages(),saveProduct);
-        product.setImages(images);
+        CoverImageRequestDto coverImageRequestDto = new CoverImageRequestDto(productModelRequestDto.getCoverImage());
+        CoverImage coverImage = coverImageService.save(coverImageRequestDto, (long) product.getId());
 
+        List<ProductImage> productImages = new ArrayList<>();
+
+        for (int i = 0; i < productModelRequestDto.getImages().length; i++) {
+            MultipartFile imageFile = productModelRequestDto.getImages()[i];
+
+            // ProductImageRequestDto oluştur
+            ProductImageRequestDto productImageRequestDto = new ProductImageRequestDto(imageFile, i);
+
+            // Resmi kaydet
+            ProductImage productImage = productImageService.save(productImageRequestDto, (long) product.getId());
+            productImages.add(productImage);
+        }
+
+        product.setCoverImage(coverImage);
+        product.setProductImages(productImages);
         return productBuilder.productToProductResponseDto(productRepository.save(saveProduct));
     }
 
@@ -216,13 +241,15 @@ public class ProductService {
             }
         }
 
-        if (product.getCoverUrl() != null) {
-            fileService.deleteImage(product.getCoverUrl());
+        if (product.getCoverImage() != null) {
+            System.out.println("cover image");
+            coverImageService.delete(product.getCoverImage().getId());
         }
 
-        if (!product.getImages().isEmpty()) {
-            for (int i = 0; i < product.getImages().size(); i++) {
-                fileService.deleteImage(product.getImages().get(i));
+        if (!product.getProductImages().isEmpty()) {
+            for (int i = 0; i < product.getProductImages().size(); i++) {
+                System.out.println("product image " + product.getProductImages().get(i).getName());
+                productImageService.delete(product.getProductImages().get(i).getId());
             }
         }
 
@@ -237,70 +264,64 @@ public class ProductService {
     public String updateProductCoverImage(MultipartFile file, int id) {
         Product product = findById(id);
 
-        if (product.getCoverUrl() != null){
-            String s = fileService.deleteImage(product.getCoverUrl());
+        if (product.getCoverImage() != null){
+            String s = coverImageService.delete(product.getCoverImage().getId());
             if(s.equals("deleted")){
                 System.out.println("deleted product cover image"+product.getId());
-                product.setCoverUrl(null);
+                product.setCoverImage(null);
+                coverImageService.delete(product.getCoverImage().getId());
                 productRepository.save(product);
             }
         }
-
-        String path = ImageType.PRODUCT_COVER_IMAGE.getValue()+"/"+product.getId()+"/";
-        String newPath = fileService.uploadImage(file,path);
-        product.setCoverUrl(newPath);
+        ImageRequestDto imageRequestDto = new ImageRequestDto(file);
+        CoverImage save = coverImageService.save(imageRequestDto, (long) product.getId());
+        product.setCoverImage(save);
         productRepository.save(product);
         return "Product cover image updated successfully";
     }
-
-    @Transactional
-    public String updateProductCoverImageWithProduct(MultipartFile file, Product product) {
-        String path = ImageType.PRODUCT_COVER_IMAGE.getValue()+"/"+product.getId()+"/";
-        return fileService.uploadImage(file,path);
-    }
-
 
 
     @Transactional
     public String updateProductImage(MultipartFile[] files, int id) {
         Product product = findById(id);
-        ArrayList<String> images = new ArrayList<>();
+        ArrayList<ProductImage> images = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String path = ImageType.PRODUCT_IMAGE.getValue()+"/"+product.getId()+"/";
-            String newPath = fileService.uploadImage(file,path);
-            images.add(newPath);
+            ProductImageRequestDto imageRequestDto = new ProductImageRequestDto(file,0);
+            ProductImage save = productImageService.save(imageRequestDto, (long) product.getId());
+            images.add(save);
         }
 
-        List<String> currentImages = product.getImages();
+        List<ProductImage> currentImages = product.getProductImages();
         currentImages.addAll(images);
-        product.setImages(currentImages);
+        product.setProductImages(currentImages);
         productRepository.save(product);
         return "Product image updated successfully";
     }
 
     @Transactional
     public List<String> updateProductImageWithProduct(MultipartFile[] files, Product product) {
-        ArrayList<String> images = new ArrayList<>();
+        ArrayList<ProductImage> images = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String path = ImageType.PRODUCT_IMAGE.getValue()+"/"+product.getId()+"/";
-            String newPath = fileService.uploadImage(file,path);
-            images.add(newPath);
+            ProductImageRequestDto imageRequestDto = new ProductImageRequestDto(file,0);
+            ProductImage save = productImageService.save(imageRequestDto, (long) product.getId());
+            images.add(save);
         }
-        return images;
+        return images.stream().map(ProductImage::getUrl).collect(Collectors.toList());
     }
 
 
     @Transactional
     public String removeProductImage(ProductRemoveDto productRemoveDto) {
         Product product = findById(productRemoveDto.getId());
-        for (String image : productRemoveDto.getImages()) {
-            if (product.getImages().contains(image)) {
-                fileService.deleteImage(image);
-                product.getImages().remove(image);
+        for (Long imageId : productRemoveDto.getProductImageId()) {
+            ProductImage productImage = productImageService.getById(imageId);
+            if (product.getProductImages().contains(productImage)) {
+                productImageService.delete(productImage.getId());
+                product.getProductImages().remove(productImage);
             }else
-                throw new BadRequestException(ApplicationConstant.BAD_REQUEST +":"+ image);
+                throw new BadRequestException(ApplicationConstant.BAD_REQUEST +":"+ imageId);
         }
         productRepository.save(product);
         return "Product image removed successfully";

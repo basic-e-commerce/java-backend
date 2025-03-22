@@ -5,11 +5,14 @@ import com.example.ecommercebasic.dto.product.productdto.ProductModelRequestDto;
 import com.example.ecommercebasic.dto.product.productdto.ProductRequestDto;
 import com.example.ecommercebasic.dto.product.productdto.ProductResponseDto;
 import com.example.ecommercebasic.dto.product.productdto.ProductSmallResponseDto;
+import com.example.ecommercebasic.entity.file.CoverImage;
+import com.example.ecommercebasic.entity.file.ProductImage;
 import com.example.ecommercebasic.entity.product.Category;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.UnitType;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -37,17 +40,17 @@ public class ProductBuilder {
                 product.getQuantity(),
                 product.isStatus(),
                 product.getCategories().stream().map(Category::getId).collect(Collectors.toList()),
-                product.getCoverUrl(),
+                product.getCoverImage().getUrl(),
                 product.getPrice(),
                 product.getUnitType().getValue(),
                 product.getDiscountPrice(),
-                product.getImages());
+                product.getProductImages().stream().map(ProductImage::getUrl).collect(Collectors.toList()));
     }
 
     public ProductSmallResponseDto productToProductSmallResponseDto(Product product){
         String url = "";
-        if (product.getCoverUrl()!= null) {
-            url = product.getCoverUrl();
+        if (product.getCoverImage()!= null) {
+            url = product.getCoverImage().getUrl();
         }
 
         return new ProductSmallResponseDto(
@@ -67,8 +70,8 @@ public class ProductBuilder {
 
     public ProductSmallResponseDto productToProductSmallResponseDto(Product product,int soldQuantiy){
         String url = "";
-        if (product.getCoverUrl()!= null) {
-            url = product.getCoverUrl();
+        if (product.getCoverImage()!= null) {
+            url = product.getCoverImage().getUrl();
         }
 
         return new ProductSmallResponseDto(

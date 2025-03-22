@@ -104,7 +104,7 @@ public class OrderService {
             Product productById = productService.findById(x);
             return new BasketResponseDto(productById.getId(),
                     productById.getProductName(),
-                    productById.getCoverUrl(),
+                    productById.getCoverImage().getUrl(),
                     productById.getPrice(),
                     productById.getDiscountPrice());
         }).toList();

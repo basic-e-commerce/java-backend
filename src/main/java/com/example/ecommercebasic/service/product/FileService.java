@@ -15,12 +15,12 @@ import java.util.UUID;
 
 @Service
 public class FileService {
-    @Value("${upload.dir}")
-    private String uploadDir;  // /var/www/upload/
-    @Value("${upload.url}")
-    private String upluadUrl; // http://localhost:8080/
+    @Value("${upload.file.dir}")
+    private String uploadDir;  // => /var/www/upload/
+    @Value("${upload..file.url}")
+    private String upluadUrl; // => http://localhost:8080/
     @Value("${upload.file.url}")
-    private String uploadFileUrl;   // http://localhost:8080/api/upload/
+    private String uploadFileUrl;   // => http://localhost:8080/api/v1/upload/
 
     public FileService() {
     }

@@ -5,14 +5,13 @@ import com.example.ecommercebasic.builder.product.ProductBuilder;
 import com.example.ecommercebasic.dto.product.CategoryRequestDto;
 import com.example.ecommercebasic.dto.product.CategorySmallDto;
 import com.example.ecommercebasic.entity.product.Category;
-import com.example.ecommercebasic.entity.product.ImageType;
+import com.example.ecommercebasic.entity.file.ImageType;
 import com.example.ecommercebasic.entity.product.Product;
 import com.example.ecommercebasic.entity.product.attribute.Attribute;
 import com.example.ecommercebasic.exception.NotFoundException;
 import com.example.ecommercebasic.repository.product.CategoryRepository;
 import com.example.ecommercebasic.repository.product.ProductRepository;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

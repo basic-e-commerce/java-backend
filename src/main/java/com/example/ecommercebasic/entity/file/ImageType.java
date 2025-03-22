@@ -1,4 +1,4 @@
-package com.example.ecommercebasic.entity.product;
+package com.example.ecommercebasic.entity.file;
 
 public enum ImageType {
     PRODUCT_COVER_IMAGE("product_cover_image"),
